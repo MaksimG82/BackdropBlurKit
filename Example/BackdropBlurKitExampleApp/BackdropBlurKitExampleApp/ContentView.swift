@@ -31,16 +31,16 @@ struct ContentView: View {
                     .padding(30)
                     .background(.white.opacity(0.9))
                     .cornerRadius(15)
-//                    .blurred(cornerRadius: 15)
+                    .blurred(cornerRadius: 15)
 
                 Text("Floating Element 2")
                     .padding(40)
                     .background(.white.opacity(0.9))
                     .cornerRadius(30)
-//                    .blurred(cornerRadius: 30)
+                    .blurred(cornerRadius: 30)
             }
         }
-//        .blurSource()
+        .blurSource()
     }
 }
 
