@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-/// A native UIKit view that recursively detects all `UIScrollView` instances within a hierarchy and tracks their scrolling states.
+/// A native UIKit view that recursively detects all `UIScrollView` instances within a hierarchy and tracks their scrolling states based solely on offset changes.
 final class UIScrollViewTrackerNativeView: UIView {
     /// A closure invoked when the view's target capture hierarchy is established.
     var onViewCaptured: ((UIView) -> Void)?
@@ -47,13 +47,12 @@ final class UIScrollViewTrackerNativeView: UIView {
         }
     }
 
-    /// Attaches pan gesture recognizer targets and coordinate KVO observers to a specific scroll view.
+    /// Attaches coordinate KVO observers to a specific scroll view without using gesture recognizers.
     /// - Parameter scrollView: The target scroll container to monitor.
     private func bindToScrollView(_ scrollView: UIScrollView) {
         guard !trackedScrollViews.contains(scrollView) else { return }
         trackedScrollViews.append(scrollView)
         
-        // Tracking contentOffset changes directly instead of unreliable deceleration flags
         let observer = scrollView.observe(\.contentOffset, options: .new) { [weak self] scroll, _ in
             MainActor.assumeIsolated {
                 self?.trackOffsetChange(in: scroll)
@@ -83,7 +82,7 @@ final class UIScrollViewTrackerNativeView: UIView {
         }
     }
 
-    /// Evaluates the active scrolling state based on gesture usage and pending deceleration work items.
+    /// Evaluates the active scrolling state based purely on pending deceleration work items.
     private func evaluateScrollingState() {
         let anyScrolling = !scrollStopWorkItems.isEmpty
         onScrollingChanged?(anyScrolling)
