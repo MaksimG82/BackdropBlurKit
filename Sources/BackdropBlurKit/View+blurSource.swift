@@ -1,5 +1,5 @@
 //
-//  UIView+blurSource.swift
+//  View+blurSource.swift
 //  BackdropBlurKit
 //
 //  Created by Maksim Gaisin on 19.06.26.
