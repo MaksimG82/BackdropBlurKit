@@ -20,14 +20,19 @@ final class UIScrollViewTrackerNativeView: UIView {
     
     /// Storage for KVO observers to properly unbind when the view is deallocated.
     private var observers: [NSKeyValueObservation] = []
+    
+    /// Storage for debounced closure executions to detect when a specific scroll view stops moving.
+    private var scrollStopWorkItems: [UIScrollView: DispatchWorkItem] = [:]
 
     override func didMoveToSuperview() {
         super.didMoveToSuperview()
         guard let superview = superview else { return }
         onViewCaptured?(superview)
-        
-        // Starts the deep search for all scroll views inside the captured root view
-        findAllScrollViews(in: superview)
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        setupScrollViewTracking()
     }
 
     /// Recursively traverses the view hierarchy downwards to find all `UIScrollView` instances.
@@ -42,42 +47,54 @@ final class UIScrollViewTrackerNativeView: UIView {
         }
     }
 
-    /// Attaches pan gesture recognizer targets and KVO observers to a specific scroll view.
+    /// Attaches pan gesture recognizer targets and coordinate KVO observers to a specific scroll view.
     /// - Parameter scrollView: The target scroll container to monitor.
     private func bindToScrollView(_ scrollView: UIScrollView) {
         guard !trackedScrollViews.contains(scrollView) else { return }
         trackedScrollViews.append(scrollView)
         
-        scrollView.panGestureRecognizer.addTarget(self, action: #selector(handlePanGesture))
-        
-        let observer = scrollView.observe(\.isDecelerating, options: .new) { [weak self] scroll, _ in
+        // Tracking contentOffset changes directly instead of unreliable deceleration flags
+        let observer = scrollView.observe(\.contentOffset, options: .new) { [weak self] scroll, _ in
             MainActor.assumeIsolated {
-                if !scroll.isDecelerating && !scroll.isDragging {
-                    self?.evaluateScrollingState()
-                }
+                self?.trackOffsetChange(in: scroll)
             }
         }
         observers.append(observer)
     }
 
-    /// Evaluates the scrolling state across all registered scroll containers to toggle the timer state.
-    private func evaluateScrollingState() {
-        let anyScrolling = trackedScrollViews.contains { scroll in
-            scroll.isDragging || scroll.isDecelerating
+    /// Tracks real-time coordinate modifications and schedules a delayed check to confirm scrolling termination.
+    /// - Parameter scrollView: The scroll view generating coordinate updates.
+    private func trackOffsetChange(in scrollView: UIScrollView) {
+        let wasScrolling = !scrollStopWorkItems.isEmpty
+        
+        scrollStopWorkItems[scrollView]?.cancel()
+        
+        let workItem = DispatchWorkItem { [weak self, weak scrollView] in
+            guard let self = self, let scrollView = scrollView else { return }
+            self.scrollStopWorkItems.removeValue(forKey: scrollView)
+            self.evaluateScrollingState()
         }
-        onScrollingChanged?(anyScrolling)
+        
+        scrollStopWorkItems[scrollView] = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: workItem)
+        
+        if !wasScrolling {
+            onScrollingChanged?(true)
+        }
     }
 
-    /// Processes pan gesture state modifications to activate or pause the display link coordinator.
-    /// - Parameter gesture: The pan gesture recognizer belonging to a tracked scroll view.
-    @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
-        switch gesture.state {
-        case .began, .changed:
-            onScrollingChanged?(true)
-        case .ended, .cancelled, .failed:
-            evaluateScrollingState()
-        default:
-            break
+    /// Evaluates the active scrolling state based on gesture usage and pending deceleration work items.
+    private func evaluateScrollingState() {
+        let anyScrolling = !scrollStopWorkItems.isEmpty
+        onScrollingChanged?(anyScrolling)
+    }
+    
+    /// Traverses up to the highest available ancestor and searches downward for all `UIScrollView` instances.
+    private func setupScrollViewTracking() {
+        var topView: UIView = self
+        while let nextSuperview = topView.superview {
+            topView = nextSuperview
         }
+        findAllScrollViews(in: topView)
     }
 }

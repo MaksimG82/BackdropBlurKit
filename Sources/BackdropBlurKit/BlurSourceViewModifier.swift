@@ -23,8 +23,10 @@ struct BlurSourceViewModifier: ViewModifier {
             .background(
                 BlurSourceTrackerView(
                     onViewCaptured: { uiView in
-                        self.capturedView = uiView
-                        generateSnapshot()
+                        DispatchQueue.main.async {
+                                self.capturedView = uiView
+                                generateSnapshot()
+                            }
                     },
                     onScrollingChanged: { isScrolling in
                         coordinator.isPaused = !isScrolling
