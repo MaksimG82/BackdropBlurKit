@@ -17,7 +17,7 @@ let package = Package(
         ),
         .testTarget(
             name: "BackdropBlurKitTests",
-            dependencies: ["BackdropBlurKit"]
+            path: "Sources/BackdropBlurKit"
         ),
     ],
     swiftLanguageModes: [.v6]
