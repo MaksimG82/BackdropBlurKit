@@ -8,10 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		D74BC5132FE57CEA002C06A8 /* BackdropBlurKit in Frameworks */ = {isa = PBXBuildFile; productRef = D74BC5122FE57CEA002C06A8 /* BackdropBlurKit */; };
+		D7AC09032FEA827E00A38510 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D7AC08FE2FEA827E00A38510 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		D74BC5032FE57CB3002C06A8 /* BackdropBlurKitExampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BackdropBlurKitExampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D7AC08FE2FEA827E00A38510 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -39,6 +41,7 @@
 			children = (
 				D74BC5052FE57CB3002C06A8 /* BackdropBlurKitExampleApp */,
 				D74BC5042FE57CB3002C06A8 /* Products */,
+				D7AC08FE2FEA827E00A38510 /* Assets.xcassets */,
 			);
 			sourceTree = "<group>";
 		};
@@ -118,6 +121,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D7AC09032FEA827E00A38510 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
