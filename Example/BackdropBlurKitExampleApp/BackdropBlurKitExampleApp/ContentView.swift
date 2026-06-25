@@ -11,36 +11,48 @@ import BackdropBlurKit
 struct ContentView: View {
     var body: some View {
         ZStack {
-            LinearGradient(colors: [.red, .blue, .green], startPoint: .topLeading, endPoint: .bottomTrailing)
-                .ignoresSafeArea()
-
-            ScrollView {
-                VStack(spacing: 20) {
-                    ForEach(0..<2000) { i in
-                        Text("Item \(i)")
-                            .padding()
-                            .background(.ultraThinMaterial)
-                            .cornerRadius(10)
+            ZStack {
+                LinearGradient(colors: [.red, .blue, .green], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 20) {
+                        ForEach(0..<200) { i in
+                            Text("Item \(i)")
+                                .padding()
+                                .background(.ultraThinMaterial)
+                                .cornerRadius(10)
+                        }
                     }
+                    .padding()
                 }
-                .padding()
             }
+            .blurSource()
 
             VStack(spacing: 40) {
+                
                 Text("Floating Element 1")
                     .padding(30)
-                    .background(.white.opacity(0.9))
                     .cornerRadius(15)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 15)
+                            .stroke(.blue, lineWidth: 1)
+                    )
                     .blurred(cornerRadius: 15)
 
                 Text("Floating Element 2")
                     .padding(40)
-                    .background(.white.opacity(0.9))
                     .cornerRadius(30)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 30)
+                            .stroke(.blue, lineWidth: 1)
+                    )
                     .blurred(cornerRadius: 30)
+                    
             }
         }
-        .blurSource()
+        .ignoresSafeArea()
+        .blurCoordinator()
     }
 }
 

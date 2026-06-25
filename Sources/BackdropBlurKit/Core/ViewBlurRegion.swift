@@ -17,3 +17,5 @@ struct ViewBlurRegion: Sendable, Hashable {
     /// The corner radius of the view.
     let cornerRadius: CGFloat
 }
+
+
