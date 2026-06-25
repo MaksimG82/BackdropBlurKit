@@ -4,7 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "BackdropBlurKit",
-    platforms: [.iOS(.v16)],
+    platforms: [.iOS(.v17)],
     products: [
         .library(
             name: "BackdropBlurKit",
@@ -17,7 +17,7 @@ let package = Package(
         ),
         .testTarget(
             name: "BackdropBlurKitTests",
-            path: "Sources/BackdropBlurKit"
+            path: "Tests/BackdropBlurKit"
         ),
     ],
     swiftLanguageModes: [.v6]
