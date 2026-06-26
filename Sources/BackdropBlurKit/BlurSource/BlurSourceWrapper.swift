@@ -17,10 +17,12 @@ struct BlurSourceWrapper<Content: View>: View {
     /// The current processed snapshots, updated by `BlurSource`.
     @State private var snapshots: [BlurConfiguration: UIImage] = [:]
 
+    /// The shared snapshot store received from the nearest ancestor `blurCoordinator`.
+    @Environment(\.blurSnapshotStore) private var store
+
     var body: some View {
         BlurSource(content: content, onProcessedSnapshot: { newSnapshots in
-            snapshots = newSnapshots
+            store?.snapshots = newSnapshots
         })
-        .preference(key: BlurSnapshotPreferenceKey.self, value: snapshots)
     }
 }

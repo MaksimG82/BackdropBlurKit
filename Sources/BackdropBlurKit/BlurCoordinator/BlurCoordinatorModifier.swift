@@ -14,16 +14,18 @@ struct BlurCoordinatorModifier: ViewModifier {
     /// The processed snapshots keyed by blur configuration.
     @State private var snapshots: [BlurConfiguration: UIImage] = [:]
 
+    /// The shared snapshot store owned by this coordinator and distributed to descendants via the environment.
+    @State private var store = BlurSnapshotStore()
+
     func body(content: Content) -> some View {
         GeometryReader { geometry in
             content
                 .environment(\.blurSourceSize, geometry.size)
-                .onPreferenceChange(BlurSnapshotPreferenceKey.self) { newSnapshots in
-                    print("snapshots received: \(newSnapshots.keys)")
-                    snapshots = newSnapshots
-                }
-                .environment(\.blurSourceSnapshot, snapshots)
+                .environment(\.blurSnapshotStore, store)
         }
         .ignoresSafeArea()
     }
 }
+
+
+@MainActor var _debugCaptureTime: CFAbsoluteTime = 0

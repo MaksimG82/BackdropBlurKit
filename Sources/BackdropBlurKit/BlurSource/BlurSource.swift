@@ -67,18 +67,12 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
             let snapshot = renderer.image { _ in
                 view.drawHierarchy(in: view.bounds, afterScreenUpdates: false)
             }
+            _debugCaptureTime = CFAbsoluteTimeGetCurrent()
             let configurations = self.configurations
             Task.detached { [weak self] in
                 guard let self else { return }
                 let result = processor.process(snapshot: snapshot, configurations: configurations)
                 await MainActor.run {
-//                    if let snapshot = result.values.first {
-//                        if let data = snapshot.pngData() {
-//                            let url = FileManager.default.temporaryDirectory.appendingPathComponent("snapshot.png")
-//                            try? data.write(to: url)
-//                            print("snapshot saved: \(url)")
-//                        }
-//                    }
                     self.onProcessedSnapshot?(result)
                 }
             }
@@ -112,6 +106,7 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         controller.view.backgroundColor = .clear
         controller.onAppear = {
             context.coordinator.start()
+            context.coordinator.captureSnapshot()
         }
         controller.onDisappear = {
             context.coordinator.stop()

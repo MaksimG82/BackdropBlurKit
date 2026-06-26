@@ -18,8 +18,8 @@ struct BlurTargetViewModifier: ViewModifier {
     /// An explicit blur configuration override. If `nil`, the Environment value is used.
     let configurationOverride: BlurConfiguration?
 
-    /// The dictionary of blurred snapshots provided by the nearest ancestor `blurCoordinator`.
-    @Environment(\.blurSourceSnapshot) private var snapshots
+    /// The shared snapshot store from which the blurred backdrop image is retrieved.
+    @Environment(\.blurSnapshotStore) private var store
 
     /// The blur configuration inherited from the environment.
     @Environment(\.blurConfiguration) private var environmentConfiguration
@@ -28,6 +28,11 @@ struct BlurTargetViewModifier: ViewModifier {
     /// to match the snapshot's coordinate space.
     @Environment(\.blurSourceSize) private var sourceSize
 
+    
+    private var snapshots: [BlurConfiguration: UIImage] {
+        store?.snapshots ?? [:]
+    }
+    
     /// The effective blur configuration — explicit override takes priority over Environment.
     private var effectiveConfiguration: BlurConfiguration {
         configurationOverride ?? environmentConfiguration
@@ -39,6 +44,7 @@ struct BlurTargetViewModifier: ViewModifier {
                 GeometryReader { geometry in
                     let frame = geometry.frame(in: .global)
                     backdropView(frame: frame)
+                        .allowsHitTesting(false)
                 }
             )
     }
@@ -48,8 +54,8 @@ struct BlurTargetViewModifier: ViewModifier {
     @ViewBuilder
     private func backdropView(frame: CGRect) -> some View {
         if let snapshot = snapshots[effectiveConfiguration] {
-            let _ = print("frame: \(frame), snapshot: \(snapshot.size), sourceSize: \(sourceSize)")
-            
+            let delay = CFAbsoluteTimeGetCurrent() - _debugCaptureTime
+            let _ = print("blur delay: \(Int(delay * 1000))ms")
             let scaleX = snapshot.size.width / sourceSize.width
             let scaleY = snapshot.size.height / sourceSize.height
             Image(uiImage: snapshot)

@@ -20,11 +20,9 @@ extension EnvironmentValues {
     /// or per-view via the explicit parameter on `blurred(blurConfiguration:)`.
     @Entry var blurConfiguration: BlurConfiguration = .default
     
-    /// The namespace identifying the coordinate space of the nearest ancestor `blurSource`.
-    ///
-    /// Set automatically by `BlurSourceViewModifier` and read by `blurred()` descendants
-    /// to compute their frame in the source's local coordinate space.
-    @Entry var blurSourceNamespace: Namespace.ID? = nil
-    
+    /// The size of the `blurCoordinator`'s layout area, used to map global frames to snapshot coordinates.
     @Entry var blurSourceSize: CGSize = .zero
+
+    /// The shared snapshot store distributed by the nearest ancestor `blurCoordinator`.
+    @Entry var blurSnapshotStore: BlurSnapshotStore? = nil
 }
