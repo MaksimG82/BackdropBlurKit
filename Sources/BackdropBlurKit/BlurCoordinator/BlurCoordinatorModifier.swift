@@ -26,6 +26,3 @@ struct BlurCoordinatorModifier: ViewModifier {
         .ignoresSafeArea()
     }
 }
-
-
-@MainActor var _debugCaptureTime: CFAbsoluteTime = 0

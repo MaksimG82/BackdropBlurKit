@@ -16,11 +16,11 @@ struct ContentView: View {
                     .ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: 20) {
+                    VStack(spacing: 40) {
                         ForEach(0..<200) { i in
                             Text("Item \(i)")
                                 .padding()
-                                .background(.ultraThinMaterial)
+                                .background(Color.yellow)
                                 .cornerRadius(10)
                         }
                     }
@@ -39,6 +39,16 @@ struct ContentView: View {
                             .stroke(.blue, lineWidth: 1)
                     )
                     .blurred(cornerRadius: 15)
+                
+                
+                Text("Floating Element 1")
+                    .padding(30)
+                    .cornerRadius(15)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 15)
+                            .stroke(.blue, lineWidth: 1)
+                    )
+                    .glassEffect()
 
                 Text("Floating Element 2")
                     .padding(40)

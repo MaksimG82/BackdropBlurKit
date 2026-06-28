@@ -54,18 +54,16 @@ struct BlurTargetViewModifier: ViewModifier {
     @ViewBuilder
     private func backdropView(frame: CGRect) -> some View {
         if let snapshot = snapshots[effectiveConfiguration] {
-            let delay = CFAbsoluteTimeGetCurrent() - _debugCaptureTime
-            let _ = print("blur delay: \(Int(delay * 1000))ms")
-            let scaleX = snapshot.size.width / sourceSize.width
-            let scaleY = snapshot.size.height / sourceSize.height
+//            let scaleX = snapshot.size.width / sourceSize.width
+//            let scaleY = snapshot.size.height / sourceSize.height
             Image(uiImage: snapshot)
                 .resizable()
                 .frame(
                     width: snapshot.size.width,
                     height: snapshot.size.height
                 )
-                .offset(x: -frame.minX * scaleX, y: -frame.minY * scaleY)
-                .frame(width: frame.width * scaleX, height: frame.height * scaleY, alignment: .topLeading)
+                .offset(x: -frame.minX, y: -frame.minY)
+                .frame(width: frame.width, height: frame.height, alignment: .topLeading)
                 .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
         }
     }
