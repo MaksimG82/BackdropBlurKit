@@ -61,17 +61,20 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         /// Captures the current visual state of the hosted view hierarchy,
         /// processes it on a background thread, and delivers results on the main actor.
         func captureSnapshot() {
-            guard
-                let view = hostingController?.view,
-                view.bounds != .zero
-            else { return }
+            guard let view = hostingController?.view,
+                  view.bounds.width > 0, view.bounds.height > 0 else { return }
             let renderer = UIGraphicsImageRenderer(bounds: view.bounds)
             let snapshot = renderer.image { context in
                 view.layer.render(in: context.cgContext)
             }
             let configurations = self.configurations
-            let result = processor.process(snapshot: snapshot, configurations: configurations)
-            self.onProcessedSnapshot?(result)
+            Task.detached(priority: .userInitiated) { [weak self] in
+                guard let self else { return }
+                let result = processor.process(snapshot: snapshot, configurations: configurations)
+                await MainActor.run {
+                    self.onProcessedSnapshot?(result)
+                }
+            }
         }
     }
 
