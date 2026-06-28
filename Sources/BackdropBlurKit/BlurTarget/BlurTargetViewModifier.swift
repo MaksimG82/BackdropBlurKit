@@ -54,8 +54,6 @@ struct BlurTargetViewModifier: ViewModifier {
     @ViewBuilder
     private func backdropView(frame: CGRect) -> some View {
         if let snapshot = snapshots[effectiveConfiguration] {
-//            let scaleX = snapshot.size.width / sourceSize.width
-//            let scaleY = snapshot.size.height / sourceSize.height
             Image(uiImage: snapshot)
                 .resizable()
                 .frame(
