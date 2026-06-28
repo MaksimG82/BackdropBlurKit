@@ -61,27 +61,17 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         /// Captures the current visual state of the hosted view hierarchy,
         /// processes it on a background thread, and delivers results on the main actor.
         func captureSnapshot() {
-            guard let view = hostingController?.view,
-                  view.bounds.width > 0, view.bounds.height > 0 else { return }            
+            guard
+                let view = hostingController?.view,
+                view.bounds != .zero
+            else { return }
             let renderer = UIGraphicsImageRenderer(bounds: view.bounds)
-            let snapshot = renderer.image { _ in
-                view.drawHierarchy(in: view.bounds, afterScreenUpdates: false)
+            let snapshot = renderer.image { context in
+                view.layer.render(in: context.cgContext)
             }
             let configurations = self.configurations
-            Task.detached { [weak self] in
-                guard let self else { return }
-                let result = processor.process(snapshot: snapshot, configurations: configurations)
-                await MainActor.run {
-//                    if let snapshot = result.values.first {
-//                        if let data = snapshot.pngData() {
-//                            let url = FileManager.default.temporaryDirectory.appendingPathComponent("snapshot.png")
-//                            try? data.write(to: url)
-//                            print("snapshot saved: \(url)")
-//                        }
-//                    }
-                    self.onProcessedSnapshot?(result)
-                }
-            }
+            let result = processor.process(snapshot: snapshot, configurations: configurations)
+            self.onProcessedSnapshot?(result)
         }
     }
 
@@ -112,6 +102,7 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         controller.view.backgroundColor = .clear
         controller.onAppear = {
             context.coordinator.start()
+            context.coordinator.captureSnapshot()
         }
         controller.onDisappear = {
             context.coordinator.stop()

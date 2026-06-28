@@ -18,8 +18,8 @@ struct BlurTargetViewModifier: ViewModifier {
     /// An explicit blur configuration override. If `nil`, the Environment value is used.
     let configurationOverride: BlurConfiguration?
 
-    /// The dictionary of blurred snapshots provided by the nearest ancestor `blurCoordinator`.
-    @Environment(\.blurSourceSnapshot) private var snapshots
+    /// The shared snapshot store from which the blurred backdrop image is retrieved.
+    @Environment(\.blurSnapshotStore) private var store
 
     /// The blur configuration inherited from the environment.
     @Environment(\.blurConfiguration) private var environmentConfiguration
@@ -28,6 +28,11 @@ struct BlurTargetViewModifier: ViewModifier {
     /// to match the snapshot's coordinate space.
     @Environment(\.blurSourceSize) private var sourceSize
 
+    
+    private var snapshots: [BlurConfiguration: UIImage] {
+        store?.snapshots ?? [:]
+    }
+    
     /// The effective blur configuration — explicit override takes priority over Environment.
     private var effectiveConfiguration: BlurConfiguration {
         configurationOverride ?? environmentConfiguration
@@ -39,6 +44,7 @@ struct BlurTargetViewModifier: ViewModifier {
                 GeometryReader { geometry in
                     let frame = geometry.frame(in: .global)
                     backdropView(frame: frame)
+                        .allowsHitTesting(false)
                 }
             )
     }
@@ -48,18 +54,16 @@ struct BlurTargetViewModifier: ViewModifier {
     @ViewBuilder
     private func backdropView(frame: CGRect) -> some View {
         if let snapshot = snapshots[effectiveConfiguration] {
-            let _ = print("frame: \(frame), snapshot: \(snapshot.size), sourceSize: \(sourceSize)")
-            
-            let scaleX = snapshot.size.width / sourceSize.width
-            let scaleY = snapshot.size.height / sourceSize.height
+//            let scaleX = snapshot.size.width / sourceSize.width
+//            let scaleY = snapshot.size.height / sourceSize.height
             Image(uiImage: snapshot)
                 .resizable()
                 .frame(
                     width: snapshot.size.width,
                     height: snapshot.size.height
                 )
-                .offset(x: -frame.minX * scaleX, y: -frame.minY * scaleY)
-                .frame(width: frame.width * scaleX, height: frame.height * scaleY, alignment: .topLeading)
+                .offset(x: -frame.minX, y: -frame.minY)
+                .frame(width: frame.width, height: frame.height, alignment: .topLeading)
                 .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
         }
     }
