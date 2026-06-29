@@ -18,7 +18,7 @@ final class DisplayLinkCoordinator {
         /// Counter to track frames for throttling.
         private var frameCounter = 0
         /// Determines the update frequency; 3 means every 3rd frame.
-        private let throttleRate = 3
+        private let throttleRate = 1
         
         /// Initializes the proxy with a reference to the coordinator.
         /// - Parameter coordinator: The coordinator to forward updates to.

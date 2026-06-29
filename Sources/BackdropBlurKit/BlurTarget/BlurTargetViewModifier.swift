@@ -45,6 +45,11 @@ struct BlurTargetViewModifier: ViewModifier {
                     let frame = geometry.frame(in: .global)
                     backdropView(frame: frame)
                         .allowsHitTesting(false)
+                        .preference(
+                            key: BlurTargetFramesPreferenceKey.self,
+                            value: [frame]
+                        )
+
                 }
             )
     }
@@ -53,16 +58,19 @@ struct BlurTargetViewModifier: ViewModifier {
     /// - Parameter frame: The target view's frame in the global coordinate space.
     @ViewBuilder
     private func backdropView(frame: CGRect) -> some View {
-        if let snapshot = snapshots[effectiveConfiguration] {
+        if let snapshot = snapshots[effectiveConfiguration],
+           let captureRect = store?.captureRect {
             Image(uiImage: snapshot)
                 .resizable()
-                .frame(
-                    width: snapshot.size.width,
-                    height: snapshot.size.height
+                .frame(width: snapshot.size.width, height: snapshot.size.height)
+                .offset(
+                    x: -(frame.minX - captureRect.minX),
+                    y: -(frame.minY - captureRect.minY)
                 )
-                .offset(x: -frame.minX, y: -frame.minY)
                 .frame(width: frame.width, height: frame.height, alignment: .topLeading)
                 .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
         }
     }
 }
+
+

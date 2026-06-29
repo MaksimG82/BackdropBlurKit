@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import os
 
 /// A SwiftUI representable that renders background content in an isolated `UIHostingController`,
 /// enabling clean snapshots free of floating blur-target views.
@@ -15,25 +16,28 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
     /// and display link lifecycle for a `BlurSource`.
     @MainActor
     public final class Coordinator: NSObject {
-
+        
         /// The hosted view controller providing the isolated render surface.
         weak var hostingController: BlurHostingController<Content>?
-
+        
+        /// The shared snapshot store providing the current capture rect.
+        weak var store: BlurSnapshotStore?
+        
         /// The display link coordinator managing frame-throttled snapshot capture.
         let displayLink = DisplayLinkCoordinator()
-
+        
         /// Tracks scroll views within the hosted hierarchy and controls display link pause state.
         let scrollTracker = ScrollTracker()
-
+        
         /// The processor responsible for applying blur effects to raw snapshots.
         private let processor = BlurSnapshotProcessor()
-
+        
         /// The set of blur configurations to apply to each captured snapshot.
         var configurations: Set<BlurConfiguration> = [.default]
-
+        
         /// Called when processed snapshots are ready for delivery.
         var onProcessedSnapshot: (([BlurConfiguration: UIImage]) -> Void)?
-
+        
         override init() {
             super.init()
             displayLink.onFrameUpdate = { [weak self] in
@@ -43,7 +47,7 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
                 self?.displayLink.isPaused = !isScrolling
             }
         }
-
+        
         /// Starts the display link and binds scroll tracking to the hosted view hierarchy.
         func start() {
             displayLink.start()
@@ -51,22 +55,26 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
                 scrollTracker.bind(to: view)
             }
         }
-
+        
         /// Stops the display link and releases all scroll view observers.
         func stop() {
             displayLink.stop()
             scrollTracker.unbind()
         }
-
+        
         /// Captures the current visual state of the hosted view hierarchy,
         /// processes it on a background thread, and delivers results on the main actor.
         func captureSnapshot() {
-            guard let view = hostingController?.view,
-                  view.bounds.width > 0, view.bounds.height > 0 else { return }
-            let renderer = UIGraphicsImageRenderer(bounds: view.bounds)
+            guard let view = hostingController?.view, view.bounds != .zero else { return }
+            
+            let captureRect = store?.captureRect ?? .zero
+            let bounds = captureRect == .zero ? view.bounds : captureRect
+            let renderer = UIGraphicsImageRenderer(bounds: CGRect(origin: .zero, size: bounds.size))
             let snapshot = renderer.image { context in
+                context.cgContext.translateBy(x: -bounds.origin.x, y: -bounds.origin.y)
                 view.layer.render(in: context.cgContext)
             }
+            
             let configurations = self.configurations
             Task.detached(priority: .userInitiated) { [weak self] in
                 guard let self else { return }
@@ -114,8 +122,12 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
             guard let view = coordinator?.hostingController?.view else { return }
             coordinator?.scrollTracker.bind(to: view)
         }
+        context.coordinator.store = context.environment.blurSnapshotStore
         context.coordinator.hostingController = controller
         context.coordinator.onProcessedSnapshot = onProcessedSnapshot
+        context.coordinator.store?.onCaptureRectChanged = { [weak coordinator = context.coordinator] in
+            coordinator?.captureSnapshot()
+        }
         return controller
     }
 
