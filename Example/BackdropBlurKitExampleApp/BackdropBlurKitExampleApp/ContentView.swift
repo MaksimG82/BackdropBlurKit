@@ -48,7 +48,7 @@ struct ContentView: View {
                         RoundedRectangle(cornerRadius: 15)
                             .stroke(.blue, lineWidth: 1)
                     )
-                    .glassEffect()
+//                    .glassEffect()
 
                 Text("Floating Element 2")
                     .padding(40)
