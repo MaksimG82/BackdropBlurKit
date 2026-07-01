@@ -23,7 +23,6 @@ struct BlurCoordinatorModifier: ViewModifier {
                     store.captureRect = union(of: frames, relativeTo: origin)
                 }
         }
-        .ignoresSafeArea()
     }
 
     /// Computes the minimal CGRect enclosing all target frames, translated to local coordinates.
