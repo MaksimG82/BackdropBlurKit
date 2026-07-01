@@ -7,64 +7,56 @@
 
 import SwiftUI
 import BackdropBlurKit
+import BarKit
 
 struct ContentView: View {
+
+    // MARK: - Property Wrappers
+
+    @State private var viewModel = ExampleViewModel()
+
+    // MARK: - Body
+
     var body: some View {
-        ZStack {
-            ZStack {
-                LinearGradient(colors: [.red, .blue, .green], startPoint: .topLeading, endPoint: .bottomTrailing)
-                    .ignoresSafeArea()
-                
-                ScrollView {
-                    VStack(spacing: 40) {
-                        ForEach(0..<200) { i in
-                            Text("Item \(i)")
-                                .padding()
-                                .background(Color.yellow)
-                                .cornerRadius(10)
-                        }
-                    }
-                    .padding()
-                }
+        ZStack(alignment: .bottom) {
+            NavigationStack {
+                contentRouter
             }
-            .blurSource()
 
-            VStack(spacing: 40) {
-                
-                Text("Floating Element 1")
-                    .padding(30)
-                    .cornerRadius(15)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 15)
-                            .stroke(.blue, lineWidth: 1)
-                    )
-                    .blurred(cornerRadius: 15)
-                
-                
-                Text("Floating Element 1")
-                    .padding(30)
-                    .cornerRadius(15)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 15)
-                            .stroke(.blue, lineWidth: 1)
-                    )
-
-                Text("Floating Element 2")
-                    .padding(40)
-                    .cornerRadius(30)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 30)
-                            .stroke(.blue, lineWidth: 1)
-                    )
-                    .blurred(cornerRadius: 30)
-                    
-            }
+            FloatingTabBarView(
+                items: viewModel.state.tabBarItems,
+                selected: selectedItem
+            )
         }
-        .ignoresSafeArea()
-        .blurCoordinator()
+        .ignoresSafeArea(.all, edges: .bottom)
+
     }
 }
 
-#Preview {
-    ContentView()
+// MARK: - Subviews
+
+private extension ContentView {
+
+    /// Routes to the appropriate screen based on the selected tab.
+    @ViewBuilder
+    var contentRouter: some View {
+        switch viewModel.state.selectedTab.type {
+        case .info:
+            InfoScreen()
+        case .examples:
+            ExamplesScreen()
+        }
+    }
+
+    /// A binding that bridges `ExampleBarItem` selection to `ExampleIntent`.
+    var selectedItem: Binding<ExampleBarItem> {
+        Binding(
+            get: { viewModel.state.selectedTab },
+            set: { viewModel.send(.selectTab($0)) }
+        )
+    }
 }
+
+
+
+
