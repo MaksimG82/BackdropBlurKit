@@ -13,9 +13,6 @@ struct BlurCoordinatorModifier: ViewModifier {
     /// The shared snapshot store owned by this coordinator and distributed to descendants via the environment.
     @State private var store = BlurSnapshotStore()
 
-    /// The coordinator's origin in the global coordinate space, used to translate target frames to local coordinates.
-    @State private var coordinatorOrigin: CGPoint = .zero
-
     func body(content: Content) -> some View {
         GeometryReader { geometry in
             content
