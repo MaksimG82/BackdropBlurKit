@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		D74BC5132FE57CEA002C06A8 /* BackdropBlurKit in Frameworks */ = {isa = PBXBuildFile; productRef = D74BC5122FE57CEA002C06A8 /* BackdropBlurKit */; };
+		D79F6D9B2FF5BF24001BD7F9 /* BarKit in Frameworks */ = {isa = PBXBuildFile; productRef = D79F6D9A2FF5BF24001BD7F9 /* BarKit */; };
 		D7AC09032FEA827E00A38510 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D7AC08FE2FEA827E00A38510 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
@@ -30,6 +31,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D74BC5132FE57CEA002C06A8 /* BackdropBlurKit in Frameworks */,
+				D79F6D9B2FF5BF24001BD7F9 /* BarKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -42,6 +44,7 @@
 				D74BC5052FE57CB3002C06A8 /* BackdropBlurKitExampleApp */,
 				D74BC5042FE57CB3002C06A8 /* Products */,
 				D7AC08FE2FEA827E00A38510 /* Assets.xcassets */,
+				D79F6D992FF5BF24001BD7F9 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -51,6 +54,13 @@
 				D74BC5032FE57CB3002C06A8 /* BackdropBlurKitExampleApp.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D79F6D992FF5BF24001BD7F9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -74,6 +84,7 @@
 			name = BackdropBlurKitExampleApp;
 			packageProductDependencies = (
 				D74BC5122FE57CEA002C06A8 /* BackdropBlurKit */,
+				D79F6D9A2FF5BF24001BD7F9 /* BarKit */,
 			);
 			productName = BackdropBlurKitExampleApp;
 			productReference = D74BC5032FE57CB3002C06A8 /* BackdropBlurKitExampleApp.app */;
@@ -105,6 +116,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				D74BC5112FE57CEA002C06A8 /* XCLocalSwiftPackageReference "../../../BackdropBlurKit" */,
+				D76E76722FF5BECF0034BE48 /* XCRemoteSwiftPackageReference "BarKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D74BC5042FE57CB3002C06A8 /* Products */;
@@ -368,10 +380,26 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		D76E76722FF5BECF0034BE48 /* XCRemoteSwiftPackageReference "BarKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/MaksimG82/BarKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		D74BC5122FE57CEA002C06A8 /* BackdropBlurKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BackdropBlurKit;
+		};
+		D79F6D9A2FF5BF24001BD7F9 /* BarKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D76E76722FF5BECF0034BE48 /* XCRemoteSwiftPackageReference "BarKit" */;
+			productName = BarKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
