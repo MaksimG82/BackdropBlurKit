@@ -1,0 +1,15 @@
+{
+  "originHash" : "76bf3699e761a45471c9298396af7f335726c71dede709600752f386a8c0abc5",
+  "pins" : [
+    {
+      "identity" : "barkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/MaksimG82/BarKit.git",
+      "state" : {
+        "revision" : "620b89add1e39872e01a271e23ca837c0c9888ab",
+        "version" : "1.1.1"
+      }
+    }
+  ],
+  "version" : 3
+}
