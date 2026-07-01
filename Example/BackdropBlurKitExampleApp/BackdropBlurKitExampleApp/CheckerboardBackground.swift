@@ -19,6 +19,12 @@ struct CheckerboardBackground: View {
     /// The second color in the alternating pattern.
     var secondaryColor: Color = .indigo
 
+    init(squareSize: CGFloat = 32, primaryColor: Color = .orange, secondaryColor: Color = .indigo) {
+        self.squareSize = squareSize
+        self.primaryColor = primaryColor
+        self.secondaryColor = secondaryColor
+    }
+    
     var body: some View {
         Canvas { context, size in
             let columns = Int(ceil(size.width / squareSize))

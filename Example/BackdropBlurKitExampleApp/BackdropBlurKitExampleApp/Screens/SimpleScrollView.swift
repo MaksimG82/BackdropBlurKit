@@ -14,18 +14,13 @@ struct SimpleScrollView: View {
 
     var body: some View {
         ZStack() {
-            ScrollView {
-                CheckerboardBackground()
-                    .frame(height: 2000)
-                    
-            }
-            .ignoresSafeArea()
-            .blurSource()
+            scrollingBackdrop
+                .ignoresSafeArea()
+                .blurSource()
 
-            panel
+            targetView
                 .blurred()
-            
-        }
+        }.blurCoordinator()
     }
 }
 
@@ -33,9 +28,18 @@ struct SimpleScrollView: View {
 
 private extension SimpleScrollView {
     
+    var scrollingBackdrop: some View {
+        ScrollView {
+            CheckerboardBackground()
+                .frame(height: 2000)
+                
+        }
+    }
+    
+    
     /// A fixed panel rendered above the scrolling content.
-    var panel: some View {
-        Text("Fixed Panel")
+    var targetView: some View {
+        Text("Fixed target view")
             .font(.headline)
             .padding(100)
             .overlay(
