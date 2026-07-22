@@ -13,8 +13,10 @@ final class BlurSnapshotStore {
     /// The latest processed snapshots, updated by `BlurSource` and observed by `BlurTargetViewModifier`.
     var snapshots: [BlurConfiguration: UIImage] = [:]
 
-    /// The minimal rect enclosing all `.blurred()` target frames, in local coordinates of `BlurSource`.
+    /// The minimal rect enclosing all `.blurred()` target frames, in global/window coordinates.
     /// A value of `.zero` indicates no targets are registered yet — triggers full snapshot fallback.
+    /// Consumers that crop against a view's own local layer space (e.g. `BlurSource`) must first
+    /// subtract that view's own window origin.
     var captureRect: CGRect = .zero {
         didSet {
             guard oldValue != captureRect else { return }

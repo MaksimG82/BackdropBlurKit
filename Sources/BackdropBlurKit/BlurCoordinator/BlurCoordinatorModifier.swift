@@ -19,20 +19,20 @@ struct BlurCoordinatorModifier: ViewModifier {
                 .environment(\.blurSourceSize, geometry.size)
                 .environment(\.blurSnapshotStore, store)
                 .onPreferenceChange(BlurTargetFramesPreferenceKey.self) { frames in
-                    let origin = geometry.frame(in: .global).origin
-                    store.captureRect = union(of: frames, relativeTo: origin)
+                    store.captureRect = union(of: frames)
                 }
         }
     }
 
-    /// Computes the minimal CGRect enclosing all target frames, translated to local coordinates.
-    /// - Parameters:
-    ///   - frames: Global-space frames from all `.blurred()` targets.
-    ///   - origin: The coordinator's origin in global space.
-    /// - Returns: A CGRect in local coordinates, or `.zero` if frames is empty.
-    private func union(of frames: [CGRect], relativeTo origin: CGPoint) -> CGRect {
+    /// Computes the minimal CGRect enclosing all target frames, in the shared global/window space.
+    /// - Parameter frames: Global-space frames from all `.blurred()` targets.
+    /// - Returns: A CGRect in global space, or `.zero` if frames is empty.
+    ///
+    /// This is left in global space rather than made relative to the coordinator's own origin —
+    /// `BlurSource` reconciles it against its own window origin, since that's the only origin
+    /// that matters for cropping its rendered layer (see `BlurSource.Coordinator.captureSnapshot()`).
+    private func union(of frames: [CGRect]) -> CGRect {
         guard let first = frames.first else { return .zero }
-        let globalUnion = frames.dropFirst().reduce(first) { $0.union($1) }
-        return globalUnion.offsetBy(dx: -origin.x, dy: -origin.y)
+        return frames.dropFirst().reduce(first) { $0.union($1) }
     }
 }
