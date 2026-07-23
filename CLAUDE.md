@@ -82,6 +82,18 @@ Debug builds emit `os_signpost` intervals (`Extensions/BlurSignpost.swift`, subs
 `BackdropBlurKit`, category `Capture`) around whole-capture/render/process/deliver phases — useful
 for profiling capture performance in Instruments. These are no-ops in release builds.
 
+## Architecture Principle: One Snapshot Per Display-Link Tick
+
+The ideal state is: exactly one snapshot capture + blur processing per CADisplayLink tick,
+with no duplicate work or skipped frames.
+
+This requires all three independent `captureSnapshot()` triggers (displayLink.onFrameUpdate,
+onLayout, onCaptureRectChanged) to be coalesced into a single "needs snapshot" queue
+consumed once per tick (target: optimization #5).
+
+Hierarchy walks (bind throttle) are orthogonal and may use separate timers without
+architectural conflict — provided they don't force displayLink to unpause when idle.
+
 ## Typical usage shape
 
 ```swift
