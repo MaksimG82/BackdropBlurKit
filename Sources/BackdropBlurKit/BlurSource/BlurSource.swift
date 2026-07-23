@@ -37,34 +37,70 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         
         /// Called when processed snapshots are ready for delivery.
         var onProcessedSnapshot: (([BlurConfiguration: UIImage]) -> Void)?
-        
+
+        /// Whether the hosted view is actively scrolling, per `scrollTracker`.
+        private var isScrolling = false
+
+        /// Whether a snapshot capture has been requested and is awaiting the next display-link tick.
+        private var needsSnapshot = false
+
         override init() {
             super.init()
             displayLink.onFrameUpdate = { [weak self] in
-                self?.captureSnapshot()
+                self?.consumePendingSnapshot()
             }
             scrollTracker.onScrollingChanged = { [weak self] isScrolling in
-                self?.displayLink.isPaused = !isScrolling
+                guard let self else { return }
+                self.isScrolling = isScrolling
+                self.refreshDisplayLinkPauseState()
             }
         }
-        
+
         /// Starts the display link and binds scroll tracking to the hosted view hierarchy.
         func start() {
             displayLink.start()
             if let view = hostingController?.view {
                 scrollTracker.bind(to: view)
             }
+            refreshDisplayLinkPauseState()
         }
-        
+
         /// Stops the display link and releases all scroll view observers.
         func stop() {
             displayLink.stop()
             scrollTracker.unbind()
+            isScrolling = false
+            needsSnapshot = false
         }
-        
-        /// Captures the current visual state of the hosted view hierarchy,
-        /// processes it on a background thread, and delivers results on the main actor.
-        func captureSnapshot() {
+
+        /// Marks that a fresh snapshot is needed and ensures the display link will tick to service it.
+        func requestSnapshot() {
+            needsSnapshot = true
+            refreshDisplayLinkPauseState()
+        }
+
+        /// Un-pauses the display link while scrolling is active or a snapshot is pending;
+        /// pauses it otherwise so nothing renders when there's no work to do.
+        private func refreshDisplayLinkPauseState() {
+            displayLink.isPaused = !(isScrolling || needsSnapshot)
+        }
+
+        /// Clears the pending snapshot flag, performs the capture, then re-evaluates pause state.
+        private func consumePendingSnapshot() {
+            needsSnapshot = false
+            captureSnapshot()
+            refreshDisplayLinkPauseState()
+        }
+
+        /// Captures the current visual state of the hosted view hierarchy, processes it, and
+        /// delivers results — all synchronously on the main actor.
+        ///
+        /// Processing used to hop to a `Task.detached` background task and back via
+        /// `MainActor.run`; that round-trip added at least one extra main-thread run-loop turn
+        /// between capture and delivery, which was measurably contributing to visible lag behind
+        /// fast scrolling. Kept synchronous and on the main actor until processing is either
+        /// cheap enough to stay inline or a lower-latency handoff is found.
+        private func captureSnapshot() {
             guard let view = hostingController?.view, view.bounds != .zero else { return }
             blurSignpostBegin("wholeCapture")
             blurSignpostBegin("render")
@@ -80,22 +116,17 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
             let snapshot = renderer.image { context in
                 context.cgContext.translateBy(x: -bounds.origin.x, y: -bounds.origin.y)
                 view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
-                
+//                view.layer.render(in: context.cgContext)
             }
             blurSignpostEnd("render")
-            
-            let configurations = self.configurations
-            Task.detached(priority: .userInitiated) { [weak self] in
-                guard let self else { return }
-                blurSignpostBegin("process")
-                let result = processor.process(snapshot: snapshot, configurations: configurations)
-                blurSignpostEnd("process")
-                await MainActor.run {
-                    blurSignpostBegin("deliver")
-                    self.onProcessedSnapshot?(result)
-                    blurSignpostEnd("deliver")
-                }
-            }
+
+            blurSignpostBegin("process")
+            let result = processor.process(snapshot: snapshot, configurations: configurations)
+            blurSignpostEnd("process")
+
+            blurSignpostBegin("deliver")
+            onProcessedSnapshot?(result)
+            blurSignpostEnd("deliver")
             blurSignpostEnd("wholeCapture")
         }
     }
@@ -134,13 +165,13 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         controller.onLayout = { [weak coordinator = context.coordinator] in
             guard let view = coordinator?.hostingController?.view else { return }
             coordinator?.scrollTracker.bind(to: view)
-            coordinator?.captureSnapshot()
+            coordinator?.requestSnapshot()
         }
         context.coordinator.store = context.environment.blurSnapshotStore
         context.coordinator.hostingController = controller
         context.coordinator.onProcessedSnapshot = onProcessedSnapshot
         context.coordinator.store?.onCaptureRectChanged = { [weak coordinator = context.coordinator] in
-            coordinator?.captureSnapshot()
+            coordinator?.requestSnapshot()
         }
         return controller
     }

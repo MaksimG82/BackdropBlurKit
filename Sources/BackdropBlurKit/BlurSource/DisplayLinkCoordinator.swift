@@ -25,7 +25,7 @@ final class DisplayLinkCoordinator {
         init(coordinator: DisplayLinkCoordinator) {
             self.coordinator = coordinator
         }
-        
+
         /// The Objective-C compatible target method triggered by the display link.
         @objc func update() {
             frameCounter += 1
