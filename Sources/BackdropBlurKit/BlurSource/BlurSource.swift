@@ -65,25 +65,20 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         /// Captures the current visual state of the hosted view hierarchy,
         /// processes it on a background thread, and delivers results on the main actor.
         func captureSnapshot() {
-            blurSignpostBegin("wholeCapture")
             guard let view = hostingController?.view, view.bounds != .zero else { return }
-            
+            blurSignpostBegin("wholeCapture")
             blurSignpostBegin("render")
             let captureRect = store?.captureRect ?? .zero
             let bounds: CGRect
             if captureRect == .zero || view.window == nil {
                 bounds = view.bounds
             } else {
-                // `captureRect` is in global/window space (see `BlurCoordinatorModifier`), but
-                // `view.layer.render(in:)` below renders in this view's own local layer space.
-                // Re-anchor by subtracting this view's own window origin.
                 let sourceWindowOrigin = view.convert(CGPoint.zero, to: nil)
                 bounds = captureRect.offsetBy(dx: -sourceWindowOrigin.x, dy: -sourceWindowOrigin.y)
             }
             let renderer = UIGraphicsImageRenderer(bounds: CGRect(origin: .zero, size: bounds.size))
             let snapshot = renderer.image { context in
                 context.cgContext.translateBy(x: -bounds.origin.x, y: -bounds.origin.y)
-//                view.layer.render(in: context.cgContext)
                 view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
                 
             }
@@ -132,7 +127,6 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         controller.view.backgroundColor = .clear
         controller.onAppear = {
             context.coordinator.start()
-            context.coordinator.captureSnapshot()
         }
         controller.onDisappear = {
             context.coordinator.stop()
@@ -140,6 +134,7 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         controller.onLayout = { [weak coordinator = context.coordinator] in
             guard let view = coordinator?.hostingController?.view else { return }
             coordinator?.scrollTracker.bind(to: view)
+            coordinator?.captureSnapshot()
         }
         context.coordinator.store = context.environment.blurSnapshotStore
         context.coordinator.hostingController = controller
