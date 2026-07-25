@@ -20,7 +20,8 @@ struct SimpleScrollView: View {
 
             targetView
                 .blurred()
-        }.blurCoordinator().ignoresSafeArea()
+        }.blurCoordinator()
+            .ignoresSafeArea()
     }
 }
 
