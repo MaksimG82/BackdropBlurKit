@@ -102,6 +102,10 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         /// cheap enough to stay inline or a lower-latency handoff is found.
         private func captureSnapshot() {
             guard let view = hostingController?.view, view.bounds != .zero else { return }
+            // TEMP: lag investigation — remove after verification
+            if let offset = scrollTracker.debugPrimaryContentOffset {
+                blurSignpostEvent("captureStart", offset: offset)
+            }
             blurSignpostBegin("wholeCapture")
             blurSignpostBegin("render")
             let captureRect = store?.captureRect ?? .zero
@@ -115,8 +119,8 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
             let renderer = UIGraphicsImageRenderer(bounds: CGRect(origin: .zero, size: bounds.size))
             let snapshot = renderer.image { context in
                 context.cgContext.translateBy(x: -bounds.origin.x, y: -bounds.origin.y)
-                view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
-//                view.layer.render(in: context.cgContext)
+//                view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
+                view.layer.render(in: context.cgContext)
             }
             blurSignpostEnd("render")
 

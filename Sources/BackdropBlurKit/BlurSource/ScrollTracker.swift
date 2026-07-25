@@ -33,6 +33,12 @@ final class ScrollTracker {
     /// The minimum interval between consecutive hierarchy walks triggered by `bind(to:)`.
     private let bindThrottleInterval: TimeInterval = 0.25
 
+    // TEMP: lag investigation — remove after verification
+    /// The content offset of the first tracked scroll view, for signpost diagnostics only.
+    var debugPrimaryContentOffset: CGPoint? {
+        trackedScrollViews.first?.contentOffset
+    }
+
     /// Recursively searches `rootView` for all `UIScrollView` instances and attaches KVO.
     ///
     /// Leading + trailing throttled: the first call in a window walks immediately, and at
@@ -93,6 +99,8 @@ final class ScrollTracker {
     /// Responds to a `contentOffset` change by resetting the stop timer for that scroll view.
     /// - Parameter scrollView: The scroll view that reported an offset change.
     private func handleOffsetChange(in scrollView: UIScrollView) {
+        // TEMP: lag investigation — remove after verification
+        blurSignpostEvent("scrollOffset", offset: scrollView.contentOffset)
         let wasScrolling = !stopWorkItems.isEmpty
         stopWorkItems[scrollView]?.cancel()
 

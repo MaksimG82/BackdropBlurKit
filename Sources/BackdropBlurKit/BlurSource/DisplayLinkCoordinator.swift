@@ -32,6 +32,8 @@ final class DisplayLinkCoordinator {
             if frameCounter % throttleRate == 0 {
                 coordinator?.onFrameUpdate?()
             }
+            // TEMP: lag investigation — remove after verification
+            blurSignpostEvent("displayLinkTick", time: CACurrentMediaTime())
         }
     }
     
