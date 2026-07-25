@@ -24,18 +24,53 @@ final class ScrollTracker {
     /// Pending work items used to detect scroll stop per scroll view.
     private var stopWorkItems: [UIScrollView: DispatchWorkItem] = [:]
 
-    /// Recursively searches `rootView` for all `UIScrollView` instances and attaches KVO.
-    /// - Parameter rootView: The root of the view hierarchy to scan.
-    func bind(to rootView: UIView) {
-        findScrollViews(in: rootView)
+    /// Whether a `bind(to:)` walk ran within the current throttle window.
+    private var isBindThrottled = false
+
+    /// The most recent view passed to `bind(to:)` while throttled, awaiting a trailing walk.
+    private var pendingBindView: UIView?
+
+    /// The minimum interval between consecutive hierarchy walks triggered by `bind(to:)`.
+    private let bindThrottleInterval: TimeInterval = 0.25
+
+    // TEMP: lag investigation — remove after verification
+    /// The content offset of the first tracked scroll view, for signpost diagnostics only.
+    var debugPrimaryContentOffset: CGPoint? {
+        trackedScrollViews.first?.contentOffset
     }
 
-    /// Removes all KVO observers and clears internal state.
+    /// Recursively searches `rootView` for all `UIScrollView` instances and attaches KVO.
+    ///
+    /// Leading + trailing throttled: the first call in a window walks immediately, and at
+    /// most one trailing walk runs after `bindThrottleInterval` if further calls arrive while
+    /// throttled — bounding both the walk frequency and the staleness of newly discovered
+    /// scroll views.
+    /// - Parameter rootView: The root of the view hierarchy to scan.
+    func bind(to rootView: UIView) {
+        guard !isBindThrottled else {
+            pendingBindView = rootView
+            return
+        }
+        isBindThrottled = true
+        findScrollViews(in: rootView)
+        DispatchQueue.main.asyncAfter(deadline: .now() + bindThrottleInterval) { [weak self] in
+            guard let self else { return }
+            self.isBindThrottled = false
+            if let pending = self.pendingBindView {
+                self.pendingBindView = nil
+                self.bind(to: pending)
+            }
+        }
+    }
+
+    /// Removes all KVO observers, clears internal state, and resets the bind throttle.
     func unbind() {
         stopWorkItems.values.forEach { $0.cancel() }
         stopWorkItems.removeAll()
         observers.removeAll()
         trackedScrollViews.removeAll()
+        isBindThrottled = false
+        pendingBindView = nil
     }
 
     /// Recursively traverses the hierarchy and binds each discovered `UIScrollView`.
@@ -64,6 +99,8 @@ final class ScrollTracker {
     /// Responds to a `contentOffset` change by resetting the stop timer for that scroll view.
     /// - Parameter scrollView: The scroll view that reported an offset change.
     private func handleOffsetChange(in scrollView: UIScrollView) {
+        // TEMP: lag investigation — remove after verification
+        blurSignpostEvent("scrollOffset", offset: scrollView.contentOffset)
         let wasScrolling = !stopWorkItems.isEmpty
         stopWorkItems[scrollView]?.cancel()
 

@@ -69,6 +69,10 @@ struct BlurTargetViewModifier: ViewModifier {
                 )
                 .frame(width: frame.width, height: frame.height, alignment: .topLeading)
                 .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+                // TEMP: lag investigation — remove after verification
+                .onChange(of: ObjectIdentifier(snapshot)) {
+                    blurSignpostEvent("targetSnapshotUpdated", time: CACurrentMediaTime())
+                }
         }
     }
 }

@@ -36,7 +36,6 @@ final class BlurSnapshotProcessor: Sendable {
             case .gaussian(let radius):
                 result[configuration] = applyGaussian(to: ciImage, radius: radius, original: snapshot)
             case .kawase:
-                // Kawase: реализуем в следующем шаге
                 break
             }
         }
@@ -63,10 +62,17 @@ final class BlurSnapshotProcessor: Sendable {
 
         let cropped = output.cropped(to: image.extent)
 
-        guard let cgImage = ciContext.createCGImage(cropped, from: cropped.extent) else {
+        // TEMP: lag investigation — remove after verification
+        // Brackets only the GPU-bound render/readback, so this measures actual
+        // frame-budget cost under real load, not filter-graph setup time.
+        blurSignpostBegin("applyGaussian")
+        let cgImage = ciContext.createCGImage(cropped, from: cropped.extent)
+        blurSignpostEnd("applyGaussian")
+
+        guard let cgImage else {
             return original
         }
-        
+
         return UIImage(cgImage: cgImage, scale: original.scale, orientation: original.imageOrientation)
     }
 }

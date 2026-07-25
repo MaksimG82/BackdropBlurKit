@@ -25,13 +25,15 @@ final class DisplayLinkCoordinator {
         init(coordinator: DisplayLinkCoordinator) {
             self.coordinator = coordinator
         }
-        
+
         /// The Objective-C compatible target method triggered by the display link.
         @objc func update() {
             frameCounter += 1
             if frameCounter % throttleRate == 0 {
                 coordinator?.onFrameUpdate?()
             }
+            // TEMP: lag investigation — remove after verification
+            blurSignpostEvent("displayLinkTick", time: CACurrentMediaTime())
         }
     }
     

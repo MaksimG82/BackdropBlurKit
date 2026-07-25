@@ -19,7 +19,7 @@ struct CheckerboardBackground: View {
     /// The second color in the alternating pattern.
     var secondaryColor: Color = .indigo
 
-    init(squareSize: CGFloat = 32, primaryColor: Color = .orange, secondaryColor: Color = .indigo) {
+    init(squareSize: CGFloat = 64, primaryColor: Color = .orange, secondaryColor: Color = .indigo) {
         self.squareSize = squareSize
         self.primaryColor = primaryColor
         self.secondaryColor = secondaryColor
