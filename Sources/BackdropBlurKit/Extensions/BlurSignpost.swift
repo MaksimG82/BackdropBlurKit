@@ -6,9 +6,10 @@
 //
 
 
+import CoreGraphics
+
 #if DEBUG
 import os
-import CoreGraphics
 private let blurLog = OSLog(subsystem: "BackdropBlurKit", category: "Capture")
 
 /// Marks the beginning of a named signpost interval during debug builds.

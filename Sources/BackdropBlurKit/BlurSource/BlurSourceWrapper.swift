@@ -11,6 +11,9 @@ import SwiftUI
 /// up the hierarchy via `BlurSnapshotPreferenceKey`.
 struct BlurSourceWrapper<Content: View>: View {
 
+    /// Whether this capture region can ever overlap a translucent navigation bar.
+    let navigationBarOverlap: NavigationBarOverlap
+
     /// The background content to render in isolation.
     let content: () -> Content
 
@@ -21,7 +24,7 @@ struct BlurSourceWrapper<Content: View>: View {
     @Environment(\.blurSnapshotStore) private var store
 
     var body: some View {
-        BlurSource(content: content, onProcessedSnapshot: { newSnapshots in
+        BlurSource(navigationBarOverlap: navigationBarOverlap, content: content, onProcessedSnapshot: { newSnapshots in
             store?.snapshots = newSnapshots
         })
     }

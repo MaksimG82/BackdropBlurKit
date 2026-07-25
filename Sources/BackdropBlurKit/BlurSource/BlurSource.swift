@@ -44,6 +44,10 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         /// Whether a snapshot capture has been requested and is awaiting the next display-link tick.
         private var needsSnapshot = false
 
+        /// Whether this capture region can ever overlap a translucent navigation bar. Defaults to
+        /// `.possible` (the safe/correct path) until `makeUIViewController` sets the real value.
+        var navigationBarOverlap: NavigationBarOverlap = .possible
+
         override init() {
             super.init()
             displayLink.onFrameUpdate = { [weak self] in
@@ -119,8 +123,12 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
             let renderer = UIGraphicsImageRenderer(bounds: CGRect(origin: .zero, size: bounds.size))
             let snapshot = renderer.image { context in
                 context.cgContext.translateBy(x: -bounds.origin.x, y: -bounds.origin.y)
-//                view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
-                view.layer.render(in: context.cgContext)
+                switch navigationBarOverlap {
+                case .none:
+                    view.layer.render(in: context.cgContext)
+                case .possible:
+                    view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
+                }
             }
             blurSignpostEnd("render")
 
@@ -135,6 +143,9 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         }
     }
 
+    /// Whether this capture region can ever overlap a translucent navigation bar.
+    let navigationBarOverlap: NavigationBarOverlap
+
     /// The background content to render and snapshot.
     let content: () -> Content
 
@@ -143,12 +154,16 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
 
     /// Creates a `BlurSource` with the given background content and processed snapshot callback.
     /// - Parameters:
+    ///   - navigationBarOverlap: Whether this capture region can ever overlap a translucent
+    ///     navigation bar.
     ///   - content: The background content to render in isolation.
     ///   - onProcessedSnapshot: A closure invoked with processed snapshots keyed by configuration.
     public init(
+        navigationBarOverlap: NavigationBarOverlap,
         @ViewBuilder content: @escaping () -> Content,
         onProcessedSnapshot: @escaping ([BlurConfiguration: UIImage]) -> Void
     ) {
+        self.navigationBarOverlap = navigationBarOverlap
         self.content = content
         self.onProcessedSnapshot = onProcessedSnapshot
     }
@@ -174,6 +189,7 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         context.coordinator.store = context.environment.blurSnapshotStore
         context.coordinator.hostingController = controller
         context.coordinator.onProcessedSnapshot = onProcessedSnapshot
+        context.coordinator.navigationBarOverlap = navigationBarOverlap
         context.coordinator.store?.onCaptureRectChanged = { [weak coordinator = context.coordinator] in
             coordinator?.requestSnapshot()
         }
@@ -183,6 +199,7 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
     public func updateUIViewController(_ uiViewController: BlurHostingController<Content>, context: Context) {
         uiViewController.rootView = content()
         context.coordinator.onProcessedSnapshot = onProcessedSnapshot
+        context.coordinator.navigationBarOverlap = navigationBarOverlap
     }
 }
 
