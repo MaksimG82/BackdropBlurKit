@@ -14,12 +14,21 @@ struct BlurCoordinatorModifier: ViewModifier {
     @State private var store = BlurSnapshotStore()
 
     func body(content: Content) -> some View {
-        GeometryReader { geometry in
+        // TEMP: captureRect wiring investigation — remove after verification
+        let _ = print("TEMP captureRect wiring: t=\(CACurrentMediaTime()) BlurCoordinatorModifier.body evaluated")
+        return GeometryReader { geometry in
+            // TEMP: captureRect wiring investigation — remove after verification
+            let _ = print("TEMP captureRect wiring: t=\(CACurrentMediaTime()) " +
+                          "coordinator GeometryReader closure evaluated, size=\(geometry.size)")
             content
                 .environment(\.blurSourceSize, geometry.size)
                 .environment(\.blurSnapshotStore, store)
                 .onPreferenceChange(BlurTargetFramesPreferenceKey.self) { frames in
-                    store.captureRect = union(of: frames)
+                    let resolved = union(of: frames)
+                    // TEMP: captureRect wiring investigation — remove after verification
+                    print("TEMP captureRect wiring: t=\(CACurrentMediaTime()) onPreferenceChange " +
+                          "frames=\(frames) union=\(resolved)")
+                    store.captureRect = resolved
                 }
         }
     }

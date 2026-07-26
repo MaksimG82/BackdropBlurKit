@@ -48,6 +48,9 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         /// `.possible` (the safe/correct path) until `makeUIViewController` sets the real value.
         var navigationBarOverlap: NavigationBarOverlap = .possible
 
+        // TEMP: captureRect wiring investigation — remove after verification
+        private var lastLoggedCaptureRect: CGRect?
+
         override init() {
             super.init()
             displayLink.onFrameUpdate = { [weak self] in
@@ -104,15 +107,26 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         /// between capture and delivery, which was measurably contributing to visible lag behind
         /// fast scrolling. Kept synchronous and on the main actor until processing is either
         /// cheap enough to stay inline or a lower-latency handoff is found.
+        ///
+        /// TEMPORARILY reverted to the full-view fallback while investigating whether
+        /// `store.captureRect` ever becomes non-zero on some screens at all (see
+        /// `BlurSnapshotStore.captureRect`). The skip-when-zero behavior this replaced is
+        /// still the intended end state once that's resolved — restore it once confirmed.
         private func captureSnapshot() {
             guard let view = hostingController?.view, view.bounds != .zero else { return }
+            let captureRect = store?.captureRect ?? .zero
+            // TEMP: captureRect wiring investigation — remove after verification
+            if lastLoggedCaptureRect != captureRect {
+                lastLoggedCaptureRect = captureRect
+                print("TEMP captureRect wiring: t=\(CACurrentMediaTime()) " +
+                      "captureSnapshot() sees captureRect=\(captureRect)")
+            }
             // TEMP: lag investigation — remove after verification
             if let offset = scrollTracker.debugPrimaryContentOffset {
                 blurSignpostEvent("captureStart", offset: offset)
             }
             blurSignpostBegin("wholeCapture")
             blurSignpostBegin("render")
-            let captureRect = store?.captureRect ?? .zero
             let bounds: CGRect
             if captureRect == .zero || view.window == nil {
                 bounds = view.bounds
@@ -183,6 +197,10 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         }
         controller.onLayout = { [weak coordinator = context.coordinator] in
             guard let view = coordinator?.hostingController?.view else { return }
+            // Starts the display link on first layout rather than waiting for viewDidAppear,
+            // which is gated behind the entire NavigationStack push transition completing.
+            // Idempotent — safe to call on every layout pass and again from onAppear.
+            coordinator?.start()
             coordinator?.scrollTracker.bind(to: view)
             coordinator?.requestSnapshot()
         }

@@ -19,6 +19,10 @@ final class BlurSnapshotStore {
     /// subtract that view's own window origin.
     var captureRect: CGRect = .zero {
         didSet {
+            // TEMP: captureRect wiring investigation — remove after verification
+            print("TEMP captureRect wiring: t=\(CACurrentMediaTime()) captureRect didSet " +
+                  "old=\(oldValue) new=\(captureRect) unchanged=\(oldValue == captureRect) " +
+                  "hasCallback=\(onCaptureRectChanged != nil)")
             guard oldValue != captureRect else { return }
             onCaptureRectChanged?()
         }

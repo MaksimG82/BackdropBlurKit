@@ -43,6 +43,9 @@ struct BlurTargetViewModifier: ViewModifier {
             .background(
                 GeometryReader { geometry in
                     let frame = geometry.frame(in: .global)
+                    // TEMP: captureRect wiring investigation — remove after verification
+                    let _ = print("TEMP captureRect wiring: t=\(CACurrentMediaTime()) " +
+                                  "target GeometryReader frame=\(frame)")
                     backdropView(frame: frame)
                         .allowsHitTesting(false)
                         .preference(
