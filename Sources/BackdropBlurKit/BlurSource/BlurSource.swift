@@ -48,8 +48,13 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         /// `.possible` (the safe/correct path) until `makeUIViewController` sets the real value.
         var navigationBarOverlap: NavigationBarOverlap = .possible
 
-        // TEMP: captureRect wiring investigation — remove after verification
-        private var lastLoggedCaptureRect: CGRect?
+        /// Whether at least one snapshot has been delivered for the current appearance.
+        /// Reset in `stop()` so a reused instance's next fresh appearance starts over.
+        private var hasDeliveredAnySnapshot = false
+
+        /// Whether a capture was skipped while frozen during an active transition, owed once
+        /// `transitionCoordinator` goes nil. Reset in `stop()`.
+        private var hasPendingCatchUpCapture = false
 
         override init() {
             super.init()
@@ -78,6 +83,8 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
             scrollTracker.unbind()
             isScrolling = false
             needsSnapshot = false
+            hasDeliveredAnySnapshot = false
+            hasPendingCatchUpCapture = false
         }
 
         /// Marks that a fresh snapshot is needed and ensures the display link will tick to service it.
@@ -108,27 +115,32 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         /// fast scrolling. Kept synchronous and on the main actor until processing is either
         /// cheap enough to stay inline or a lower-latency handoff is found.
         ///
-        /// TEMPORARILY reverted to the full-view fallback while investigating whether
-        /// `store.captureRect` ever becomes non-zero on some screens at all (see
-        /// `BlurSnapshotStore.captureRect`). The skip-when-zero behavior this replaced is
-        /// still the intended end state once that's resolved — restore it once confirmed.
+        /// Skips capturing entirely while no `.blurred()` target has registered a capture rect
+        /// yet (nothing to crop against). Safe to skip outright — unlike the `PreferenceKey`-
+        /// based path this replaced, `BlurSnapshotStore.targetFrames` is written directly by
+        /// `BlurTargetViewModifier` and resolves reliably without needing a render to unstick
+        /// it. Once something has been delivered, also freezes during any active transition —
+        /// push or pop, detected via `hostingController?.transitionCoordinator` — rather than
+        /// repeatedly re-capturing a target whose frame is changing as the screen slides in or
+        /// out; a catch-up capture happens automatically once the transition ends and a
+        /// subsequent tick arrives.
         private func captureSnapshot() {
             guard let view = hostingController?.view, view.bounds != .zero else { return }
-            let captureRect = store?.captureRect ?? .zero
-            // TEMP: captureRect wiring investigation — remove after verification
-            if lastLoggedCaptureRect != captureRect {
-                lastLoggedCaptureRect = captureRect
-                print("TEMP captureRect wiring: t=\(CACurrentMediaTime()) " +
-                      "captureSnapshot() sees captureRect=\(captureRect)")
+            guard let captureRect = store?.captureRect, captureRect != .zero else { return }
+
+            let isTransitioning = hostingController?.transitionCoordinator != nil
+            if hasDeliveredAnySnapshot, isTransitioning {
+                hasPendingCatchUpCapture = true
+                return
             }
-            // TEMP: lag investigation — remove after verification
+
             if let offset = scrollTracker.debugPrimaryContentOffset {
                 blurSignpostEvent("captureStart", offset: offset)
             }
             blurSignpostBegin("wholeCapture")
             blurSignpostBegin("render")
             let bounds: CGRect
-            if captureRect == .zero || view.window == nil {
+            if view.window == nil {
                 bounds = view.bounds
             } else {
                 let sourceWindowOrigin = view.convert(CGPoint.zero, to: nil)
@@ -154,6 +166,8 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
             onProcessedSnapshot?(result)
             blurSignpostEnd("deliver")
             blurSignpostEnd("wholeCapture")
+            hasDeliveredAnySnapshot = true
+            hasPendingCatchUpCapture = false
         }
     }
 
@@ -191,6 +205,10 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         controller.view.backgroundColor = .clear
         controller.onAppear = {
             context.coordinator.start()
+            // Guarantees a tick right at (or just after) the point `transitionCoordinator` is
+            // expected to clear, so a catch-up capture owed from freezing during the transition
+            // isn't left stranded if onLayout's own cadence has already tapered off by then.
+            context.coordinator.requestSnapshot()
         }
         controller.onDisappear = {
             context.coordinator.stop()
