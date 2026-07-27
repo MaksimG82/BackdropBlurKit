@@ -66,6 +66,19 @@ extension BlurSource {
             hostingController?.transitionCoordinator != nil
         }
 
+        /// Observer for `UIApplication.didBecomeActiveNotification`, removed in `deinit`.
+        /// Forces a fresh capture on foreground return in case the underlying content changed
+        /// while backgrounded (e.g. a push notification updated data driving the captured
+        /// content) — a case with no scroll or layout event to naturally trigger a re-capture.
+        /// No corresponding background-pause handling is needed: `CADisplayLink` already stops
+        /// firing automatically while the app isn't in the foreground.
+        ///
+        /// `nonisolated(unsafe)`: only ever written in `init` and read in `deinit`, which is
+        /// always non-isolated even for an `@MainActor` class — these two accesses can't
+        /// overlap for a given instance, so the actor-isolation check here is overly
+        /// conservative rather than protecting against a real race.
+        nonisolated(unsafe) private var didBecomeActiveObserver: NSObjectProtocol?
+
         override init() {
             super.init()
             displayLink.onFrameUpdate = { [weak self] in
@@ -76,16 +89,47 @@ extension BlurSource {
                 self.isScrolling = isScrolling
                 self.refreshDisplayLinkPauseState()
             }
+            didBecomeActiveObserver = NotificationCenter.default.addObserver(
+                forName: UIApplication.didBecomeActiveNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                MainActor.assumeIsolated {
+                    logEvent("coordinator: app didBecomeActive")
+                    self?.requestSnapshot()
+                }
+            }
         }
 
-        /// Starts the display link and binds scroll tracking to the hosted view hierarchy.
+        deinit {
+            if let didBecomeActiveObserver {
+                NotificationCenter.default.removeObserver(didBecomeActiveObserver)
+            }
+        }
+
+        /// Starts the display link.
+        ///
+        /// One-time engine startup, paired with `stop()` — but safe to call repeatedly (e.g.
+        /// from every `onLayout` pass): `DisplayLinkCoordinator.start()` guards internally and
+        /// no-ops after the first call. Does **not** refresh the display link's pause state —
+        /// callers must follow this with `requestSnapshot()` (which does) or call
+        /// `refreshDisplayLinkPauseState()` themselves, otherwise the display link stays paused
+        /// with no snapshot ever captured.
         func start() {
             logEvent("coordinator.start()")
             displayLink.start()
-            if let view = hostingController?.view {
-                scrollTracker.bind(to: view)
-            }
-            refreshDisplayLinkPauseState()
+        }
+
+        /// Re-scans the hosted view hierarchy for scroll views and (re)attaches tracking to any
+        /// newly discovered ones.
+        ///
+        /// Unlike `start()`, this isn't one-time setup: the scrollable hierarchy can change as
+        /// content is added or removed, so this needs to re-run on every layout pass.
+        /// `ScrollTracker` throttles the actual hierarchy walk internally, so calling this often
+        /// is cheap.
+        /// - Parameter view: The root of the view hierarchy to scan.
+        func bindScrollTracking(to view: UIView) {
+            scrollTracker.bind(to: view)
         }
 
         /// Stops the display link and releases all scroll view observers.

@@ -47,6 +47,12 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         controller.onAppear = {
             logEvent("BlurSource.onAppear (viewDidAppear)")
             context.coordinator.start()
+            // Mirrors `onLayout`'s bind call rather than relying on the implicit assumption
+            // that `onLayout` already ran by the time `viewDidAppear` fires — that ordering
+            // isn't a dependency this should lean on.
+            if let view = context.coordinator.hostingController?.view {
+                context.coordinator.bindScrollTracking(to: view)
+            }
             // A final safety-net capture once the view is confirmed on screen: `viewDidAppear`
             // is a distinct lifecycle event from `onLayout`'s cadence and worth capturing
             // against in its own right. (This also happens to catch up a capture that was
@@ -58,6 +64,10 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
             logEvent("BlurSource.onDisappear (viewDidDisappear)")
             context.coordinator.stop()
         }
+        controller.onTraitChange = { [weak coordinator = context.coordinator] in
+            logEvent("BlurSource.onTraitChange (interface style / content size category)")
+            coordinator?.requestSnapshot()
+        }
         controller.onLayout = { [weak coordinator = context.coordinator] in
             guard let view = coordinator?.hostingController?.view else { return }
             logEvent("BlurSource.onLayout (viewDidLayoutSubviews)")
@@ -67,7 +77,7 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
             // minimizes the gap before the first capture. Idempotent — safe to call on every
             // layout pass and again from onAppear.
             coordinator?.start()
-            coordinator?.scrollTracker.bind(to: view)
+            coordinator?.bindScrollTracking(to: view)
             coordinator?.requestSnapshot()
         }
         context.coordinator.store = context.environment.blurSnapshotStore
