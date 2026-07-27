@@ -23,16 +23,19 @@ struct BlurTargetViewModifier: ViewModifier {
 
     /// The blur configuration inherited from the environment.
     @Environment(\.blurConfiguration) private var environmentConfiguration
-    
+
     /// The size of the blur coordinator's coordinate space, used to scale global frames
     /// to match the snapshot's coordinate space.
     @Environment(\.blurSourceSize) private var sourceSize
 
-    
+    /// A stable identity for this target, used to key its frame in
+    /// `BlurSnapshotStore.targetFrames`. Generated once and held for the view's lifetime.
+    @State private var targetID = UUID()
+
     private var snapshots: [BlurConfiguration: UIImage] {
         store?.snapshots ?? [:]
     }
-    
+
     /// The effective blur configuration — explicit override takes priority over Environment.
     private var effectiveConfiguration: BlurConfiguration {
         configurationOverride ?? environmentConfiguration
@@ -45,11 +48,15 @@ struct BlurTargetViewModifier: ViewModifier {
                     let frame = geometry.frame(in: .global)
                     backdropView(frame: frame)
                         .allowsHitTesting(false)
-                        .preference(
-                            key: BlurTargetFramesPreferenceKey.self,
-                            value: [frame]
-                        )
-
+                        .onAppear {
+                            store?.targetFrames[targetID] = frame
+                        }
+                        .onChange(of: frame) { _, newFrame in
+                            store?.targetFrames[targetID] = newFrame
+                        }
+                        .onDisappear {
+                            store?.targetFrames.removeValue(forKey: targetID)
+                        }
                 }
             )
     }
@@ -76,5 +83,3 @@ struct BlurTargetViewModifier: ViewModifier {
         }
     }
 }
-
-

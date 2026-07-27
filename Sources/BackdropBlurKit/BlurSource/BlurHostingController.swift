@@ -20,6 +20,10 @@ public final class BlurHostingController<Content: View>: UIHostingController<Con
     /// Called when the controller's view has completed a layout pass.
     var onLayout: (() -> Void)?
 
+    // EXPERIMENT: reverted — viewWillAppear/viewWillDisappear overrides removed entirely,
+    // viewDidAppear/viewDidDisappear back to bare (no prints, no transitionCoordinator reads),
+    // to isolate whether these additions (present in every broken round, absent from the one
+    // working round) are what's disrupting the target's GeometryReader re-evaluation.
     public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         onAppear?()

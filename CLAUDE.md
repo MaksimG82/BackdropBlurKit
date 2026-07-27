@@ -120,3 +120,13 @@ No exceptions for "obvious" declarations — every declaration gets a doc commen
 
 Do NOT run `swift build` or `swift test` after making changes. Building and
 testing is the user's responsibility and will be done manually in Xcode.
+
+## Render path choice: drawHierarchy vs layer.render(in:)
+
+BlurSource's snapshot capture can use either view.layer.render(in:) or view.drawHierarchy(in:afterScreenUpdates:). They are not interchangeable in all cases.
+
+layer.render(in:) walks the layer tree on the CPU and draws each layer into a CGContext. It's roughly 3x faster (measured: ~4ms vs ~11-14ms mean, ~30-35ms max for drawHierarchy on comparable content). However, some system layers — notably CABackdropLayer and CAPortalLayer, which UIKit uses to composite live translucent backdrop effects (e.g. behind a UINavigationController's navigation bar) — have no locally-readable backing store; they're composited by the render server, not drawn into a CPU-accessible buffer. layer.render(in:) cannot resolve them: the result is a silently blank or corrupted region, with no error.
+
+drawHierarchy(in:afterScreenUpdates:) goes through the normal screen-update/compositing path instead of walking the layer tree directly, so it captures these layer types correctly. The cost is the slower render time, plus (with afterScreenUpdates: true) a synchronous flush of any pending Core Animation transaction for the affected view hierarchy.
+
+Current release does not attempt to detect or support this automatically inside a NavigationStack — known limitation, revisit before shipping nav-stack support.
