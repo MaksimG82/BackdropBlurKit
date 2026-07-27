@@ -157,28 +157,10 @@ extension BlurSource {
                 blurSignpostEvent("captureStart", offset: offset)
             }
             blurSignpostBegin("wholeCapture")
+
             blurSignpostBegin("render")
-            let bounds: CGRect
-            if view.window == nil {
-                bounds = view.bounds
-            } else {
-                let sourceWindowOrigin = view.convert(CGPoint.zero, to: nil)
-                bounds = captureRect.offsetBy(dx: -sourceWindowOrigin.x, dy: -sourceWindowOrigin.y)
-            }
-            let renderer = UIGraphicsImageRenderer(bounds: CGRect(origin: .zero, size: bounds.size))
-            let snapshot = renderer.image { context in
-                context.cgContext.translateBy(x: -bounds.origin.x, y: -bounds.origin.y)
-                // Deferred/NavigationStack-2.0: `navigationBarOverlap` picks between a fast
-                // path that can render blank under a translucent nav bar (`.none`) and a
-                // slower, always-correct path (`.possible`). Not actively exercised or
-                // maintained for now — see `NavigationBarOverlap`'s doc comment.
-                switch navigationBarOverlap {
-                case .none:
-                    view.layer.render(in: context.cgContext)
-                case .possible:
-                    view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
-                }
-            }
+            let bounds = captureBounds(for: view, captureRect: captureRect)
+            let snapshot = renderSnapshot(view: view, bounds: bounds)
             blurSignpostEnd("render")
 
             blurSignpostBegin("process")
@@ -191,6 +173,46 @@ extension BlurSource {
             blurSignpostEnd("wholeCapture")
             hasDeliveredAnySnapshot = true
             logEvent("captureSnapshot() exit — delivered snapshot")
+        }
+
+        /// Computes the crop rect to render, in the hosted view's own coordinate space.
+        ///
+        /// While the view has no window yet (nothing to convert its origin against), falls
+        /// back to the view's full bounds.
+        /// - Parameters:
+        ///   - view: The hosted view being captured.
+        ///   - captureRect: The union of all registered `.blurred()` target frames, in window
+        ///     coordinates.
+        /// - Returns: The crop rect to render, in `view`'s own coordinate space.
+        private func captureBounds(for view: UIView, captureRect: CGRect) -> CGRect {
+            guard view.window != nil else {
+                return view.bounds
+            }
+            let sourceWindowOrigin = view.convert(CGPoint.zero, to: nil)
+            return captureRect.offsetBy(dx: -sourceWindowOrigin.x, dy: -sourceWindowOrigin.y)
+        }
+
+        /// Renders `view`'s current visual state into a bitmap cropped to `bounds`, using
+        /// whichever render path `navigationBarOverlap` selects.
+        /// - Parameters:
+        ///   - view: The hosted view to render.
+        ///   - bounds: The crop rect to render, in `view`'s own coordinate space.
+        /// - Returns: The rendered, unblurred snapshot.
+        private func renderSnapshot(view: UIView, bounds: CGRect) -> UIImage {
+            let renderer = UIGraphicsImageRenderer(bounds: CGRect(origin: .zero, size: bounds.size))
+            return renderer.image { context in
+                context.cgContext.translateBy(x: -bounds.origin.x, y: -bounds.origin.y)
+                // Deferred/NavigationStack-2.0: `navigationBarOverlap` picks between a fast
+                // path that can render blank under a translucent nav bar (`.none`) and a
+                // slower, always-correct path (`.possible`). Not actively exercised or
+                // maintained for now — see `NavigationBarOverlap`'s doc comment.
+                switch navigationBarOverlap {
+                case .none:
+                    view.layer.render(in: context.cgContext)
+                case .possible:
+                    view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
+                }
+            }
         }
     }
 }
