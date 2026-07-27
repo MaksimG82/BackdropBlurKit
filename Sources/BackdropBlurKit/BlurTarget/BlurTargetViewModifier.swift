@@ -64,15 +64,15 @@ struct BlurTargetViewModifier: ViewModifier {
                     }
                         .allowsHitTesting(false)
                         .onAppear {
-                            print("[LOGGING] target reports frame (onAppear) \(frame), \(CACurrentMediaTime())")
+                            logEvent("target reports frame (onAppear) \(frame)")
                             store?.targetFrames[targetID] = frame
                         }
                         .onChange(of: frame) { _, newFrame in
-                            print("[LOGGING] target reports frame (onChange) \(newFrame), \(CACurrentMediaTime())")
+                            logEvent("target reports frame (onChange) \(newFrame)")
                             store?.targetFrames[targetID] = newFrame
                         }
                         .onDisappear {
-                            print("[LOGGING] target removes frame (onDisappear), \(CACurrentMediaTime())")
+                            logEvent("target removes frame (onDisappear)")
                             store?.targetFrames.removeValue(forKey: targetID)
                         }
                 }
@@ -85,7 +85,7 @@ struct BlurTargetViewModifier: ViewModifier {
     private func backdropView(frame: CGRect) -> some View {
         if let snapshot = snapshots[effectiveConfiguration],
            let captureRect = store?.captureRect {
-            let _ = print("[LOGGING] target receives ready snapshot, \(CACurrentMediaTime())")
+            let _ = logEvent("target receives ready snapshot")
             Image(uiImage: snapshot)
                 .resizable()
                 .frame(width: snapshot.size.width, height: snapshot.size.height)

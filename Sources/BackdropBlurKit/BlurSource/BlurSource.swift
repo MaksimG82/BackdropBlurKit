@@ -83,7 +83,7 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
 
         /// Starts the display link and binds scroll tracking to the hosted view hierarchy.
         func start() {
-            print("[LOGGING] coordinator.start(), \(CACurrentMediaTime())")
+            logEvent("coordinator.start()")
             displayLink.start()
             if let view = hostingController?.view {
                 scrollTracker.bind(to: view)
@@ -93,7 +93,7 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
 
         /// Stops the display link and releases all scroll view observers.
         func stop() {
-            print("[LOGGING] coordinator.stop(), \(CACurrentMediaTime())")
+            logEvent("coordinator.stop()")
             displayLink.stop()
             scrollTracker.unbind()
             isScrolling = false
@@ -141,18 +141,18 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         /// naturally via the ordinary `onLayout` tick cadence once the transition ends, with no
         /// extra bookkeeping needed here.
         private func captureSnapshot() {
-            print("[LOGGING] captureSnapshot() entry, \(CACurrentMediaTime())")
+            logEvent("captureSnapshot() entry")
             guard let view = hostingController?.view, view.bounds != .zero else {
-                print("[LOGGING] captureSnapshot() exit — view bounds zero, \(CACurrentMediaTime())")
+                logEvent("captureSnapshot() exit — view bounds zero")
                 return
             }
             guard let captureRect = store?.captureRect, captureRect != .zero else {
-                print("[LOGGING] captureSnapshot() exit — captureRect is zero, \(CACurrentMediaTime())")
+                logEvent("captureSnapshot() exit — captureRect is zero")
                 return
             }
 
             if hasDeliveredAnySnapshot, isInsideActiveTransition {
-                print("[LOGGING] captureSnapshot() exit — frozen during active transition, \(CACurrentMediaTime())")
+                logEvent("captureSnapshot() exit — frozen during active transition")
                 return
             }
 
@@ -193,7 +193,7 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
             blurSignpostEnd("deliver")
             blurSignpostEnd("wholeCapture")
             hasDeliveredAnySnapshot = true
-            print("[LOGGING] captureSnapshot() exit — delivered snapshot, \(CACurrentMediaTime())")
+            logEvent("captureSnapshot() exit — delivered snapshot")
         }
     }
 
@@ -230,7 +230,7 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         let controller = BlurHostingController(rootView: content())
         controller.view.backgroundColor = .clear
         controller.onAppear = {
-            print("[LOGGING] BlurSource.onAppear (viewDidAppear), \(CACurrentMediaTime())")
+            logEvent("BlurSource.onAppear (viewDidAppear)")
             context.coordinator.start()
             // A final safety-net capture once the view is confirmed on screen: `viewDidAppear`
             // is a distinct lifecycle event from `onLayout`'s cadence and worth capturing
@@ -240,12 +240,12 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
             context.coordinator.requestSnapshot()
         }
         controller.onDisappear = {
-            print("[LOGGING] BlurSource.onDisappear (viewDidDisappear), \(CACurrentMediaTime())")
+            logEvent("BlurSource.onDisappear (viewDidDisappear)")
             context.coordinator.stop()
         }
         controller.onLayout = { [weak coordinator = context.coordinator] in
             guard let view = coordinator?.hostingController?.view else { return }
-            print("[LOGGING] BlurSource.onLayout (viewDidLayoutSubviews), \(CACurrentMediaTime())")
+            logEvent("BlurSource.onLayout (viewDidLayoutSubviews)")
             // Core, plain-screen-relevant: starts the display link on first layout rather than
             // waiting for viewDidAppear. Layout can complete well before viewDidAppear fires
             // for reasons that have nothing to do with navigation transitions, so starting here
