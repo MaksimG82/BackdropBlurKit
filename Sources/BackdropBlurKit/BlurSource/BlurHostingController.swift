@@ -20,10 +20,23 @@ public final class BlurHostingController<Content: View>: UIHostingController<Con
     /// Called when the controller's view has completed a layout pass.
     var onLayout: (() -> Void)?
 
-    // EXPERIMENT: reverted — viewWillAppear/viewWillDisappear overrides removed entirely,
-    // viewDidAppear/viewDidDisappear back to bare (no prints, no transitionCoordinator reads),
-    // to isolate whether these additions (present in every broken round, absent from the one
-    // working round) are what's disrupting the target's GeometryReader re-evaluation.
+    /// Called when the interface style or preferred content size category changes (e.g. dark
+    /// mode toggled, or Dynamic Type adjusted) — appearance changes that can make an existing
+    /// snapshot stale without triggering a layout pass or scroll event.
+    var onTraitChange: (() -> Void)?
+
+    public override func viewDidLoad() {
+        super.viewDidLoad()
+        // Scoped precisely to the two traits that can make a snapshot visually stale, rather
+        // than the legacy `traitCollectionDidChange` override, which fires for every trait
+        // change (including ones irrelevant here, like size class).
+        registerForTraitChanges(
+            [UITraitUserInterfaceStyle.self, UITraitPreferredContentSizeCategory.self]
+        ) { (controller: BlurHostingController<Content>, _: UITraitCollection) in
+            controller.onTraitChange?()
+        }
+    }
+
     public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         onAppear?()

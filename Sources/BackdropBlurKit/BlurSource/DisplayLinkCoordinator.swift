@@ -64,4 +64,12 @@ final class DisplayLinkCoordinator {
         displayLink?.invalidate()
         displayLink = nil
     }
+
+    /// Safety net in case `stop()` was never called through normal teardown (e.g.
+    /// `viewDidDisappear` skipped). Without this, an orphaned `CADisplayLink` would keep
+    /// ticking on the run loop forever — hitting a harmless no-op via `TargetProxy`'s weak
+    /// reference to this coordinator, but never actually invalidated.
+    deinit {
+        displayLink?.invalidate()
+    }
 }
