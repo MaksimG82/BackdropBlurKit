@@ -50,11 +50,24 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
 
         /// Whether at least one snapshot has been delivered for the current appearance.
         /// Reset in `stop()` so a reused instance's next fresh appearance starts over.
+        /// Paired with `isInsideActiveTransition` below — see its doc comment.
         private var hasDeliveredAnySnapshot = false
 
-        /// Whether a capture was skipped while frozen during an active transition, owed once
-        /// `transitionCoordinator` goes nil. Reset in `stop()`.
-        private var hasPendingCatchUpCapture = false
+        /// Whether a `UINavigationController` push/pop transition is currently animating this
+        /// screen in or out.
+        ///
+        /// Deferred/NavigationStack-2.0 scaffolding: for a plain screen (not pushed or popped),
+        /// `transitionCoordinator` is always `nil`, so this is always `false` and the guard in
+        /// `captureSnapshot()` that reads it never triggers. Kept in place — rather than
+        /// removed — as the mechanism needed later to avoid repeatedly re-capturing a target
+        /// whose frame is changing mid-transition; not currently exercised or maintained.
+        /// Note for whoever picks this back up: `transitionCoordinator` was observed still
+        /// non-nil at `viewDidAppear` in prior testing — it does not reliably clear exactly
+        /// when that lifecycle method fires, so don't assume `viewDidAppear` implies this is
+        /// `false`.
+        private var isInsideActiveTransition: Bool {
+            hostingController?.transitionCoordinator != nil
+        }
 
         override init() {
             super.init()
@@ -70,6 +83,7 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
 
         /// Starts the display link and binds scroll tracking to the hosted view hierarchy.
         func start() {
+            print("[LOGGING] coordinator.start(), \(CACurrentMediaTime())")
             displayLink.start()
             if let view = hostingController?.view {
                 scrollTracker.bind(to: view)
@@ -79,12 +93,12 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
 
         /// Stops the display link and releases all scroll view observers.
         func stop() {
+            print("[LOGGING] coordinator.stop(), \(CACurrentMediaTime())")
             displayLink.stop()
             scrollTracker.unbind()
             isScrolling = false
             needsSnapshot = false
             hasDeliveredAnySnapshot = false
-            hasPendingCatchUpCapture = false
         }
 
         /// Marks that a fresh snapshot is needed and ensures the display link will tick to service it.
@@ -119,18 +133,26 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         /// yet (nothing to crop against). Safe to skip outright — unlike the `PreferenceKey`-
         /// based path this replaced, `BlurSnapshotStore.targetFrames` is written directly by
         /// `BlurTargetViewModifier` and resolves reliably without needing a render to unstick
-        /// it. Once something has been delivered, also freezes during any active transition —
-        /// push or pop, detected via `hostingController?.transitionCoordinator` — rather than
-        /// repeatedly re-capturing a target whose frame is changing as the screen slides in or
-        /// out; a catch-up capture happens automatically once the transition ends and a
-        /// subsequent tick arrives.
+        /// it.
+        ///
+        /// Also freezes once `isInsideActiveTransition` is true after an initial snapshot has
+        /// been delivered — deferred/NavigationStack-2.0 scaffolding, see that property's doc
+        /// comment. Always inert for a plain screen; when it does matter, catch-up happens
+        /// naturally via the ordinary `onLayout` tick cadence once the transition ends, with no
+        /// extra bookkeeping needed here.
         private func captureSnapshot() {
-            guard let view = hostingController?.view, view.bounds != .zero else { return }
-            guard let captureRect = store?.captureRect, captureRect != .zero else { return }
+            print("[LOGGING] captureSnapshot() entry, \(CACurrentMediaTime())")
+            guard let view = hostingController?.view, view.bounds != .zero else {
+                print("[LOGGING] captureSnapshot() exit — view bounds zero, \(CACurrentMediaTime())")
+                return
+            }
+            guard let captureRect = store?.captureRect, captureRect != .zero else {
+                print("[LOGGING] captureSnapshot() exit — captureRect is zero, \(CACurrentMediaTime())")
+                return
+            }
 
-            let isTransitioning = hostingController?.transitionCoordinator != nil
-            if hasDeliveredAnySnapshot, isTransitioning {
-                hasPendingCatchUpCapture = true
+            if hasDeliveredAnySnapshot, isInsideActiveTransition {
+                print("[LOGGING] captureSnapshot() exit — frozen during active transition, \(CACurrentMediaTime())")
                 return
             }
 
@@ -149,6 +171,10 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
             let renderer = UIGraphicsImageRenderer(bounds: CGRect(origin: .zero, size: bounds.size))
             let snapshot = renderer.image { context in
                 context.cgContext.translateBy(x: -bounds.origin.x, y: -bounds.origin.y)
+                // Deferred/NavigationStack-2.0: `navigationBarOverlap` picks between a fast
+                // path that can render blank under a translucent nav bar (`.none`) and a
+                // slower, always-correct path (`.possible`). Not actively exercised or
+                // maintained for now — see `NavigationBarOverlap`'s doc comment.
                 switch navigationBarOverlap {
                 case .none:
                     view.layer.render(in: context.cgContext)
@@ -167,7 +193,7 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
             blurSignpostEnd("deliver")
             blurSignpostEnd("wholeCapture")
             hasDeliveredAnySnapshot = true
-            hasPendingCatchUpCapture = false
+            print("[LOGGING] captureSnapshot() exit — delivered snapshot, \(CACurrentMediaTime())")
         }
     }
 
@@ -204,20 +230,27 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
         let controller = BlurHostingController(rootView: content())
         controller.view.backgroundColor = .clear
         controller.onAppear = {
+            print("[LOGGING] BlurSource.onAppear (viewDidAppear), \(CACurrentMediaTime())")
             context.coordinator.start()
-            // Guarantees a tick right at (or just after) the point `transitionCoordinator` is
-            // expected to clear, so a catch-up capture owed from freezing during the transition
-            // isn't left stranded if onLayout's own cadence has already tapered off by then.
+            // A final safety-net capture once the view is confirmed on screen: `viewDidAppear`
+            // is a distinct lifecycle event from `onLayout`'s cadence and worth capturing
+            // against in its own right. (This also happens to catch up a capture that was
+            // frozen mid-transition, once `isInsideActiveTransition` clears — a deferred/
+            // NavigationStack-2.0 concern, inert for a plain screen.)
             context.coordinator.requestSnapshot()
         }
         controller.onDisappear = {
+            print("[LOGGING] BlurSource.onDisappear (viewDidDisappear), \(CACurrentMediaTime())")
             context.coordinator.stop()
         }
         controller.onLayout = { [weak coordinator = context.coordinator] in
             guard let view = coordinator?.hostingController?.view else { return }
-            // Starts the display link on first layout rather than waiting for viewDidAppear,
-            // which is gated behind the entire NavigationStack push transition completing.
-            // Idempotent — safe to call on every layout pass and again from onAppear.
+            print("[LOGGING] BlurSource.onLayout (viewDidLayoutSubviews), \(CACurrentMediaTime())")
+            // Core, plain-screen-relevant: starts the display link on first layout rather than
+            // waiting for viewDidAppear. Layout can complete well before viewDidAppear fires
+            // for reasons that have nothing to do with navigation transitions, so starting here
+            // minimizes the gap before the first capture. Idempotent — safe to call on every
+            // layout pass and again from onAppear.
             coordinator?.start()
             coordinator?.scrollTracker.bind(to: view)
             coordinator?.requestSnapshot()

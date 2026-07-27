@@ -11,7 +11,11 @@ import SwiftUI
 /// A shared observable store that holds processed blur snapshots keyed by configuration.
 final class BlurSnapshotStore {
     /// The latest processed snapshots, updated by `BlurSource` and observed by `BlurTargetViewModifier`.
-    var snapshots: [BlurConfiguration: UIImage] = [:]
+    var snapshots: [BlurConfiguration: UIImage] = [:] {
+        didSet {
+            print("[LOGGING] store.snapshots updated (\(snapshots.count) configuration(s)), \(CACurrentMediaTime())")
+        }
+    }
 
     /// Frames reported directly by each `.blurred()` target, keyed by a stable per-target
     /// identity. Written directly by `BlurTargetViewModifier` via `.onAppear`/`.onChange` —
@@ -23,6 +27,7 @@ final class BlurSnapshotStore {
     /// being collected via `.preference()`/`.onPreferenceChange`.
     var targetFrames: [UUID: CGRect] = [:] {
         didSet {
+            print("[LOGGING] store.targetFrames updated (\(targetFrames.count) target(s)), \(CACurrentMediaTime())")
             let resolved = Self.union(of: Array(targetFrames.values))
             guard resolved != captureRect else { return }
             captureRect = resolved
@@ -38,6 +43,7 @@ final class BlurSnapshotStore {
     private(set) var captureRect: CGRect = .zero {
         didSet {
             guard oldValue != captureRect else { return }
+            print("[LOGGING] store.captureRect changed to \(captureRect), \(CACurrentMediaTime())")
             onCaptureRectChanged?()
         }
     }

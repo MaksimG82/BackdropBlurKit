@@ -46,15 +46,33 @@ struct BlurTargetViewModifier: ViewModifier {
             .background(
                 GeometryReader { geometry in
                     let frame = geometry.frame(in: .global)
-                    backdropView(frame: frame)
+                    // The frame-reporting hooks below (.onAppear/.onChange/.onDisappear) are
+                    // attached to this ZStack rather than directly to `backdropView(frame:)`.
+                    // `backdropView` is conditionally empty (it renders nothing until a
+                    // snapshot exists), and modifiers attached to a conditionally-empty
+                    // `@ViewBuilder` result don't reliably fire on a single render pass — a
+                    // pushed NavigationStack destination gets away with it because its
+                    // transition drives several render passes, but a screen mounted directly
+                    // as the app's root gets exactly one, and the hooks never fire, so
+                    // `targetFrames` never gets populated and nothing ever bootstraps
+                    // (confirmed via the [LOGGING] traces below). `Color.clear` guarantees the
+                    // ZStack always has real, unconditional content, so it — and the hooks
+                    // attached to it — reliably appear regardless of `backdropView`'s state.
+                    ZStack {
+                        Color.clear
+                        backdropView(frame: frame)
+                    }
                         .allowsHitTesting(false)
                         .onAppear {
+                            print("[LOGGING] target reports frame (onAppear) \(frame), \(CACurrentMediaTime())")
                             store?.targetFrames[targetID] = frame
                         }
                         .onChange(of: frame) { _, newFrame in
+                            print("[LOGGING] target reports frame (onChange) \(newFrame), \(CACurrentMediaTime())")
                             store?.targetFrames[targetID] = newFrame
                         }
                         .onDisappear {
+                            print("[LOGGING] target removes frame (onDisappear), \(CACurrentMediaTime())")
                             store?.targetFrames.removeValue(forKey: targetID)
                         }
                 }
@@ -67,6 +85,7 @@ struct BlurTargetViewModifier: ViewModifier {
     private func backdropView(frame: CGRect) -> some View {
         if let snapshot = snapshots[effectiveConfiguration],
            let captureRect = store?.captureRect {
+            let _ = print("[LOGGING] target receives ready snapshot, \(CACurrentMediaTime())")
             Image(uiImage: snapshot)
                 .resizable()
                 .frame(width: snapshot.size.width, height: snapshot.size.height)
