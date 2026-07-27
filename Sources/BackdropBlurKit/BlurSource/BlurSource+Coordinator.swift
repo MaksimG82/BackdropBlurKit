@@ -45,27 +45,6 @@ extension BlurSource {
         /// `.possible` (the safe/correct path) until `makeUIViewController` sets the real value.
         var navigationBarOverlap: NavigationBarOverlap = .possible
 
-        /// Whether at least one snapshot has been delivered for the current appearance.
-        /// Reset in `stop()` so a reused instance's next fresh appearance starts over.
-        /// Paired with `isInsideActiveTransition` below — see its doc comment.
-        private var hasDeliveredAnySnapshot = false
-
-        /// Whether a `UINavigationController` push/pop transition is currently animating this
-        /// screen in or out.
-        ///
-        /// Deferred/NavigationStack-2.0 scaffolding: for a plain screen (not pushed or popped),
-        /// `transitionCoordinator` is always `nil`, so this is always `false` and the guard in
-        /// `captureSnapshot()` that reads it never triggers. Kept in place — rather than
-        /// removed — as the mechanism needed later to avoid repeatedly re-capturing a target
-        /// whose frame is changing mid-transition; not currently exercised or maintained.
-        /// Note for whoever picks this back up: `transitionCoordinator` was observed still
-        /// non-nil at `viewDidAppear` in prior testing — it does not reliably clear exactly
-        /// when that lifecycle method fires, so don't assume `viewDidAppear` implies this is
-        /// `false`.
-        private var isInsideActiveTransition: Bool {
-            hostingController?.transitionCoordinator != nil
-        }
-
         /// Observer for `UIApplication.didBecomeActiveNotification`, removed in `deinit`.
         /// Forces a fresh capture on foreground return in case the underlying content changed
         /// while backgrounded (e.g. a push notification updated data driving the captured
@@ -139,7 +118,6 @@ extension BlurSource {
             scrollTracker.unbind()
             isScrolling = false
             needsSnapshot = false
-            hasDeliveredAnySnapshot = false
         }
 
         /// Marks that a fresh snapshot is needed and ensures the display link will tick to service it.
@@ -175,12 +153,6 @@ extension BlurSource {
         /// based path this replaced, `BlurSnapshotStore.targetFrames` is written directly by
         /// `BlurTargetViewModifier` and resolves reliably without needing a render to unstick
         /// it.
-        ///
-        /// Also freezes once `isInsideActiveTransition` is true after an initial snapshot has
-        /// been delivered — deferred/NavigationStack-2.0 scaffolding, see that property's doc
-        /// comment. Always inert for a plain screen; when it does matter, catch-up happens
-        /// naturally via the ordinary `onLayout` tick cadence once the transition ends, with no
-        /// extra bookkeeping needed here.
         private func captureSnapshot() {
             logEvent("captureSnapshot() entry")
             guard let view = hostingController?.view, view.bounds != .zero else {
@@ -189,11 +161,6 @@ extension BlurSource {
             }
             guard let captureRect = store?.captureRect, captureRect != .zero else {
                 logEvent("captureSnapshot() exit — captureRect is zero")
-                return
-            }
-
-            if hasDeliveredAnySnapshot, isInsideActiveTransition {
-                logEvent("captureSnapshot() exit — frozen during active transition")
                 return
             }
 
@@ -215,7 +182,6 @@ extension BlurSource {
             onProcessedSnapshot?(result)
             blurSignpostEnd("deliver")
             blurSignpostEnd("wholeCapture")
-            hasDeliveredAnySnapshot = true
             logEvent("captureSnapshot() exit — delivered snapshot")
         }
 

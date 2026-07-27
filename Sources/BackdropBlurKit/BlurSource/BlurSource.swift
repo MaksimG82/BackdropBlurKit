@@ -55,9 +55,7 @@ public struct BlurSource<Content: View>: UIViewControllerRepresentable {
             }
             // A final safety-net capture once the view is confirmed on screen: `viewDidAppear`
             // is a distinct lifecycle event from `onLayout`'s cadence and worth capturing
-            // against in its own right. (This also happens to catch up a capture that was
-            // frozen mid-transition, once `isInsideActiveTransition` clears — a deferred/
-            // NavigationStack-2.0 concern, inert for a plain screen.)
+            // against in its own right.
             context.coordinator.requestSnapshot()
         }
         controller.onDisappear = {
