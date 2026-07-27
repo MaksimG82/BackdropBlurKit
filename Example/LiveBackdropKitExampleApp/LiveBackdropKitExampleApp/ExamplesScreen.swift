@@ -89,6 +89,8 @@ private extension ExamplesScreen {
         switch scenario {
         case .simpleScroll:
             SimpleScrollView()
+        case .fixedHeaderOffset:
+            FixedHeaderOffsetView()
         }
     }
 }

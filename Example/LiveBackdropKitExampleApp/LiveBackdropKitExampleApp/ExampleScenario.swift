@@ -11,6 +11,11 @@ enum ExampleScenario: String, CaseIterable, Identifiable {
     /// A vertically scrolling list with a fixed blurred panel.
     case simpleScroll
 
+    /// A fixed, non-scrolling block at the top with the scrolling backdrop starting at its
+    /// bottom edge — stresses capture rect/offset math when the effect source doesn't span
+    /// the full screen from the top.
+    case fixedHeaderOffset
+
     /// A stable identifier for use in SwiftUI lists and navigation.
     var id: Self { self }
 
@@ -18,6 +23,7 @@ enum ExampleScenario: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .simpleScroll: "Simple Scroll"
+        case .fixedHeaderOffset: "Fixed Header Offset"
         }
     }
 
@@ -25,6 +31,7 @@ enum ExampleScenario: String, CaseIterable, Identifiable {
     var section: ExampleSection {
         switch self {
         case .simpleScroll: .layout
+        case .fixedHeaderOffset: .layout
         }
     }
 }
