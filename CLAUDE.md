@@ -121,6 +121,14 @@ No exceptions for "obvious" declarations — every declaration gets a doc commen
 Do NOT run `swift build` or `swift test` after making changes. Building and
 testing is the user's responsibility and will be done manually in Xcode.
 
+## Debug logging
+
+`print("[LOGGING] <event>, <time>")` statements in `BlurSnapshotStore`, `BlurTargetViewModifier`,
+and `BlurSource` trace the capture pipeline (store mutations, target frame reporting, source
+lifecycle events, capture entry/exit). These were added to diagnose the bare-root-screen
+`targetFrames`-never-populates regression and are intentionally left in place — do not strip
+them in a cleanup pass. Remove only if explicitly asked.
+
 ## Render path choice: drawHierarchy vs layer.render(in:)
 
 BlurSource's snapshot capture can use either view.layer.render(in:) or view.drawHierarchy(in:afterScreenUpdates:). They are not interchangeable in all cases.

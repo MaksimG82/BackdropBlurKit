@@ -18,18 +18,18 @@ struct ContentView: View {
     // MARK: - Body
 
     var body: some View {
-//        SimpleScrollView()
-        ZStack(alignment: .bottom) {
-            NavigationStack {
-                contentRouter
-            }
-
-            FloatingTabBarView(
-                items: viewModel.state.tabBarItems,
-                selected: selectedItem
-            )
-        }
-        .ignoresSafeArea(.all, edges: .bottom)
+        SimpleScrollView()
+//        ZStack(alignment: .bottom) {
+//            NavigationStack {
+//                contentRouter
+//            }
+//
+//            FloatingTabBarView(
+//                items: viewModel.state.tabBarItems,
+//                selected: selectedItem
+//            )
+//        }
+//        .ignoresSafeArea(.all, edges: .bottom)
 
     }
 }

@@ -16,7 +16,7 @@ struct SimpleScrollView: View {
         ZStack() {
             scrollingBackdrop
                 .ignoresSafeArea()
-                .blurSource(navigationBarOverlap: .possible)
+                .blurSource(navigationBarOverlap: .none)
 
             targetView
                 .blurred()
