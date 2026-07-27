@@ -16,6 +16,11 @@ enum ExampleScenario: String, CaseIterable, Identifiable {
     /// the full screen from the top.
     case fixedHeaderOffset
 
+    /// A fixed, non-scrolling effect source with multiple effect targets scrolling over it in a
+    /// `ScrollView`/`LazyVStack`, each tracking its own frame — the primary test of concurrent
+    /// multi-target support.
+    case multiTargetScroll
+
     /// A stable identifier for use in SwiftUI lists and navigation.
     var id: Self { self }
 
@@ -24,6 +29,7 @@ enum ExampleScenario: String, CaseIterable, Identifiable {
         switch self {
         case .simpleScroll: "Simple Scroll"
         case .fixedHeaderOffset: "Fixed Header Offset"
+        case .multiTargetScroll: "Multiple Targets"
         }
     }
 
@@ -32,6 +38,7 @@ enum ExampleScenario: String, CaseIterable, Identifiable {
         switch self {
         case .simpleScroll: .layout
         case .fixedHeaderOffset: .layout
+        case .multiTargetScroll: .layout
         }
     }
 }

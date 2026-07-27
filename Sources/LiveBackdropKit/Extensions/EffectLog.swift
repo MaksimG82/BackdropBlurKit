@@ -15,5 +15,5 @@ import QuartzCore
 /// CLAUDE.md's "Debug logging" section.
 /// - Parameter event: A description of the event being logged.
 func logEvent(_ event: String) {
-    print("[LOG] \(event), \(CACurrentMediaTime())")
+//    print("[LOG] \(event), \(CACurrentMediaTime())")
 }

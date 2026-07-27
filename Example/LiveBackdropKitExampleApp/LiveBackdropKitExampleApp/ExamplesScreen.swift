@@ -91,6 +91,8 @@ private extension ExamplesScreen {
             SimpleScrollView()
         case .fixedHeaderOffset:
             FixedHeaderOffsetView()
+        case .multiTargetScroll:
+            MultiTargetScrollView()
         }
     }
 }
