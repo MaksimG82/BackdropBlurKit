@@ -115,8 +115,10 @@ No exceptions for "obvious" declarations — every declaration gets a doc commen
 
 ## Build policy
 
-Do NOT run `swift build` or `swift test` after making changes. Building and
-testing is the user's responsibility and will be done manually in Xcode.
+Do NOT run `swift build`, `swift test`, or `xcodebuild` (including against the
+Example app's `.xcodeproj`) after making changes. Building and testing —
+package and example app alike — is the user's responsibility and will be done
+manually in Xcode.
 
 ## Debug logging
 
