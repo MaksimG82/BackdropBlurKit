@@ -17,6 +17,11 @@ struct ExampleState {
     /// The currently active tab.
     var selectedTab: ExampleBarItem
 
+    // MARK: - Scenario Selection
+
+    /// The scenario currently being viewed, if any. `nil` means the catalog is shown.
+    var selectedScenario: ExampleScenario?
+
     // MARK: - Initialization
 
     init() {

@@ -18,19 +18,16 @@ struct ContentView: View {
     // MARK: - Body
 
     var body: some View {
-        SimpleScrollView()
-//        ZStack(alignment: .bottom) {
-//            NavigationStack {
-//                contentRouter
-//            }
-//
-//            FloatingTabBarView(
-//                items: viewModel.state.tabBarItems,
-//                selected: selectedItem
-//            )
-//        }
-//        .ignoresSafeArea(.all, edges: .bottom)
+        ZStack(alignment: .bottom) {
+            contentRouter
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
+            FloatingTabBarView(
+                items: viewModel.state.tabBarItems,
+                selected: selectedItem
+            )
+        }
+        .ignoresSafeArea(.all, edges: .bottom)
     }
 }
 
@@ -45,7 +42,7 @@ private extension ContentView {
         case .info:
             InfoScreen()
         case .examples:
-            ExamplesScreen()
+            ExamplesScreen(viewModel: viewModel)
         }
     }
 
