@@ -3,21 +3,21 @@
 import PackageDescription
 
 let package = Package(
-    name: "BackdropBlurKit",
+    name: "LiveBackdropKit",
     platforms: [.iOS(.v17)],
     products: [
         .library(
-            name: "BackdropBlurKit",
-            targets: ["BackdropBlurKit"]
+            name: "LiveBackdropKit",
+            targets: ["LiveBackdropKit"]
         ),
     ],
     targets: [
         .target(
-            name: "BackdropBlurKit"
+            name: "LiveBackdropKit"
         ),
         .testTarget(
-            name: "BackdropBlurKitTests",
-            path: "Tests/BackdropBlurKit"
+            name: "LiveBackdropKitTests",
+            path: "Tests/LiveBackdropKitTests"
         ),
     ],
     swiftLanguageModes: [.v6]
