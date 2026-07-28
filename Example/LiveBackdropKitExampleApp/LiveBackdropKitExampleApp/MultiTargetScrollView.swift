@@ -24,7 +24,7 @@ struct MultiTargetScrollView: View {
         ZStack {
             CheckerboardBackground()
                 .ignoresSafeArea()
-                .effectSource(navigationBarOverlap: .none)
+                .effectSource(navigationBarOverlap: .none, captureMode: .unionFrame)
 
             ScrollView {
                 LazyVStack(spacing: 16) {

@@ -45,6 +45,10 @@ extension EffectSource {
         /// `.possible` (the safe/correct path) until `makeUIViewController` sets the real value.
         var navigationBarOverlap: NavigationBarOverlap = .possible
 
+        /// Which region to render when capturing a snapshot — cropped to the union of target
+        /// frames, or the full source view. Set by `EffectSource` from its own `captureMode`.
+        var captureMode: CaptureMode = .unionFrame
+
         /// Observer for `UIApplication.didBecomeActiveNotification`, removed in `deinit`.
         /// Forces a fresh capture on foreground return in case the underlying content changed
         /// while backgrounded (e.g. a push notification updated data driving the captured
@@ -170,7 +174,13 @@ extension EffectSource {
             effectSignpostBegin("wholeCapture")
 
             effectSignpostBegin("render")
-            let bounds = captureBounds(for: view, captureRect: captureRect)
+            let bounds: CGRect
+            switch captureMode {
+            case .unionFrame:
+                bounds = captureBounds(for: view, captureRect: captureRect)
+            case .fullScreen:
+                bounds = view.bounds
+            }
             let snapshot = renderSnapshot(view: view, bounds: bounds)
             effectSignpostEnd("render")
 

@@ -16,7 +16,10 @@ struct SimpleScrollView: View {
         ZStack() {
             scrollingBackdrop
                 .ignoresSafeArea()
-                .effectSource(navigationBarOverlap: .none)
+                .effectSource(
+                    navigationBarOverlap: .possible,
+                    captureMode: .fullScreen
+                )
 
             targetView
                 .effectTarget()

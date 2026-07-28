@@ -9,11 +9,14 @@ import SwiftUI
 
 public extension View {
     /// Designates this view hierarchy as the pixel and coordinate source for child visual effects.
-    /// - Parameter navigationBarOverlap: Whether this capture region can ever overlap a
-    ///   translucent navigation bar (including large-title/interactive-pop states). No
-    ///   default — the call site must know its own screen structure.
-    func effectSource(navigationBarOverlap: NavigationBarOverlap) -> some View {
-        EffectSourceWrapper(navigationBarOverlap: navigationBarOverlap) { self }
+    /// - Parameters:
+    ///   - navigationBarOverlap: Whether this capture region can ever overlap a
+    ///     translucent navigation bar (including large-title/interactive-pop states). No
+    ///     default — the call site must know its own screen structure.
+    ///   - captureMode: Which region to render when capturing a snapshot. Defaults to
+    ///     `.unionFrame`, the production capture mode.
+    func effectSource(navigationBarOverlap: NavigationBarOverlap, captureMode: CaptureMode = .unionFrame) -> some View {
+        EffectSourceWrapper(navigationBarOverlap: navigationBarOverlap, captureMode: captureMode) { self }
     }
 }
 

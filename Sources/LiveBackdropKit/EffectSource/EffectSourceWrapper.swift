@@ -14,6 +14,10 @@ struct EffectSourceWrapper<Content: View>: View {
     /// Whether this capture region can ever overlap a translucent navigation bar.
     let navigationBarOverlap: NavigationBarOverlap
 
+    /// Which region to render when capturing a snapshot — cropped to the union of target
+    /// frames, or the full source view.
+    let captureMode: CaptureMode
+
     /// The background content to render in isolation.
     let content: () -> Content
 
@@ -24,7 +28,7 @@ struct EffectSourceWrapper<Content: View>: View {
     @Environment(\.effectSnapshotStore) private var store
 
     var body: some View {
-        EffectSource(navigationBarOverlap: navigationBarOverlap, content: content, onProcessedSnapshot: { newSnapshots in
+        EffectSource(navigationBarOverlap: navigationBarOverlap, captureMode: captureMode, content: content, onProcessedSnapshot: { newSnapshots in
             store?.snapshots = newSnapshots
         })
     }

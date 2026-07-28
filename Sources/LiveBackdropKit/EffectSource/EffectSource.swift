@@ -15,6 +15,10 @@ public struct EffectSource<Content: View>: UIViewControllerRepresentable {
     /// Whether this capture region can ever overlap a translucent navigation bar.
     let navigationBarOverlap: NavigationBarOverlap
 
+    /// Which region to render when capturing a snapshot — cropped to the union of target
+    /// frames, or the full source view.
+    let captureMode: CaptureMode
+
     /// The background content to render and snapshot.
     let content: () -> Content
 
@@ -25,14 +29,18 @@ public struct EffectSource<Content: View>: UIViewControllerRepresentable {
     /// - Parameters:
     ///   - navigationBarOverlap: Whether this capture region can ever overlap a translucent
     ///     navigation bar.
+    ///   - captureMode: Which region to render when capturing a snapshot. Defaults to
+    ///     `.unionFrame`, the production capture mode.
     ///   - content: The background content to render in isolation.
     ///   - onProcessedSnapshot: A closure invoked with processed snapshots keyed by configuration.
     public init(
         navigationBarOverlap: NavigationBarOverlap,
+        captureMode: CaptureMode = .unionFrame,
         @ViewBuilder content: @escaping () -> Content,
         onProcessedSnapshot: @escaping ([EffectConfiguration: UIImage]) -> Void
     ) {
         self.navigationBarOverlap = navigationBarOverlap
+        self.captureMode = captureMode
         self.content = content
         self.onProcessedSnapshot = onProcessedSnapshot
     }
@@ -82,6 +90,7 @@ public struct EffectSource<Content: View>: UIViewControllerRepresentable {
         context.coordinator.hostingController = controller
         context.coordinator.onProcessedSnapshot = onProcessedSnapshot
         context.coordinator.navigationBarOverlap = navigationBarOverlap
+        context.coordinator.captureMode = captureMode
         context.coordinator.store?.onCaptureRectChanged = { [weak coordinator = context.coordinator] in
             coordinator?.requestSnapshot()
         }
@@ -92,5 +101,6 @@ public struct EffectSource<Content: View>: UIViewControllerRepresentable {
         uiViewController.rootView = content()
         context.coordinator.onProcessedSnapshot = onProcessedSnapshot
         context.coordinator.navigationBarOverlap = navigationBarOverlap
+        context.coordinator.captureMode = captureMode
     }
 }
