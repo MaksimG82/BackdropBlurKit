@@ -18,7 +18,9 @@ struct SimpleScrollView: View {
                 .ignoresSafeArea()
                 .effectSource(
                     navigationBarOverlap: .none,
-                    captureMode: .fullScreen
+                    captureMode: .fullScreen,
+                    captureTrigger: .tickSynchronized,
+                    captureExecution: .synchronous
                 )
 
             targetView

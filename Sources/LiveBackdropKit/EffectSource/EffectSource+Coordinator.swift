@@ -41,6 +41,13 @@ extension EffectSource {
         /// Whether a snapshot capture has been requested and is awaiting the next display-link tick.
         private var needsSnapshot = false
 
+        /// Guards against scheduling more than one pending asynchronous capture per run-loop
+        /// turn (see `scheduleAsynchronousCapture()`). `onOffsetChanged` can fire faster than
+        /// the display refresh rate during interactive, touch-driven dragging (contentOffset
+        /// updates directly per touch delta, not paced by any display link), so without this a
+        /// fast drag could queue up many redundant `DispatchQueue.main.async` captures.
+        private var isCaptureScheduled = false
+
         /// Whether this capture region can ever overlap a translucent navigation bar. Defaults to
         /// `.possible` (the safe/correct path) until `makeUIViewController` sets the real value.
         var navigationBarOverlap: NavigationBarOverlap = .possible
@@ -48,6 +55,16 @@ extension EffectSource {
         /// Which region to render when capturing a snapshot — cropped to the union of target
         /// frames, or the full source view. Set by `EffectSource` from its own `captureMode`.
         var captureMode: CaptureMode = .unionFrame
+
+        /// What triggers a capture while scrolling. Defaults to `.tickSynchronized`, the
+        /// original, regression-free behavior. See `CaptureTrigger`'s doc comment for the
+        /// v0.0.1 status of this and `captureExecution` together — the other three
+        /// combinations are implemented but not yet validated against real content.
+        var captureTrigger: CaptureTrigger = .tickSynchronized
+
+        /// How a triggered capture actually runs. Defaults to `.synchronous`. See
+        /// `CaptureExecution`.
+        var captureExecution: CaptureExecution = .synchronous
 
         /// Observer for `UIApplication.didBecomeActiveNotification`, removed in `deinit`.
         /// Forces a fresh capture on foreground return in case the underlying content changed
@@ -72,13 +89,13 @@ extension EffectSource {
                 self.isScrolling = isScrolling
                 self.refreshDisplayLinkPauseState()
             }
-            // Captures synchronously, right here, rather than deferring to the next
-            // independently-clocked display-link tick — see `onOffsetChanged`'s doc comment.
+            // Only acts when captureTrigger == .onDemand — see CaptureTrigger's doc comment.
             scrollTracker.onOffsetChanged = { [weak self] in
                 guard let self else { return }
                 // TEMP: lag investigation — remove after verification
                 self.store?.lastScrollOffsetChangeFrame = self.displayLink.frameIndex
-                self.captureSnapshot()
+                guard self.captureTrigger == .onDemand else { return }
+                self.performCapture()
             }
             didBecomeActiveObserver = NotificationCenter.default.addObserver(
                 forName: UIApplication.didBecomeActiveNotification,
@@ -144,29 +161,63 @@ extension EffectSource {
             displayLink.isPaused = !(isScrolling || needsSnapshot)
         }
 
-        /// Services a display-link tick — but only actually captures when `needsSnapshot` is
-        /// set, i.e. for triggers that aren't tied to a scroll-offset change
-        /// (`onCaptureRectChanged`, app-foreground return via `requestSnapshot()`).
+        /// Services a display-link tick.
         ///
-        /// Scroll-driven captures bypass this path entirely: they fire synchronously from
-        /// `scrollTracker.onOffsetChanged` (see `init`), reacting directly to the same event
-        /// that changed the geometry instead of waiting for this independently-clocked tick to
-        /// catch up. The tick and the scroll view's own `contentOffset` updates run on
-        /// unrelated clocks with no ordering guarantee between them, which was causing a real,
-        /// visible capture/delivery desync during fast scrolling — capturing here on every
-        /// tick regardless would also race the synchronous capture above and could clobber it
-        /// with a more-stale render.
+        /// Always captures when `needsSnapshot` is set — triggers unrelated to scrolling
+        /// (`onCaptureRectChanged`, app-foreground return via `requestSnapshot()`). Also
+        /// captures on every tick while scrolling is active, but only when
+        /// `captureTrigger == .tickSynchronized`; under `.onDemand`, scroll-driven captures
+        /// are triggered directly from `scrollTracker.onOffsetChanged` instead (see `init`),
+        /// and this tick is a no-op for them — capturing here too would race that trigger and
+        /// could clobber it with a more-stale render.
         ///
-        /// The display link still runs throughout scrolling (`isScrolling` keeps it unpaused)
-        /// purely so `currentDisplayLinkFrame` keeps advancing for the TEMP lag diagnostics
-        /// below — capture itself no longer depends on that cadence.
+        /// The display link still runs throughout scrolling regardless of `captureTrigger`
+        /// (`isScrolling` keeps it unpaused) purely so `currentDisplayLinkFrame` keeps
+        /// advancing for the TEMP lag diagnostics below.
         private func consumePendingSnapshot() {
             // TEMP: lag investigation — remove after verification
             store?.currentDisplayLinkFrame = displayLink.frameIndex
-            guard needsSnapshot else { return }
+            let tickShouldCapture = needsSnapshot || (captureTrigger == .tickSynchronized && isScrolling)
+            guard tickShouldCapture else { return }
             needsSnapshot = false
-            captureSnapshot()
+            performCapture()
             refreshDisplayLinkPauseState()
+        }
+
+        /// Runs a triggered capture per `captureExecution`.
+        private func performCapture() {
+            switch captureExecution {
+            case .synchronous:
+                captureSnapshot()
+            case .asynchronous:
+                scheduleAsynchronousCapture()
+            }
+        }
+
+        /// Defers a capture via `DispatchQueue.main.async`, coalesced to at most one pending
+        /// capture at a time.
+        ///
+        /// Matters most when paired with `captureTrigger == .onDemand`: `onOffsetChanged`
+        /// fires synchronously, inline, inside whatever UIKit call actually mutated
+        /// `contentOffset` — during interactive dragging, that's the pan gesture's own
+        /// touch-handling code; during deceleration, UIScrollView's internal per-frame
+        /// stepping. Capturing directly from there measurably blocked that call (several
+        /// milliseconds of render + Core Image work inline), which delayed UIKit's own
+        /// contentOffset commit for that frame and visibly degraded scroll smoothness.
+        /// Dispatching here instead returns control to UIKit immediately, at the cost of the
+        /// capture landing one run-loop turn later than the trigger.
+        ///
+        /// The `isCaptureScheduled` guard also caps capture frequency to roughly once per
+        /// run-loop turn even though `contentOffset` can change faster than the display
+        /// refresh rate during interactive dragging.
+        private func scheduleAsynchronousCapture() {
+            guard !isCaptureScheduled else { return }
+            isCaptureScheduled = true
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                self.isCaptureScheduled = false
+                self.captureSnapshot()
+            }
         }
 
         /// Captures the current visual state of the hosted view hierarchy, processes it, and

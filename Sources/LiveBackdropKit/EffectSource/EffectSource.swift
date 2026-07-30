@@ -19,6 +19,13 @@ public struct EffectSource<Content: View>: UIViewControllerRepresentable {
     /// frames, or the full source view.
     let captureMode: CaptureMode
 
+    /// What triggers a capture while scrolling. See `CaptureTrigger`'s doc comment for the
+    /// v0.0.1 status of this and `captureExecution` together.
+    let captureTrigger: CaptureTrigger
+
+    /// How a triggered capture actually runs. See `CaptureExecution`.
+    let captureExecution: CaptureExecution
+
     /// The background content to render and snapshot.
     let content: () -> Content
 
@@ -31,16 +38,23 @@ public struct EffectSource<Content: View>: UIViewControllerRepresentable {
     ///     navigation bar.
     ///   - captureMode: Which region to render when capturing a snapshot. Defaults to
     ///     `.unionFrame`, the production capture mode.
+    ///   - captureTrigger: What triggers a capture while scrolling. Defaults to
+    ///     `.tickSynchronized`, the original, regression-free behavior.
+    ///   - captureExecution: How a triggered capture actually runs. Defaults to `.synchronous`.
     ///   - content: The background content to render in isolation.
     ///   - onProcessedSnapshot: A closure invoked with processed snapshots keyed by configuration.
     public init(
         navigationBarOverlap: NavigationBarOverlap,
         captureMode: CaptureMode = .unionFrame,
+        captureTrigger: CaptureTrigger = .tickSynchronized,
+        captureExecution: CaptureExecution = .synchronous,
         @ViewBuilder content: @escaping () -> Content,
         onProcessedSnapshot: @escaping ([EffectConfiguration: UIImage]) -> Void
     ) {
         self.navigationBarOverlap = navigationBarOverlap
         self.captureMode = captureMode
+        self.captureTrigger = captureTrigger
+        self.captureExecution = captureExecution
         self.content = content
         self.onProcessedSnapshot = onProcessedSnapshot
     }
@@ -91,6 +105,8 @@ public struct EffectSource<Content: View>: UIViewControllerRepresentable {
         context.coordinator.onProcessedSnapshot = onProcessedSnapshot
         context.coordinator.navigationBarOverlap = navigationBarOverlap
         context.coordinator.captureMode = captureMode
+        context.coordinator.captureTrigger = captureTrigger
+        context.coordinator.captureExecution = captureExecution
         context.coordinator.store?.onCaptureRectChanged = { [weak coordinator = context.coordinator] in
             coordinator?.requestSnapshot()
         }
@@ -102,5 +118,7 @@ public struct EffectSource<Content: View>: UIViewControllerRepresentable {
         context.coordinator.onProcessedSnapshot = onProcessedSnapshot
         context.coordinator.navigationBarOverlap = navigationBarOverlap
         context.coordinator.captureMode = captureMode
+        context.coordinator.captureTrigger = captureTrigger
+        context.coordinator.captureExecution = captureExecution
     }
 }

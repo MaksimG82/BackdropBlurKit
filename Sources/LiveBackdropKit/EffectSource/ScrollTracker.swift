@@ -16,10 +16,13 @@ final class ScrollTracker {
     var onScrollingChanged: ((Bool) -> Void)?
 
     /// Called synchronously on every real `contentOffset` KVO firing, before any coalescing
-    /// or throttling. `EffectSource.Coordinator` uses this to trigger an immediate capture
-    /// instead of relying on its own independently-clocked `CADisplayLink` tick — the two run
-    /// on unrelated clocks with no ordering guarantee between them, so waiting for the tick
-    /// could capture stale geometry relative to what the scroll view just committed.
+    /// or throttling. `EffectSource.Coordinator` uses this to schedule a near-immediate
+    /// capture instead of relying on its own independently-clocked `CADisplayLink` tick — the
+    /// two run on unrelated clocks with no ordering guarantee between them, so waiting for the
+    /// tick could capture stale geometry relative to what the scroll view just committed.
+    /// The capture itself must not run inline here, though: this closure fires nested inside
+    /// UIKit's own `contentOffset`-mutating call, and blocking that call directly degrades
+    /// scroll smoothness — see `scheduleScrollTriggeredCapture()`.
     var onOffsetChanged: (() -> Void)?
 
     /// The collection of scroll views currently being monitored.
