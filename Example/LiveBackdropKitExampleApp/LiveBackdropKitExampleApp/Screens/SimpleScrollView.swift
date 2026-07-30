@@ -17,7 +17,7 @@ struct SimpleScrollView: View {
             scrollingBackdrop
                 .ignoresSafeArea()
                 .effectSource(
-                    navigationBarOverlap: .possible,
+                    navigationBarOverlap: .none,
                     captureMode: .fullScreen
                 )
 

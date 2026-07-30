@@ -15,6 +15,12 @@ final class ScrollTracker {
     /// Called when the aggregated scrolling state across all tracked scroll views changes.
     var onScrollingChanged: ((Bool) -> Void)?
 
+    // TEMP: lag investigation — remove after verification
+    /// Called on every real `contentOffset` KVO firing — the "source content actually moved"
+    /// signal, used to anchor frame-lag measurement in scenarios where the target itself is
+    /// fixed (e.g. `SimpleScrollView`) and its own frame never changes.
+    var onOffsetChanged: (() -> Void)?
+
     /// The collection of scroll views currently being monitored.
     private var trackedScrollViews: [UIScrollView] = []
 
@@ -101,6 +107,7 @@ final class ScrollTracker {
     private func handleOffsetChange(in scrollView: UIScrollView) {
         // TEMP: lag investigation — remove after verification
         effectSignpostEvent("scrollOffset", offset: scrollView.contentOffset)
+        onOffsetChanged?()
         let wasScrolling = !stopWorkItems.isEmpty
         stopWorkItems[scrollView]?.cancel()
 

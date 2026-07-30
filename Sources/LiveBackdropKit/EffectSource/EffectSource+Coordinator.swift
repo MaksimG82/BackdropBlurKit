@@ -72,6 +72,11 @@ extension EffectSource {
                 self.isScrolling = isScrolling
                 self.refreshDisplayLinkPauseState()
             }
+            // TEMP: lag investigation — remove after verification
+            scrollTracker.onOffsetChanged = { [weak self] in
+                guard let self else { return }
+                self.store?.lastScrollOffsetChangeFrame = self.displayLink.frameIndex
+            }
             didBecomeActiveObserver = NotificationCenter.default.addObserver(
                 forName: UIApplication.didBecomeActiveNotification,
                 object: nil,
@@ -138,6 +143,10 @@ extension EffectSource {
 
         /// Clears the pending snapshot flag, performs the capture, then re-evaluates pause state.
         private func consumePendingSnapshot() {
+            // TEMP: lag investigation — remove after verification. Refreshed unconditionally,
+            // every tick, so target-side reads never see a stale value even on ticks where
+            // captureSnapshot() below exits early via one of its guards.
+            store?.currentDisplayLinkFrame = displayLink.frameIndex
             needsSnapshot = false
             captureSnapshot()
             refreshDisplayLinkPauseState()
@@ -189,6 +198,13 @@ extension EffectSource {
             effectSignpostEnd("process")
 
             effectSignpostBegin("deliver")
+            // Written right before delivery so `.effectTarget()` can offset against where this
+            // snapshot's pixel (0, 0) actually landed, rather than assuming it's always
+            // `captureRect.origin` — true under `.unionFrame` by construction, but not under
+            // `.fullScreen`, where `bounds` is the source view's own local bounds instead.
+            store?.capturedOrigin = view.window != nil ? view.convert(bounds.origin, to: nil) : bounds.origin
+            // TEMP: lag investigation — remove after verification
+            store?.capturedFrameIndex = displayLink.frameIndex
             onProcessedSnapshot?(result)
             effectSignpostEnd("deliver")
             effectSignpostEnd("wholeCapture")

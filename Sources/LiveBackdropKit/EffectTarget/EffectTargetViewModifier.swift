@@ -84,20 +84,24 @@ struct EffectTargetViewModifier: ViewModifier {
     @ViewBuilder
     private func backdropView(frame: CGRect) -> some View {
         if let snapshot = snapshots[effectiveConfiguration],
-           let captureRect = store?.captureRect {
+           let capturedOrigin = store?.capturedOrigin {
             let _ = logEvent("target receives ready snapshot")
             Image(uiImage: snapshot)
                 .resizable()
                 .frame(width: snapshot.size.width, height: snapshot.size.height)
                 .offset(
-                    x: -(frame.minX - captureRect.minX),
-                    y: -(frame.minY - captureRect.minY)
+                    x: -(frame.minX - capturedOrigin.x),
+                    y: -(frame.minY - capturedOrigin.y)
                 )
                 .frame(width: frame.width, height: frame.height, alignment: .topLeading)
                 .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
                 // TEMP: lag investigation — remove after verification
                 .onChange(of: ObjectIdentifier(snapshot)) {
                     effectSignpostEvent("targetSnapshotUpdated", time: CACurrentMediaTime())
+                    let offsetChanged = store?.lastScrollOffsetChangeFrame ?? 0
+                    let captured = store?.capturedFrameIndex ?? 0
+                    let delivered = store?.currentDisplayLinkFrame ?? 0
+                    print("[LAG] offsetChanged=\(offsetChanged) captured=\(captured) delivered=\(delivered) lag=\(delivered - offsetChanged)")
                 }
         }
     }
