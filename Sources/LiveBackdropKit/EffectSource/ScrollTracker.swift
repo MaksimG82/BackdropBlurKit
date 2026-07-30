@@ -15,10 +15,11 @@ final class ScrollTracker {
     /// Called when the aggregated scrolling state across all tracked scroll views changes.
     var onScrollingChanged: ((Bool) -> Void)?
 
-    // TEMP: lag investigation — remove after verification
-    /// Called on every real `contentOffset` KVO firing — the "source content actually moved"
-    /// signal, used to anchor frame-lag measurement in scenarios where the target itself is
-    /// fixed (e.g. `SimpleScrollView`) and its own frame never changes.
+    /// Called synchronously on every real `contentOffset` KVO firing, before any coalescing
+    /// or throttling. `EffectSource.Coordinator` uses this to trigger an immediate capture
+    /// instead of relying on its own independently-clocked `CADisplayLink` tick — the two run
+    /// on unrelated clocks with no ordering guarantee between them, so waiting for the tick
+    /// could capture stale geometry relative to what the scroll view just committed.
     var onOffsetChanged: (() -> Void)?
 
     /// The collection of scroll views currently being monitored.

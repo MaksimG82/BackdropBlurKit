@@ -72,10 +72,13 @@ extension EffectSource {
                 self.isScrolling = isScrolling
                 self.refreshDisplayLinkPauseState()
             }
-            // TEMP: lag investigation — remove after verification
+            // Captures synchronously, right here, rather than deferring to the next
+            // independently-clocked display-link tick — see `onOffsetChanged`'s doc comment.
             scrollTracker.onOffsetChanged = { [weak self] in
                 guard let self else { return }
+                // TEMP: lag investigation — remove after verification
                 self.store?.lastScrollOffsetChangeFrame = self.displayLink.frameIndex
+                self.captureSnapshot()
             }
             didBecomeActiveObserver = NotificationCenter.default.addObserver(
                 forName: UIApplication.didBecomeActiveNotification,
@@ -141,12 +144,26 @@ extension EffectSource {
             displayLink.isPaused = !(isScrolling || needsSnapshot)
         }
 
-        /// Clears the pending snapshot flag, performs the capture, then re-evaluates pause state.
+        /// Services a display-link tick — but only actually captures when `needsSnapshot` is
+        /// set, i.e. for triggers that aren't tied to a scroll-offset change
+        /// (`onCaptureRectChanged`, app-foreground return via `requestSnapshot()`).
+        ///
+        /// Scroll-driven captures bypass this path entirely: they fire synchronously from
+        /// `scrollTracker.onOffsetChanged` (see `init`), reacting directly to the same event
+        /// that changed the geometry instead of waiting for this independently-clocked tick to
+        /// catch up. The tick and the scroll view's own `contentOffset` updates run on
+        /// unrelated clocks with no ordering guarantee between them, which was causing a real,
+        /// visible capture/delivery desync during fast scrolling — capturing here on every
+        /// tick regardless would also race the synchronous capture above and could clobber it
+        /// with a more-stale render.
+        ///
+        /// The display link still runs throughout scrolling (`isScrolling` keeps it unpaused)
+        /// purely so `currentDisplayLinkFrame` keeps advancing for the TEMP lag diagnostics
+        /// below — capture itself no longer depends on that cadence.
         private func consumePendingSnapshot() {
-            // TEMP: lag investigation — remove after verification. Refreshed unconditionally,
-            // every tick, so target-side reads never see a stale value even on ticks where
-            // captureSnapshot() below exits early via one of its guards.
+            // TEMP: lag investigation — remove after verification
             store?.currentDisplayLinkFrame = displayLink.frameIndex
+            guard needsSnapshot else { return }
             needsSnapshot = false
             captureSnapshot()
             refreshDisplayLinkPauseState()
