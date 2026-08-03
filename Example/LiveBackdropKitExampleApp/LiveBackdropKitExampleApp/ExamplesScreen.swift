@@ -95,6 +95,8 @@ private extension ExamplesScreen {
             FixedHeaderOffsetView()
         case .multiTargetScroll:
             MultiTargetScrollView()
+        case .layerEffectScroll:
+            LayerEffectScrollView()
         }
     }
 }
