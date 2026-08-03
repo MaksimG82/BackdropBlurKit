@@ -2,6 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Status
+
+This library is unpublished — no tagged release, no versioning guarantees. It's under active
+development; APIs (including the CPU-snapshot pipeline described below and the newer
+`.layerEffect`-based path under development on branch `feature/layerEffect`) may change shape
+freely. Known gaps and rough edges (e.g. size-class-transition frame staleness in the
+layerEffect path's target tracking) are expected at this stage and don't need to block work —
+they get noted and revisited before any eventual first release, not fixed reflexively.
+
 ## What this is
 
 LiveBackdropKit is a Swift Package (iOS 17+, Swift 6 language mode) that provides a live,

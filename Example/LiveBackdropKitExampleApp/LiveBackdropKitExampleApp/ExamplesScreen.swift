@@ -97,6 +97,8 @@ private extension ExamplesScreen {
             MultiTargetScrollView()
         case .layerEffectScroll:
             LayerEffectScrollView()
+        case .layerEffectTargetsScroll:
+            LayerEffectTargetsScrollView()
         }
     }
 }

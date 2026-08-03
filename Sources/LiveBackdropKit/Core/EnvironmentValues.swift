@@ -25,4 +25,9 @@ extension EnvironmentValues {
 
     /// The shared snapshot store distributed by the nearest ancestor `effectCoordinator`.
     @Entry var effectSnapshotStore: EffectSnapshotStore? = nil
+
+    /// The shared target-frame store distributed by the nearest ancestor
+    /// `layerEffectCoordinator`, for the GPU `.layerEffect`-based pipeline. Fully separate
+    /// from `effectSnapshotStore` — no shared state with the CPU pipeline.
+    @Entry var layerEffectTargetStore: LayerEffectTargetStore? = nil
 }
