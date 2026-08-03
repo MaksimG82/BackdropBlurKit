@@ -29,6 +29,10 @@ final class DisplayLinkCoordinator {
         /// The Objective-C compatible target method triggered by the display link.
         @objc func update() {
             frameCounter += 1
+            // TEMP: lag investigation — remove after verification. Unthrottled, unlike
+            // onFrameUpdate below, so it's a true per-vsync counter callers can stamp events
+            // against regardless of throttleRate.
+            coordinator?.frameIndex += 1
             if frameCounter % throttleRate == 0 {
                 coordinator?.onFrameUpdate?()
             }
@@ -42,6 +46,11 @@ final class DisplayLinkCoordinator {
 
     /// The closure to execute on every screen refresh cycle.
     var onFrameUpdate: (() -> Void)?
+
+    // TEMP: lag investigation — remove after verification
+    /// A monotonically increasing per-vsync tick counter, for stamping events with "which
+    /// display-link frame did this happen in" instead of a wall-clock timestamp.
+    private(set) var frameIndex = 0
 
     /// Toggles the operational state of the display link to save processor cycles.
     var isPaused: Bool {

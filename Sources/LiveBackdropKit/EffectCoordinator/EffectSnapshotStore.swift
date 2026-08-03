@@ -51,6 +51,29 @@ final class EffectSnapshotStore {
     /// Called when `captureRect` changes — signals `EffectSource` to re-capture immediately.
     var onCaptureRectChanged: (() -> Void)?
 
+    /// The global-coordinate origin corresponding to pixel `(0, 0)` of the most recently
+    /// delivered `snapshots` images. Written by `EffectSource.Coordinator` immediately before
+    /// delivering a new snapshot. Distinct from `captureRect.origin`: `captureRect` is the
+    /// *requested* crop region (the union of target frames), while `capturedOrigin` is where
+    /// the delivered bitmap's own pixel origin actually landed once rendered — the two coincide
+    /// under `CaptureMode.unionFrame` (the bitmap is cropped to `captureRect` by construction),
+    /// but not under `.fullScreen`, where the bitmap covers the whole source view instead.
+    /// `.effectTarget()` must offset against this, not `captureRect`, to stay correct across
+    /// capture modes.
+    var capturedOrigin: CGPoint = .zero
+
+    // TEMP: lag investigation — remove after verification. Three display-link frame indices
+    // that together let `.effectTarget()` log how many vsyncs elapsed between the source
+    // content actually moving, the resulting snapshot being captured, and it being delivered.
+    /// The display-link frame index as of the most recent tick, refreshed unconditionally on
+    /// every tick regardless of whether a capture happened.
+    var currentDisplayLinkFrame = 0
+    /// The display-link frame index at which the most recently delivered snapshot was captured.
+    var capturedFrameIndex = 0
+    /// The display-link frame index of the last real `contentOffset` change reported by
+    /// `ScrollTracker` — the "source content actually moved" signal.
+    var lastScrollOffsetChangeFrame = 0
+
     /// Computes the minimal `CGRect` enclosing all given frames, or `.zero` if empty.
     private static func union(of frames: [CGRect]) -> CGRect {
         guard let first = frames.first else { return .zero }

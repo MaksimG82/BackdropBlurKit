@@ -11,4 +11,10 @@ enum ExampleIntent {
 
     /// Changes the currently selected tab.
     case selectTab(ExampleBarItem)
+
+    /// Enters a scenario, replacing the catalog with its detail view.
+    case selectScenario(ExampleScenario)
+
+    /// Leaves the current scenario, returning to the catalog.
+    case dismissScenario
 }
