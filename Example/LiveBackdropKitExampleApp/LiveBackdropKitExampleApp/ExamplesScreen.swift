@@ -68,6 +68,8 @@ private extension ExamplesScreen {
                 viewModel.send(.dismissScenario)
             } label: {
                 Image(systemName: "chevron.left")
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
             }
 
             Text(scenario.title)
