@@ -43,4 +43,28 @@ public enum LayerEffectConfiguration: Hashable, Sendable {
     /// the shader.
     /// - Parameter strength: How strongly to add/subtract the offset pixels.
     case emboss(strength: CGFloat)
+
+    /// A rippling water-distortion effect adapted from Inferno's `Water.metal` — see
+    /// `Water.metal` for the shader and `waterDistortionEffect(size:time:speed:strength:frequency:)`
+    /// for how it's applied via `.distortionEffect` rather than `.layerEffect`. The first
+    /// time-based case in this enum — see `LayerEffectSourceViewModifier`, which wraps rendering
+    /// in a `TimelineView(.animation)` only for cases like this one.
+    /// - Parameters:
+    ///   - speed: How fast the water ripples. 0.5–10 work best; try starting with 3.
+    ///   - strength: How pronounced the rippling is. 1–5 work best; try starting with 3.
+    ///   - frequency: How often ripples occur. 5–25 work best; try starting with 10.
+    case water(speed: CGFloat, strength: CGFloat, frequency: CGFloat)
+
+    /// Whether this configuration needs a continuously-updating time value to animate, as
+    /// opposed to rendering the same output for a fixed input. Used internally by
+    /// `LayerEffectSourceViewModifier` to decide whether to pay for a `TimelineView(.animation)`
+    /// — skipped entirely for the static cases.
+    var isTimeBased: Bool {
+        switch self {
+        case .invert, .gaussianBlur, .colorPlanes, .emboss:
+            return false
+        case .water:
+            return true
+        }
+    }
 }
