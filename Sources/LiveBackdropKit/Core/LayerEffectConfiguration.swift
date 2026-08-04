@@ -23,10 +23,14 @@ public enum LayerEffectConfiguration: Hashable, Sendable {
     /// in its own right — see `invertedLayerEffect()` and `ColorInversionTest.metal`.
     case invert
 
-    /// A single-pass, 9-tap weighted approximation of a Gaussian blur — see
-    /// `GaussianBlur.metal` for the kernel and why it isn't a true separable Gaussian, and
-    /// `gaussianBlurLayerEffect(radius:)` for how `radius` drives sample spacing and
-    /// `maxSampleOffset`.
-    /// - Parameter radius: The blur radius, in points.
-    case gaussianBlur(radius: CGFloat)
+    /// A two-pass separable Gaussian blur adapted from Inferno's `VariableGaussianBlur.metal` —
+    /// see `GaussianBlur.metal` for the shader and
+    /// `gaussianBlurLayerEffect(radius:boundingRect:maxSamples:)` for how the two passes are
+    /// dispatched.
+    /// - Parameters:
+    ///   - radius: The blur radius, in points, applied uniformly to every pixel.
+    ///   - maxSamples: The maximum number of samples to take in each direction from a pixel, per
+    ///     axis pass. Lower values are cheaper; e.g. 5 is visually indistinguishable from 15 on
+    ///     typical content while being noticeably lighter on scroll performance.
+    case gaussianBlur(radius: CGFloat, maxSamples: Float)
 }

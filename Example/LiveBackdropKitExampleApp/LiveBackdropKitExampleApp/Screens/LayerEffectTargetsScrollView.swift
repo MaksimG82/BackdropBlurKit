@@ -15,15 +15,10 @@ import LiveBackdropKit
 /// `@State`) has been promoted into `LiveBackdropKit` itself — see
 /// `LayerEffectCoordinatorModifier`, `LayerEffectTargetViewModifier`, and
 /// `LayerEffectSourceViewModifier` — so nothing coordinator-shaped lives in this file anymore.
-///
-/// A segmented control switches `.layerEffectSource(configuration:)` between
-/// `LayerEffectConfiguration.invert` and `.gaussianBlur(radius:)` live, so both effects are
-/// reachable/comparable through the same real target geometry rather than needing two
-/// separate scenarios.
 struct LayerEffectTargetsScrollView: View {
 
-    /// The effect currently applied to `scrollingBackdrop`, switched via `configurationPicker`.
-    @State private var configuration: LayerEffectConfiguration = .invert
+    /// The effect applied to `scrollingBackdrop`.
+    @State private var configuration: LayerEffectConfiguration = .gaussianBlur(radius: 10, maxSamples: 5)
 
     var body: some View {
         ZStack {
@@ -31,8 +26,6 @@ struct LayerEffectTargetsScrollView: View {
                 .ignoresSafeArea()
 
             targetMarkers
-
-            configurationPicker
         }
         .layerEffectCoordinator()
         .ignoresSafeArea()
@@ -90,21 +83,6 @@ private extension LayerEffectTargetsScrollView {
                     .stroke(color, lineWidth: 2)
             )
             .layerEffectTarget()
-    }
-
-    /// A floating segmented control for switching `configuration` live, pinned above the
-    /// tab bar so it doesn't collide with either that or `ExamplesScreen`'s floating header.
-    var configurationPicker: some View {
-        Picker("Effect", selection: $configuration) {
-            Text("Invert").tag(LayerEffectConfiguration.invert)
-            Text("Gaussian Blur").tag(LayerEffectConfiguration.gaussianBlur(radius: 10))
-        }
-        .pickerStyle(.segmented)
-        .padding(8)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .padding(.horizontal, 24)
-        .frame(maxHeight: .infinity, alignment: .bottom)
-        .padding(.bottom, 110)
     }
 }
 

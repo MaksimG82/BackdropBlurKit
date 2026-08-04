@@ -74,8 +74,8 @@ struct LayerEffectSourceViewModifier: ViewModifier {
         switch configuration {
         case .invert:
             content.invertedLayerEffect()
-        case let .gaussianBlur(radius):
-            content.gaussianBlurLayerEffect(radius: radius, boundingRect: boundingRect)
+        case let .gaussianBlur(radius, maxSamples):
+            content.gaussianBlurLayerEffect(radius: radius, boundingRect: boundingRect, maxSamples: maxSamples)
         }
     }
 }
