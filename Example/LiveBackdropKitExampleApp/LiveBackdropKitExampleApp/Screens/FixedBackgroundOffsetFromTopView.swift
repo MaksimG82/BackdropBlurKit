@@ -1,5 +1,5 @@
 //
-//  FixedHeaderOffsetView.swift
+//  FixedBackgroundOffsetFromTopView.swift
 //  BackdropBlurKitExampleApp
 //
 //  Created by Maksim Gaisin on 28.07.26.
@@ -14,7 +14,7 @@ import LiveBackdropKit
 ///
 /// The block's height is runtime-adjustable so the boundary between the fixed block and the
 /// scrolling area can be moved to exercise edge cases.
-struct FixedHeaderOffsetView: View {
+struct FixedBackgroundOffsetFromTopView: View {
 
     // MARK: - Property Wrappers
 
@@ -42,7 +42,7 @@ struct FixedHeaderOffsetView: View {
 
 // MARK: - Subviews
 
-private extension FixedHeaderOffsetView {
+private extension FixedBackgroundOffsetFromTopView {
 
     /// The fixed, non-scrolling block whose height defines the effect source's top offset.
     var fixedBlock: some View {
@@ -82,5 +82,5 @@ private extension FixedHeaderOffsetView {
 }
 
 #Preview {
-    FixedHeaderOffsetView()
+    FixedBackgroundOffsetFromTopView()
 }

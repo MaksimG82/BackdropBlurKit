@@ -14,7 +14,7 @@ struct ExampleBarItem: BarItemProtocol {
 
     /// Internal types for the example app tabs.
     enum TabType: String, CaseIterable {
-        case info, cpu, gpu
+        case info, gpu, cpu
     }
 
     // MARK: - Properties

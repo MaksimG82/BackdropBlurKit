@@ -27,6 +27,8 @@ final class ExampleViewModel {
             state.selectedScenario = scenario
         case .dismissScenario:
             state.selectedScenario = nil
+        case let .setGPUPath(path):
+            state.gpuPath = path
         }
     }
 }

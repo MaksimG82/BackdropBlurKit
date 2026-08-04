@@ -1,5 +1,5 @@
 //
-//  MultiTargetLayerEffectScrollView.swift
+//  MovingPanelsFixedBackgroundLayerEffectView.swift
 //  LiveBackdropKitExampleApp
 //
 //  Created by Maksim Gaisin on 04.08.26.
@@ -11,11 +11,12 @@ import LiveBackdropKit
 /// A single fixed (non-scrolling) GPU `.layerEffect` source with multiple effect targets
 /// scrolling over it in a `ScrollView`/`LazyVStack`, each cell tracking its own frame
 /// independently as it scrolls — the `.layerEffect` pipeline's counterpart to
-/// `MultiTargetScrollView`'s CPU-snapshot scenario, with source/target mobility roles kept
-/// identical (fixed source, moving targets) to test whether that combination carries over
-/// unchanged. Unlike `LayerEffectTargetsScrollView` (moving source, fixed targets), this is the
-/// inverse pairing and has not been previously exercised on this pipeline.
-struct MultiTargetLayerEffectScrollView: View {
+/// `MovingPanelsFixedBackgroundView`'s CPU-snapshot scenario, with source/target mobility roles
+/// kept identical (fixed source, moving targets) to test whether that combination carries over
+/// unchanged. Unlike `MovingBackgroundFixedPanelsLayerEffectView` (moving source, fixed
+/// targets), this is the inverse pairing and has not been previously exercised on this
+/// pipeline.
+struct MovingPanelsFixedBackgroundLayerEffectView: View {
 
     // MARK: - Constants
 
@@ -53,7 +54,7 @@ struct MultiTargetLayerEffectScrollView: View {
 
 // MARK: - Subviews
 
-private extension MultiTargetLayerEffectScrollView {
+private extension MovingPanelsFixedBackgroundLayerEffectView {
 
     /// A single scrolling effect-target cell labeled with its index.
     func cell(_ index: Int) -> some View {
@@ -70,5 +71,5 @@ private extension MultiTargetLayerEffectScrollView {
 }
 
 #Preview {
-    MultiTargetLayerEffectScrollView()
+    MovingPanelsFixedBackgroundLayerEffectView()
 }

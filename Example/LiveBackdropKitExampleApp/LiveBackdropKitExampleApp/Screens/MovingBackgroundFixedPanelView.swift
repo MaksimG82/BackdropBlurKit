@@ -1,5 +1,5 @@
 //
-//  SimpleScrollView.swift
+//  MovingBackgroundFixedPanelView.swift
 //  BackdropBlurKitExampleApp
 //
 //  Created by Maksim Gaisin on 30.06.26.
@@ -10,7 +10,7 @@ import LiveBackdropKit
 
 /// A vertically scrolling checkerboard background with a fixed blurred panel,
 /// demonstrating the basic capture-and-blur pipeline.
-struct SimpleScrollView: View {
+struct MovingBackgroundFixedPanelView: View {
 
     var body: some View {
         ZStack() {
@@ -33,17 +33,17 @@ struct SimpleScrollView: View {
 
 // MARK: - Subviews
 
-private extension SimpleScrollView {
-    
+private extension MovingBackgroundFixedPanelView {
+
     var scrollingBackdrop: some View {
         ScrollView {
             CheckerboardBackground()
                 .frame(height: 2000)
-                
+
         }
     }
-    
-    
+
+
     /// A fixed panel rendered above the scrolling content.
     var targetView: some View {
         Text("Fixed target view")
@@ -57,5 +57,5 @@ private extension SimpleScrollView {
 }
 
 #Preview {
-    SimpleScrollView()
+    MovingBackgroundFixedPanelView()
 }

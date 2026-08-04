@@ -1,5 +1,5 @@
 //
-//  MultiTargetScrollView.swift
+//  MovingPanelsFixedBackgroundView.swift
 //  BackdropBlurKitExampleApp
 //
 //  Created by Maksim Gaisin on 28.07.26.
@@ -12,7 +12,7 @@ import LiveBackdropKit
 /// inside a `ScrollView`/`LazyVStack`, each cell tracking its own frame independently as it
 /// scrolls — the demo app's primary test of concurrent multi-target support (2+ targets against
 /// one source).
-struct MultiTargetScrollView: View {
+struct MovingPanelsFixedBackgroundView: View {
 
     // MARK: - Constants
 
@@ -42,7 +42,7 @@ struct MultiTargetScrollView: View {
 
 // MARK: - Subviews
 
-private extension MultiTargetScrollView {
+private extension MovingPanelsFixedBackgroundView {
 
     /// A single scrolling effect-target cell labeled with its index.
     func cell(_ index: Int) -> some View {
@@ -59,5 +59,5 @@ private extension MultiTargetScrollView {
 }
 
 #Preview {
-    MultiTargetScrollView()
+    MovingPanelsFixedBackgroundView()
 }

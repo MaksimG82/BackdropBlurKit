@@ -1,5 +1,5 @@
 //
-//  LayerEffectTargetsScrollView.swift
+//  MovingBackgroundFixedPanelsLayerEffectView.swift
 //  BackdropBlurKitExampleApp
 //
 //  Created by Maksim Gaisin on 03.08.26.
@@ -10,12 +10,12 @@ import LiveBackdropKit
 
 /// Five real, fixed-position SwiftUI target markers, each using the public
 /// `.layerEffectTarget()` API to report its frame — the GPU `.layerEffect` pipeline's
-/// counterpart to `SimpleScrollView`'s CPU-snapshot `.effectTarget()` usage. The frame
-/// collection this scenario originally prototyped locally (a hand-rolled `PreferenceKey` +
-/// `@State`) has been promoted into `LiveBackdropKit` itself — see
+/// counterpart to `MovingBackgroundFixedPanelView`'s CPU-snapshot `.effectTarget()` usage. The
+/// frame collection this scenario originally prototyped locally (a hand-rolled `PreferenceKey`
+/// + `@State`) has been promoted into `LiveBackdropKit` itself — see
 /// `LayerEffectCoordinatorModifier`, `LayerEffectTargetViewModifier`, and
 /// `LayerEffectSourceViewModifier` — so nothing coordinator-shaped lives in this file anymore.
-struct LayerEffectTargetsScrollView: View {
+struct MovingBackgroundFixedPanelsLayerEffectView: View {
 
     /// The effect applied to `scrollingBackdrop`.
     @State private var configuration: LayerEffectConfiguration = .gaussianBlur(radius: 10, maxSamples: 5)
@@ -34,7 +34,7 @@ struct LayerEffectTargetsScrollView: View {
 
 // MARK: - Subviews
 
-private extension LayerEffectTargetsScrollView {
+private extension MovingBackgroundFixedPanelsLayerEffectView {
 
     var scrollingBackdrop: some View {
         ScrollView {
@@ -87,5 +87,5 @@ private extension LayerEffectTargetsScrollView {
 }
 
 #Preview {
-    LayerEffectTargetsScrollView()
+    MovingBackgroundFixedPanelsLayerEffectView()
 }
