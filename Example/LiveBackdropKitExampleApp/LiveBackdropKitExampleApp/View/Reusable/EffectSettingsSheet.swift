@@ -427,7 +427,8 @@ private extension EffectSettingsSheet {
         )
     }
 
-    /// Shimmer's parameters: loop duration, gradient width, peak lightness, and sweep angle.
+    /// Shimmer's parameters: loop duration, gradient width, peak lightness, sweep direction, and
+    /// band angle.
     var shimmerSection: some View {
         Section {
             // How long a single shimmer loop takes, in seconds.
@@ -457,11 +458,20 @@ private extension EffectSettingsSheet {
                 format: .fractionalTwo
             )
 
-            // The sweep direction, in degrees.
+            // The direction the gradient sweeps in, in degrees (0 = rightward).
+            SettingSlider(
+                title: "Direction",
+                value: shimmerDirectionBinding,
+                range: 0...360,
+                step: 5,
+                format: .integer
+            )
+
+            // The orientation of the band itself, in degrees (0 = vertical).
             SettingSlider(
                 title: "Angle",
                 value: shimmerAngleBinding,
-                range: 0...360,
+                range: 0...180,
                 step: 5,
                 format: .integer
             )
@@ -475,12 +485,12 @@ private extension EffectSettingsSheet {
     var shimmerDurationBinding: Binding<CGFloat> {
         Binding(
             get: {
-                guard case let .shimmer(duration, _, _, _) = configuration else { return 3 }
+                guard case let .shimmer(duration, _, _, _, _) = configuration else { return 3 }
                 return duration
             },
             set: { newDuration in
-                guard case let .shimmer(_, gradientWidth, maxLightness, angle) = configuration else { return }
-                configuration = .shimmer(animationDuration: newDuration, gradientWidth: gradientWidth, maxLightness: maxLightness, angle: angle)
+                guard case let .shimmer(_, gradientWidth, maxLightness, direction, angle) = configuration else { return }
+                configuration = .shimmer(animationDuration: newDuration, gradientWidth: gradientWidth, maxLightness: maxLightness, direction: direction, angle: angle)
             }
         )
     }
@@ -488,12 +498,12 @@ private extension EffectSettingsSheet {
     var shimmerGradientWidthBinding: Binding<CGFloat> {
         Binding(
             get: {
-                guard case let .shimmer(_, gradientWidth, _, _) = configuration else { return 0.3 }
+                guard case let .shimmer(_, gradientWidth, _, _, _) = configuration else { return 0.3 }
                 return gradientWidth
             },
             set: { newGradientWidth in
-                guard case let .shimmer(duration, _, maxLightness, angle) = configuration else { return }
-                configuration = .shimmer(animationDuration: duration, gradientWidth: newGradientWidth, maxLightness: maxLightness, angle: angle)
+                guard case let .shimmer(duration, _, maxLightness, direction, angle) = configuration else { return }
+                configuration = .shimmer(animationDuration: duration, gradientWidth: newGradientWidth, maxLightness: maxLightness, direction: direction, angle: angle)
             }
         )
     }
@@ -501,12 +511,25 @@ private extension EffectSettingsSheet {
     var shimmerMaxLightnessBinding: Binding<CGFloat> {
         Binding(
             get: {
-                guard case let .shimmer(_, _, maxLightness, _) = configuration else { return 0.9 }
+                guard case let .shimmer(_, _, maxLightness, _, _) = configuration else { return 0.9 }
                 return maxLightness
             },
             set: { newMaxLightness in
-                guard case let .shimmer(duration, gradientWidth, _, angle) = configuration else { return }
-                configuration = .shimmer(animationDuration: duration, gradientWidth: gradientWidth, maxLightness: newMaxLightness, angle: angle)
+                guard case let .shimmer(duration, gradientWidth, _, direction, angle) = configuration else { return }
+                configuration = .shimmer(animationDuration: duration, gradientWidth: gradientWidth, maxLightness: newMaxLightness, direction: direction, angle: angle)
+            }
+        )
+    }
+
+    var shimmerDirectionBinding: Binding<CGFloat> {
+        Binding(
+            get: {
+                guard case let .shimmer(_, _, _, direction, _) = configuration else { return 0 }
+                return direction
+            },
+            set: { newDirection in
+                guard case let .shimmer(duration, gradientWidth, maxLightness, _, angle) = configuration else { return }
+                configuration = .shimmer(animationDuration: duration, gradientWidth: gradientWidth, maxLightness: maxLightness, direction: newDirection, angle: angle)
             }
         )
     }
@@ -514,12 +537,12 @@ private extension EffectSettingsSheet {
     var shimmerAngleBinding: Binding<CGFloat> {
         Binding(
             get: {
-                guard case let .shimmer(_, _, _, angle) = configuration else { return 45 }
+                guard case let .shimmer(_, _, _, _, angle) = configuration else { return 0 }
                 return angle
             },
             set: { newAngle in
-                guard case let .shimmer(duration, gradientWidth, maxLightness, _) = configuration else { return }
-                configuration = .shimmer(animationDuration: duration, gradientWidth: gradientWidth, maxLightness: maxLightness, angle: newAngle)
+                guard case let .shimmer(duration, gradientWidth, maxLightness, direction, _) = configuration else { return }
+                configuration = .shimmer(animationDuration: duration, gradientWidth: gradientWidth, maxLightness: maxLightness, direction: direction, angle: newAngle)
             }
         )
     }
