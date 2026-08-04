@@ -61,9 +61,10 @@ enum LayerEffectKind: String, CaseIterable, Identifiable {
     /// from) where it provides a reference: `.water` and `.wave` match the starting values
     /// Inferno's own demo app (`TimeTransformationShader.shaders`) passes to those shaders;
     /// `.shimmer`'s duration/gradientWidth/maxLightness likewise match Inferno's demo values
-    /// (its `angle` parameter has no Inferno counterpart — see `LayerEffectConfiguration`'s doc
-    /// comment on `.shimmer` — so it keeps a value chosen for this library). `.colorPlanes` has
-    /// no Inferno demo entry to check against, so its default is this library's own choice.
+    /// (its `direction`/`angle` parameters have no Inferno counterpart — see
+    /// `LayerEffectConfiguration`'s doc comment on `.shimmer` — so they default to a rightward
+    /// sweep with a vertical band, matching Inferno's horizontal-only original). `.colorPlanes`
+    /// has no Inferno demo entry to check against, so its default is this library's own choice.
     var defaultConfiguration: LayerEffectConfiguration {
         switch self {
         case .invert:
@@ -79,7 +80,7 @@ enum LayerEffectKind: String, CaseIterable, Identifiable {
         case .wave:
             .wave(speed: 5, smoothing: 10, strength: 5)
         case .shimmer:
-            .shimmer(animationDuration: 3, gradientWidth: 0.3, maxLightness: 0.9, angle: 45)
+            .shimmer(animationDuration: 3, gradientWidth: 0.3, maxLightness: 0.9, direction: 0, angle: 0)
         case .whiteNoise:
             .whiteNoise
         case .rainbowNoise:

@@ -16,10 +16,13 @@ public extension View {
     ///   - animationDuration: The duration of a single loop of the shimmer animation, in seconds.
     ///   - gradientWidth: The width of the shimmer gradient in UV space.
     ///   - maxLightness: The maximum lightness at the peak of the gradient.
-    ///   - angle: The sweep direction, in degrees (0–360) — converted to radians for the shader.
+    ///   - direction: The direction the gradient sweeps in, in degrees (0–360, measured from the
+    ///     x-axis, 0 = rightward) — converted to radians for the shader.
+    ///   - angle: The orientation of the band itself, in degrees (0 = vertical, measured from the
+    ///     y-axis; only meaningful modulo 180°) — converted to radians for the shader.
     /// - Returns: This view with the shimmer color effect applied.
     @ViewBuilder
-    func shimmerColorEffect(size: CGSize, time: TimeInterval, animationDuration: CGFloat, gradientWidth: CGFloat, maxLightness: CGFloat, angle: CGFloat) -> some View {
+    func shimmerColorEffect(size: CGSize, time: TimeInterval, animationDuration: CGFloat, gradientWidth: CGFloat, maxLightness: CGFloat, direction: CGFloat, angle: CGFloat) -> some View {
         self.colorEffect(
             ShaderLibrary.liveBackdropKit.shimmer(
                 .float2(size),
@@ -27,6 +30,7 @@ public extension View {
                 .float(animationDuration),
                 .float(gradientWidth),
                 .float(maxLightness),
+                .float(direction * .pi / 180),
                 .float(angle * .pi / 180)
             )
         )
