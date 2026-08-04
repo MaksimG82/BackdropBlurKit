@@ -33,6 +33,12 @@ enum ExampleScenario: String, CaseIterable, Identifiable {
     /// geometry, still with no capture, snapshot, or CPU-pipeline coordinator involved.
     case layerEffectTargetsScroll
 
+    /// A single fixed (non-scrolling) `.layerEffect` source with multiple effect targets
+    /// scrolling over it in a `ScrollView`/`LazyVStack` — the `.layerEffect` counterpart to
+    /// `.multiTargetScroll`, testing the same fixed-source/moving-targets pairing on the GPU
+    /// pipeline.
+    case multiTargetLayerEffectScroll
+
     /// A stable identifier for use in SwiftUI lists and navigation.
     var id: Self { self }
 
@@ -44,6 +50,7 @@ enum ExampleScenario: String, CaseIterable, Identifiable {
         case .multiTargetScroll: "Multiple Targets"
         case .layerEffectScroll: "Layer Effect Scroll"
         case .layerEffectTargetsScroll: "Layer Effect Targets"
+        case .multiTargetLayerEffectScroll: "Multiple Targets (Layer Effect)"
         }
     }
 
@@ -55,6 +62,7 @@ enum ExampleScenario: String, CaseIterable, Identifiable {
         case .multiTargetScroll: .layout
         case .layerEffectScroll: .layerEffect
         case .layerEffectTargetsScroll: .layerEffect
+        case .multiTargetLayerEffectScroll: .layerEffect
         }
     }
 }
