@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BarKit
 
 /// Catalog of interactive scenarios demonstrating BackdropBlurKit's behavior and limitations.
 ///
@@ -27,8 +28,11 @@ struct ExamplesScreen: View {
     var body: some View {
         ZStack(alignment: .top) {
             if let scenario = viewModel.state.selectedScenario {
-                destination(for: scenario)
-                scenarioHeader(for: scenario)
+                Group {
+                    destination(for: scenario)
+                    scenarioHeader(for: scenario)
+                }
+                .hideBar(id: "tabBar")
             } else {
                 catalog
             }
