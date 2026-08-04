@@ -47,7 +47,7 @@ struct LayerEffectSourceViewModifier: ViewModifier {
             ZStack {
                 content
 
-                appliedEffect(to: content)
+                appliedEffect(to: content, boundingRect: CGRect(origin: .zero, size: contentGeometry.size))
                     .mask(
                         ZStack {
                             ForEach(Array(targetFrames), id: \.key) { _, frame in
@@ -66,13 +66,16 @@ struct LayerEffectSourceViewModifier: ViewModifier {
     }
 
     /// Dispatches to the shader-applying modifier for `configuration`.
+    /// - Parameter boundingRect: The content's bounds in its own local coordinate space, as
+    ///   measured by the enclosing `GeometryReader` — passed through to shaders that need to
+    ///   reject samples falling outside the view's edges (e.g. `gaussianBlurLayerEffect`).
     @ViewBuilder
-    private func appliedEffect(to content: Content) -> some View {
+    private func appliedEffect(to content: Content, boundingRect: CGRect) -> some View {
         switch configuration {
         case .invert:
             content.invertedLayerEffect()
         case let .gaussianBlur(radius):
-            content.gaussianBlurLayerEffect(radius: radius)
+            content.gaussianBlurLayerEffect(radius: radius, boundingRect: boundingRect)
         }
     }
 }
