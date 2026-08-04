@@ -41,8 +41,10 @@ private extension ContentView {
         switch viewModel.state.selectedTab.type {
         case .info:
             InfoScreen()
-        case .examples:
-            ExamplesScreen(viewModel: viewModel)
+        case .cpu:
+            ExamplesScreen(viewModel: viewModel, section: .layout)
+        case .gpu:
+            ExamplesScreen(viewModel: viewModel, section: .layerEffect)
         }
     }
 

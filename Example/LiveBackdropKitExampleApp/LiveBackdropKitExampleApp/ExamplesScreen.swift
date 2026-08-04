@@ -18,6 +18,10 @@ struct ExamplesScreen: View {
 
     let viewModel: ExampleViewModel
 
+    /// Restricts the catalog and routing to scenarios belonging to this section — `.layout`
+    /// for the CPU tab, `.layerEffect` for the GPU tab.
+    let section: ExampleSection
+
     // MARK: - Body
 
     var body: some View {
@@ -38,24 +42,22 @@ private extension ExamplesScreen {
 
     var catalog: some View {
         List {
-            ForEach(ExampleSection.allCases, id: \.self) { section in
-                Section(section.rawValue) {
-                    ForEach(scenarios(in: section)) { scenario in
-                        Button {
-                            viewModel.send(.selectScenario(scenario))
-                        } label: {
-                            HStack {
-                                Text(scenario.title)
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .font(.footnote.weight(.semibold))
-                                    .foregroundStyle(.secondary)
-                            }
-                            .contentShape(Rectangle())
+            Section(section.rawValue) {
+                ForEach(scenarios(in: section)) { scenario in
+                    Button {
+                        viewModel.send(.selectScenario(scenario))
+                    } label: {
+                        HStack {
+                            Text(scenario.title)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(.secondary)
                         }
-                        .buttonStyle(.plain)
-                        .foregroundStyle(.primary)
+                        .contentShape(Rectangle())
                     }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.primary)
                 }
             }
         }
@@ -106,5 +108,5 @@ private extension ExamplesScreen {
 }
 
 #Preview {
-    ExamplesScreen(viewModel: ExampleViewModel())
+    ExamplesScreen(viewModel: ExampleViewModel(), section: .layout)
 }
