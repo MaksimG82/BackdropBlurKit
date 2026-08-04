@@ -17,4 +17,9 @@ enum ExampleIntent {
 
     /// Leaves the current scenario, returning to the catalog.
     case dismissScenario
+
+    /// Replaces the GPU tab's `NavigationStack` path wholesale — driven by the stack's own
+    /// `path` binding, so push (via `NavigationLink(value:)`) and pop (back button, back-swipe)
+    /// both flow through this single intent.
+    case setGPUPath([ExampleScenario])
 }

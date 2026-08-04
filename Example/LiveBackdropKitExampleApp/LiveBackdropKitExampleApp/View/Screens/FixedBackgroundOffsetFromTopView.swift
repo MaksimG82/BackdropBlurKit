@@ -1,5 +1,5 @@
 //
-//  FixedHeaderOffsetView.swift
+//  FixedBackgroundOffsetFromTopView.swift
 //  BackdropBlurKitExampleApp
 //
 //  Created by Maksim Gaisin on 28.07.26.
@@ -14,11 +14,14 @@ import LiveBackdropKit
 ///
 /// The block's height is runtime-adjustable so the boundary between the fixed block and the
 /// scrolling area can be moved to exercise edge cases.
-struct FixedHeaderOffsetView: View {
+struct FixedBackgroundOffsetFromTopView: View {
 
     // MARK: - Property Wrappers
 
-    @State private var blockHeight: CGFloat = 150
+    @State private var blockHeight: CGFloat = 170
+
+    /// Incremented on each panel tap, driving `.sensoryFeedback`'s trigger.
+    @State private var tapCount = 0
 
     // MARK: - Body
 
@@ -42,7 +45,7 @@ struct FixedHeaderOffsetView: View {
 
 // MARK: - Subviews
 
-private extension FixedHeaderOffsetView {
+private extension FixedBackgroundOffsetFromTopView {
 
     /// The fixed, non-scrolling block whose height defines the effect source's top offset.
     var fixedBlock: some View {
@@ -69,18 +72,23 @@ private extension FixedHeaderOffsetView {
         }
     }
 
-    /// A fixed panel rendered above the scrolling content.
+    /// A fixed panel rendered above the scrolling content. Tapping it confirms it's live and
+    /// hit-testable.
     var targetView: some View {
-        Text("Fixed target view")
+        Text("Tap me")
             .font(.headline)
-            .padding(100)
+            .frame(width: 260, height: 260)
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(Color.white.opacity(0.6), lineWidth: 1)
             )
+            .contentShape(Rectangle())
+            .onTapGesture { tapCount += 1 }
+            .effectTarget()
+            .sensoryFeedback(.impact, trigger: tapCount)
     }
 }
 
 #Preview {
-    FixedHeaderOffsetView()
+    FixedBackgroundOffsetFromTopView()
 }

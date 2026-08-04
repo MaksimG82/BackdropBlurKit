@@ -19,8 +19,15 @@ struct ExampleState {
 
     // MARK: - Scenario Selection
 
-    /// The scenario currently being viewed, if any. `nil` means the catalog is shown.
+    /// The scenario currently being viewed on the CPU tab, if any. `nil` means the catalog is
+    /// shown. The CPU tab keeps its hand-rolled catalog/detail switch (no `NavigationStack`) —
+    /// see `ExamplesScreen`'s doc comment for why.
     var selectedScenario: ExampleScenario?
+
+    /// The `NavigationStack` path for the GPU tab — an ordered list of pushed scenarios.
+    /// Unlike the CPU tab, the `.layerEffect` pipeline has no snapshot-in-push-transition
+    /// limitation, so this tab uses real `NavigationStack` push/pop navigation.
+    var gpuPath: [ExampleScenario] = []
 
     // MARK: - Initialization
 

@@ -15,6 +15,10 @@ struct ContentView: View {
 
     @State private var viewModel = ExampleViewModel()
 
+    /// Shared bar-visibility state — written by any descendant's `.hideBar(id:)` to collapse
+    /// the tab bar on deeper screens, read here to decide whether to render it at all.
+    @State private var barVisibility: [String: Visibility] = [:]
+
     // MARK: - Body
 
     var body: some View {
@@ -22,11 +26,14 @@ struct ContentView: View {
             contentRouter
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            FloatingTabBarView(
-                items: viewModel.state.tabBarItems,
-                selected: selectedItem
-            )
+            if barVisibility["tabBar"] != .hidden {
+                FloatingTabBarView(
+                    items: viewModel.state.tabBarItems,
+                    selected: selectedItem
+                )
+            }
         }
+        .registerBarVisibility($barVisibility)
         .ignoresSafeArea(.all, edges: .bottom)
     }
 }
@@ -41,8 +48,10 @@ private extension ContentView {
         switch viewModel.state.selectedTab.type {
         case .info:
             InfoScreen()
-        case .examples:
+        case .cpu:
             ExamplesScreen(viewModel: viewModel)
+        case .gpu:
+            ExamplesScreenLayerEffect(viewModel: viewModel)
         }
     }
 
