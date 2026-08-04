@@ -21,6 +21,18 @@ enum ExampleScenario: String, CaseIterable, Identifiable {
     /// multi-target support.
     case multiTargetScroll
 
+    /// A vertically scrolling checkerboard background with the GPU `.layerEffect`-based
+    /// color-inversion test effect applied directly to the scrolling content — no capture,
+    /// snapshot, or masking involved. For side-by-side comparison against `.simpleScroll`,
+    /// which exercises the CPU-snapshot pipeline.
+    case layerEffectScroll
+
+    /// A vertically scrolling checkerboard background with the GPU `.layerEffect`-based
+    /// color-inversion effect masked to five real target markers' measured frames — replaces
+    /// `.layerEffectScroll`'s hardcoded mask rect with genuine `PreferenceKey`-collected
+    /// geometry, still with no capture, snapshot, or CPU-pipeline coordinator involved.
+    case layerEffectTargetsScroll
+
     /// A stable identifier for use in SwiftUI lists and navigation.
     var id: Self { self }
 
@@ -30,6 +42,8 @@ enum ExampleScenario: String, CaseIterable, Identifiable {
         case .simpleScroll: "Simple Scroll"
         case .fixedHeaderOffset: "Fixed Header Offset"
         case .multiTargetScroll: "Multiple Targets"
+        case .layerEffectScroll: "Layer Effect Scroll"
+        case .layerEffectTargetsScroll: "Layer Effect Targets"
         }
     }
 
@@ -39,6 +53,8 @@ enum ExampleScenario: String, CaseIterable, Identifiable {
         case .simpleScroll: .layout
         case .fixedHeaderOffset: .layout
         case .multiTargetScroll: .layout
+        case .layerEffectScroll: .layerEffect
+        case .layerEffectTargetsScroll: .layerEffect
         }
     }
 }

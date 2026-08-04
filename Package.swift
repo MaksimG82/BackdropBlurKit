@@ -13,7 +13,8 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "LiveBackdropKit"
+            name: "LiveBackdropKit",
+            resources: [.process("Metal")]
         ),
         .testTarget(
             name: "LiveBackdropKitTests",
