@@ -566,8 +566,6 @@ private extension EffectSettingsSheet {
         switch background {
         case .checkerboard:
             checkerboardSection
-        case .gradient:
-            gradientSection
         }
     }
 
@@ -628,63 +626,6 @@ private extension EffectSettingsSheet {
             set: { newSecondaryColor in
                 guard case let .checkerboard(squareSize, primaryColor, _) = background else { return }
                 background = .checkerboard(squareSize: squareSize, primaryColor: primaryColor, secondaryColor: newSecondaryColor)
-            }
-        )
-    }
-
-    /// Gradient's parameters: the two colors it sweeps between and its direction.
-    var gradientSection: some View {
-        Section {
-            ColorPicker("Start Color", selection: gradientStartColorBinding)
-            ColorPicker("End Color", selection: gradientEndColorBinding)
-
-            Picker("Direction", selection: gradientDirectionBinding) {
-                ForEach(GradientDirection.allCases) { direction in
-                    Text(direction.title).tag(direction)
-                }
-            }
-        } header: {
-            Text("Gradient")
-        } footer: {
-            Text("A linear gradient sweeping between two colors in the chosen direction.")
-        }
-    }
-
-    var gradientStartColorBinding: Binding<Color> {
-        Binding(
-            get: {
-                guard case let .gradient(startColor, _, _) = background else { return .blue }
-                return startColor
-            },
-            set: { newStartColor in
-                guard case let .gradient(_, endColor, direction) = background else { return }
-                background = .gradient(startColor: newStartColor, endColor: endColor, direction: direction)
-            }
-        )
-    }
-
-    var gradientEndColorBinding: Binding<Color> {
-        Binding(
-            get: {
-                guard case let .gradient(_, endColor, _) = background else { return .purple }
-                return endColor
-            },
-            set: { newEndColor in
-                guard case let .gradient(startColor, _, direction) = background else { return }
-                background = .gradient(startColor: startColor, endColor: newEndColor, direction: direction)
-            }
-        )
-    }
-
-    var gradientDirectionBinding: Binding<GradientDirection> {
-        Binding(
-            get: {
-                guard case let .gradient(_, _, direction) = background else { return .topToBottom }
-                return direction
-            },
-            set: { newDirection in
-                guard case let .gradient(startColor, endColor, _) = background else { return }
-                background = .gradient(startColor: startColor, endColor: endColor, direction: newDirection)
             }
         )
     }
