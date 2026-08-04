@@ -105,6 +105,8 @@ struct LayerEffectSourceViewModifier: ViewModifier {
             content.embossLayerEffect(strength: strength)
         case let .water(speed, strength, frequency):
             content.waterDistortionEffect(size: boundingRect.size, time: time, speed: speed, strength: strength, frequency: frequency)
+        case let .wave(speed, smoothing, strength):
+            content.waveDistortionEffect(time: time, speed: speed, smoothing: smoothing, strength: strength)
         }
     }
 }

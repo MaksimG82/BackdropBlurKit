@@ -18,7 +18,9 @@ import LiveBackdropKit
 struct LayerEffectTargetsScrollView: View {
 
     /// The effect applied to `scrollingBackdrop`.
-    @State private var configuration: LayerEffectConfiguration = .water(speed: 3, strength: 3, frequency: 2) /*.gaussianBlur(radius: 10, maxSamples: 5)*/
+    @State private var configuration: LayerEffectConfiguration = .wave(speed: 3, smoothing: 3, strength: 3)
+    
+    /*.gaussianBlur(radius: 10, maxSamples: 5)*/
 
     var body: some View {
         ZStack {

@@ -55,6 +55,17 @@ public enum LayerEffectConfiguration: Hashable, Sendable {
     ///   - frequency: How often ripples occur. 5–25 work best; try starting with 10.
     case water(speed: CGFloat, strength: CGFloat, frequency: CGFloat)
 
+    /// A uniform wave-distortion effect adapted from Inferno's `Wave.metal` — see `Wave.metal`
+    /// for the shader and `waveDistortionEffect(time:speed:smoothing:strength:)` for how it's
+    /// applied via `.distortionEffect`. Offsets each pixel's Y position by an amount of its X
+    /// position, unlike `.water`'s two-axis ripple.
+    /// - Parameters:
+    ///   - speed: How fast the waves ripple. Try starting with 5.
+    ///   - smoothing: How much to smooth out the ripples; greater values produce a smoother
+    ///     effect. Try starting with 20.
+    ///   - strength: How pronounced the ripple effect is. Try starting with 5.
+    case wave(speed: CGFloat, smoothing: CGFloat, strength: CGFloat)
+
     /// Whether this configuration needs a continuously-updating time value to animate, as
     /// opposed to rendering the same output for a fixed input. Used internally by
     /// `LayerEffectSourceViewModifier` to decide whether to pay for a `TimelineView(.animation)`
@@ -63,7 +74,7 @@ public enum LayerEffectConfiguration: Hashable, Sendable {
         switch self {
         case .invert, .gaussianBlur, .colorPlanes, .emboss:
             return false
-        case .water:
+        case .water, .wave:
             return true
         }
     }
