@@ -10,12 +10,13 @@
 
 using namespace metal;
 
-/// Temporary validation shader for the `.layerEffect` GPU pipeline — NOT production API.
+/// Color-inversion shader for the `.layerEffect` GPU pipeline (`LayerEffectConfiguration.invert`).
 ///
-/// This exists only to confirm that a `[[stitchable]]` layer-effect shader can be authored,
+/// Originally written to confirm that a `[[stitchable]]` layer-effect shader can be authored,
 /// compiled into this package's `.metallib` resource, loaded via `ShaderLibrary`, and applied
-/// through `.layerEffect(...)` end to end. It inverts the sampled color as a trivially
-/// visible, trivially correct effect. Remove once a real effect exercises the same plumbing.
+/// through `.layerEffect(...)` end to end — a trivially visible, trivially correct effect for
+/// exactly that purpose. Kept on as a real, permanent effect alongside `GaussianBlur.metal`,
+/// not just a smoke test.
 ///
 /// - Parameters:
 ///   - position: The user-space position of the fragment being shaded.

@@ -7,9 +7,10 @@
 
 import SwiftUI
 
-/// A view modifier that applies `invertedLayerEffect()` to the view and masks it down to the
-/// frames collected from descendant `.layerEffectTarget()` views (read from the environment,
-/// as distributed by the nearest ancestor `.layerEffectCoordinator()`).
+/// A view modifier that applies the shader for a given `LayerEffectConfiguration` to the view
+/// and masks it down to the frames collected from descendant `.layerEffectTarget()` views
+/// (read from the environment, as distributed by the nearest ancestor
+/// `.layerEffectCoordinator()`).
 ///
 /// Renders the content twice inside a `GeometryReader`: once unaffected (always visible,
 /// everywhere — without this, masking the effect layer would also cut away the content itself
@@ -24,6 +25,11 @@ import SwiftUI
 /// sizes the scrolled content *after* this modifier, not before — the same placement
 /// `GeometryReader` always needs inside a `ScrollView` to avoid collapsing to zero height.
 struct LayerEffectSourceViewModifier: ViewModifier {
+    /// Which GPU layer effect to apply — one configuration per source, dispatched via
+    /// `appliedEffect(to:)` below. No per-target override: running several effects on screen
+    /// means several independent source/target/coordinator trees.
+    let configuration: LayerEffectConfiguration
+
     /// The corner radius applied to every target's mask window.
     let cornerRadius: CGFloat
 
@@ -41,8 +47,7 @@ struct LayerEffectSourceViewModifier: ViewModifier {
             ZStack {
                 content
 
-                content
-                    .invertedLayerEffect()
+                appliedEffect(to: content)
                     .mask(
                         ZStack {
                             ForEach(Array(targetFrames), id: \.key) { _, frame in
@@ -57,6 +62,17 @@ struct LayerEffectSourceViewModifier: ViewModifier {
                         .frame(width: contentGeometry.size.width, height: contentGeometry.size.height, alignment: .topLeading)
                     )
             }
+        }
+    }
+
+    /// Dispatches to the shader-applying modifier for `configuration`.
+    @ViewBuilder
+    private func appliedEffect(to content: Content) -> some View {
+        switch configuration {
+        case .invert:
+            content.invertedLayerEffect()
+        case let .gaussianBlur(radius):
+            content.gaussianBlurLayerEffect(radius: radius)
         }
     }
 }
