@@ -76,6 +76,10 @@ struct LayerEffectSourceViewModifier: ViewModifier {
             content.invertedLayerEffect()
         case let .gaussianBlur(radius, maxSamples):
             content.gaussianBlurLayerEffect(radius: radius, boundingRect: boundingRect, maxSamples: maxSamples)
+        case let .colorPlanes(offset):
+            content.colorPlanesLayerEffect(offset: offset)
+        case let .emboss(strength):
+            content.embossLayerEffect(strength: strength)
         }
     }
 }

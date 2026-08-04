@@ -33,4 +33,14 @@ public enum LayerEffectConfiguration: Hashable, Sendable {
     ///     axis pass. Lower values are cheaper; e.g. 5 is visually indistinguishable from 15 on
     ///     typical content while being noticeably lighter on scroll performance.
     case gaussianBlur(radius: CGFloat, maxSamples: Float)
+
+    /// An RGB-shift/glitch effect that offsets the red and blue channels apart from green,
+    /// adapted from Inferno's `ColorPlanes.metal` — see `ColorPlanes.metal` for the shader.
+    /// - Parameter offset: How much to offset the red and blue channels by.
+    case colorPlanes(offset: CGSize)
+
+    /// An embossing/relief effect adapted from Inferno's `Emboss.metal` — see `Emboss.metal` for
+    /// the shader.
+    /// - Parameter strength: How strongly to add/subtract the offset pixels.
+    case emboss(strength: CGFloat)
 }

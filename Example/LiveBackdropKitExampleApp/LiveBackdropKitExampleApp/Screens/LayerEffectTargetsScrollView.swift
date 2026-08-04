@@ -18,7 +18,7 @@ import LiveBackdropKit
 struct LayerEffectTargetsScrollView: View {
 
     /// The effect applied to `scrollingBackdrop`.
-    @State private var configuration: LayerEffectConfiguration = .gaussianBlur(radius: 10, maxSamples: 5)
+    @State private var configuration: LayerEffectConfiguration =  .emboss(strength: 12)/*.gaussianBlur(radius: 10, maxSamples: 5)*/
 
     var body: some View {
         ZStack {
