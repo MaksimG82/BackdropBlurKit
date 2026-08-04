@@ -20,6 +20,10 @@ struct ExamplesScreen: View {
 
     let viewModel: ExampleViewModel
 
+    /// Whether the settings sheet is currently presented for the active scenario. Placeholder
+    /// for now — will grow into per-scenario effect/background controls.
+    @State private var isSettingsPresented = false
+
     // MARK: - Body
 
     var body: some View {
@@ -30,6 +34,9 @@ struct ExamplesScreen: View {
                     scenarioHeader(for: scenario)
                 }
                 .hideBar(id: "tabBar")
+                .sheet(isPresented: $isSettingsPresented) {
+                    Text("Settings")
+                }
             } else {
                 catalog
             }
@@ -77,14 +84,17 @@ private extension ExamplesScreen {
             .padding(.bottom, 4)
     }
 
-    /// A minimal back control shown above the active scenario's content.
+    /// A minimal back control shown above the active scenario's content, with a settings
+    /// button on the trailing edge — this screen has no system navigation bar to hang a
+    /// `.toolbar` item on, so both controls are hand-rolled here.
     func scenarioHeader(for scenario: ExampleScenario) -> some View {
         HStack(spacing: 8) {
             Button {
                 viewModel.send(.dismissScenario)
             } label: {
                 Image(systemName: "chevron.left")
-                    .frame(width: 44, height: 44)
+                    .frame(width: 48, height: 48)
+                    .background(.ultraThinMaterial, in: Circle())
                     .contentShape(Rectangle())
             }
 
@@ -92,6 +102,15 @@ private extension ExamplesScreen {
                 .font(.headline)
 
             Spacer()
+
+            Button {
+                isSettingsPresented = true
+            } label: {
+                Image(systemName: "slider.horizontal.3")
+                    .frame(width: 48, height: 48)
+                    .background(.ultraThinMaterial, in: Circle())
+                    .contentShape(Rectangle())
+            }
         }
         .padding()
     }
