@@ -5,6 +5,7 @@
 //  Created by Maksim Gaisin on 04.08.26.
 //
 
+import CoreGraphics
 import LiveBackdropKit
 
 /// A parameter-less identifier for each `LayerEffectConfiguration` case, used to drive the
@@ -52,6 +53,37 @@ enum LayerEffectKind: String, CaseIterable, Identifiable {
         case .shimmer: self = .shimmer
         case .whiteNoise: self = .whiteNoise
         case .rainbowNoise: self = .rainbowNoise
+        }
+    }
+
+    /// The default parameter values used when this kind is first selected in the effect
+    /// picker. Cross-checked against Inferno (the shader library these effects are adapted
+    /// from) where it provides a reference: `.water` and `.wave` match the starting values
+    /// Inferno's own demo app (`TimeTransformationShader.shaders`) passes to those shaders;
+    /// `.shimmer`'s duration/gradientWidth/maxLightness likewise match Inferno's demo values
+    /// (its `angle` parameter has no Inferno counterpart — see `LayerEffectConfiguration`'s doc
+    /// comment on `.shimmer` — so it keeps a value chosen for this library). `.colorPlanes` has
+    /// no Inferno demo entry to check against, so its default is this library's own choice.
+    var defaultConfiguration: LayerEffectConfiguration {
+        switch self {
+        case .invert:
+            .invert
+        case .gaussianBlur:
+            .gaussianBlur(radius: 10, maxSamples: 5)
+        case .colorPlanes:
+            .colorPlanes(offset: CGSize(width: 6, height: 6))
+        case .emboss:
+            .emboss(strength: 4)
+        case .water:
+            .water(speed: 3, strength: 3, frequency: 10)
+        case .wave:
+            .wave(speed: 5, smoothing: 10, strength: 5)
+        case .shimmer:
+            .shimmer(animationDuration: 3, gradientWidth: 0.3, maxLightness: 0.9, angle: 45)
+        case .whiteNoise:
+            .whiteNoise
+        case .rainbowNoise:
+            .rainbowNoise
         }
     }
 }

@@ -19,7 +19,7 @@ struct MovingBackgroundFixedPanelsLayerEffectView: View {
 
     /// Owns the applied `LayerEffectConfiguration`, shared between this view's rendering and
     /// its settings sheet.
-    @State private var viewModel = MovingBackgroundFixedPanelsLayerEffectViewModel()
+    @State private var viewModel = LayerEffectScenarioViewModel()
 
     /// Incremented on each marker tap, driving `.sensoryFeedback`'s trigger.
     @State private var tapCount = 0
@@ -38,7 +38,7 @@ struct MovingBackgroundFixedPanelsLayerEffectView: View {
         .ignoresSafeArea()
         .toolbar { settingsButton }
         .sheet(isPresented: $isSettingsPresented) {
-            MovingBackgroundFixedPanelsLayerEffectSettingsSheet(viewModel: viewModel)
+            EffectSettingsSheet(configuration: $viewModel.configuration, background: $viewModel.background)
         }
     }
 }
@@ -68,7 +68,7 @@ private extension MovingBackgroundFixedPanelsLayerEffectView {
             // `ScrollView` itself) so its internal GeometryReader measures the content's own,
             // continuously-changing scroll origin — and `.frame(height:)` must come after it,
             // since that GeometryReader has no intrinsic size (see the modifier's doc comment).
-            CheckerboardBackground()
+            viewModel.background.content
                 .layerEffectSource(configuration: viewModel.configuration, cornerRadius: 16)
                 .frame(height: 2000)
         }

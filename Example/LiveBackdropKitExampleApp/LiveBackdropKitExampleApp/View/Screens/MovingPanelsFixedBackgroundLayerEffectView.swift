@@ -24,11 +24,15 @@ struct MovingPanelsFixedBackgroundLayerEffectView: View {
 
     // MARK: - Property Wrappers
 
-    /// The effect applied to the fixed backdrop.
-    @State private var configuration: LayerEffectConfiguration = .gaussianBlur(radius: 10, maxSamples: 5)
+    /// Owns the applied `LayerEffectConfiguration`, shared between this view's rendering and
+    /// its settings sheet.
+    @State private var viewModel = LayerEffectScenarioViewModel()
 
     /// Incremented on each cell tap, driving `.sensoryFeedback`'s trigger.
     @State private var tapCount = 0
+
+    /// Whether the settings sheet is currently presented.
+    @State private var isSettingsPresented = false
 
     // MARK: - Body
 
@@ -37,8 +41,8 @@ struct MovingPanelsFixedBackgroundLayerEffectView: View {
             // `.layerEffectSource()` sits directly on the fixed backdrop content. It does not
             // scroll, so its internal GeometryReader's measured origin is constant — only the
             // targets' global frames change as the list scrolls underneath.
-            CheckerboardBackground()
-                .layerEffectSource(configuration: configuration, cornerRadius: 16)
+            viewModel.background.content
+                .layerEffectSource(configuration: viewModel.configuration, cornerRadius: 16)
                 .ignoresSafeArea()
 
             ScrollView {
@@ -52,6 +56,25 @@ struct MovingPanelsFixedBackgroundLayerEffectView: View {
         }
         .layerEffectCoordinator()
         .ignoresSafeArea()
+        .toolbar { settingsButton }
+        .sheet(isPresented: $isSettingsPresented) {
+            EffectSettingsSheet(configuration: $viewModel.configuration, background: $viewModel.background)
+        }
+    }
+}
+
+// MARK: - Toolbar
+
+private extension MovingPanelsFixedBackgroundLayerEffectView {
+
+    var settingsButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                isSettingsPresented = true
+            } label: {
+                Image(systemName: "slider.horizontal.3")
+            }
+        }
     }
 }
 
