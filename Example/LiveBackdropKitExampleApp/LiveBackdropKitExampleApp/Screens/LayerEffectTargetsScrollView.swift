@@ -18,7 +18,7 @@ import LiveBackdropKit
 struct LayerEffectTargetsScrollView: View {
 
     /// The effect applied to `scrollingBackdrop`.
-    @State private var configuration: LayerEffectConfiguration = .wave(speed: 3, smoothing: 3, strength: 3)
+    @State private var configuration: LayerEffectConfiguration = .shimmer(animationDuration: 3, gradientWidth: 3, maxLightness: 3)
     
     /*.gaussianBlur(radius: 10, maxSamples: 5)*/
 

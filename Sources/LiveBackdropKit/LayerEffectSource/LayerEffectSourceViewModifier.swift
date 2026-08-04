@@ -107,6 +107,12 @@ struct LayerEffectSourceViewModifier: ViewModifier {
             content.waterDistortionEffect(size: boundingRect.size, time: time, speed: speed, strength: strength, frequency: frequency)
         case let .wave(speed, smoothing, strength):
             content.waveDistortionEffect(time: time, speed: speed, smoothing: smoothing, strength: strength)
+        case let .shimmer(animationDuration, gradientWidth, maxLightness):
+            content.shimmerColorEffect(size: boundingRect.size, time: time, animationDuration: animationDuration, gradientWidth: gradientWidth, maxLightness: maxLightness)
+        case .whiteNoise:
+            content.whiteNoiseColorEffect(time: time)
+        case .rainbowNoise:
+            content.rainbowNoiseColorEffect(time: time)
         }
     }
 }

@@ -66,6 +66,25 @@ public enum LayerEffectConfiguration: Hashable, Sendable {
     ///   - strength: How pronounced the ripple effect is. Try starting with 5.
     case wave(speed: CGFloat, smoothing: CGFloat, strength: CGFloat)
 
+    /// A shimmering gradient sweep adapted from Inferno's `Shimmer.metal` — see `Shimmer.metal`
+    /// for the shader and `shimmerColorEffect(size:time:animationDuration:gradientWidth:maxLightness:)`
+    /// for how it's applied via `.colorEffect`, the third shader-modifier primitive in this
+    /// pipeline (alongside `.layerEffect` and `.distortionEffect`) — a `.colorEffect` shader only
+    /// transforms an already-sampled color, with no `SwiftUI::Layer` access at all.
+    /// - Parameters:
+    ///   - animationDuration: The duration of a single loop of the shimmer animation, in seconds.
+    ///   - gradientWidth: The width of the shimmer gradient in UV space.
+    ///   - maxLightness: The maximum lightness at the peak of the gradient.
+    case shimmer(animationDuration: CGFloat, gradientWidth: CGFloat, maxLightness: CGFloat)
+
+    /// Dynamic, grayscale noise adapted from Inferno's `WhiteNoise.metal` — see
+    /// `WhiteNoise.metal` for the shader.
+    case whiteNoise
+
+    /// Dynamic, multi-colored noise adapted from Inferno's `RainbowNoise.metal` — see
+    /// `RainbowNoise.metal` for the shader.
+    case rainbowNoise
+
     /// Whether this configuration needs a continuously-updating time value to animate, as
     /// opposed to rendering the same output for a fixed input. Used internally by
     /// `LayerEffectSourceViewModifier` to decide whether to pay for a `TimelineView(.animation)`
@@ -74,7 +93,7 @@ public enum LayerEffectConfiguration: Hashable, Sendable {
         switch self {
         case .invert, .gaussianBlur, .colorPlanes, .emboss:
             return false
-        case .water, .wave:
+        case .water, .wave, .shimmer, .whiteNoise, .rainbowNoise:
             return true
         }
     }
