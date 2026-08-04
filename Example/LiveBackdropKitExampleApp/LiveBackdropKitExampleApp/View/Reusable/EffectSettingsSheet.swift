@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 import LiveBackdropKit
 
 /// A reusable settings sheet for any GPU `.layerEffect` scenario — an effect picker/parameters
@@ -27,9 +28,16 @@ struct EffectSettingsSheet: View {
     @Binding var configuration: LayerEffectConfiguration
     @Binding var background: ScenarioBackground
 
+    /// The background kinds offered in the background picker — scenario-dependent (a scrolling
+    /// background excludes `.photo`; see `ScenarioBackgroundKind.availableKinds(forMovingBackground:)`).
+    var availableBackgroundKinds: [ScenarioBackgroundKind] = ScenarioBackgroundKind.allCases
+
     // MARK: - Property Wrappers
 
     @State private var tab: Tab = .effect
+
+    /// The photo item currently picked from the system library, before it's loaded into an `Image`.
+    @State private var photoPickerItem: PhotosPickerItem?
 
     // MARK: - Body
 
@@ -541,7 +549,7 @@ private extension EffectSettingsSheet {
         Form {
             Section {
                 Picker("Background", selection: backgroundKindBinding) {
-                    ForEach(ScenarioBackgroundKind.allCases) { kind in
+                    ForEach(availableBackgroundKinds) { kind in
                         Text(kind.title).tag(kind)
                     }
                 }
@@ -566,6 +574,8 @@ private extension EffectSettingsSheet {
         switch background {
         case .checkerboard:
             checkerboardSection
+        case .photo:
+            photoSection
         }
     }
 
@@ -628,6 +638,23 @@ private extension EffectSettingsSheet {
                 background = .checkerboard(squareSize: squareSize, primaryColor: primaryColor, secondaryColor: newSecondaryColor)
             }
         )
+    }
+
+    /// Photo's only parameter: the picked image itself, via the system photo library.
+    var photoSection: some View {
+        Section {
+            PhotosPicker("Choose Photo", selection: $photoPickerItem, matching: .images)
+        } header: {
+            Text("Photo")
+        } footer: {
+            Text("A photo from your library, filling the backdrop.")
+        }
+        .task(id: photoPickerItem) {
+            guard let photoPickerItem,
+                  let data = try? await photoPickerItem.loadTransferable(type: Data.self),
+                  let uiImage = UIImage(data: data) else { return }
+            background = .photo(image: Image(uiImage: uiImage))
+        }
     }
 }
 

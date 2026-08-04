@@ -26,7 +26,7 @@ struct MovingPanelsFixedBackgroundLayerEffectView: View {
 
     /// Owns the applied `LayerEffectConfiguration`, shared between this view's rendering and
     /// its settings sheet.
-    @State private var viewModel = LayerEffectScenarioViewModel()
+    @State private var viewModel = LayerEffectScenarioViewModel(isBackgroundMoving: false)
 
     /// Incremented on each cell tap, driving `.sensoryFeedback`'s trigger.
     @State private var tapCount = 0
@@ -41,7 +41,7 @@ struct MovingPanelsFixedBackgroundLayerEffectView: View {
             // `.layerEffectSource()` sits directly on the fixed backdrop content. It does not
             // scroll, so its internal GeometryReader's measured origin is constant — only the
             // targets' global frames change as the list scrolls underneath.
-            viewModel.background.content
+            ScenarioBackgroundView(background: viewModel.background)
                 .layerEffectSource(configuration: viewModel.configuration, cornerRadius: 16)
                 .ignoresSafeArea()
 
@@ -58,7 +58,11 @@ struct MovingPanelsFixedBackgroundLayerEffectView: View {
         .ignoresSafeArea()
         .toolbar { settingsButton }
         .sheet(isPresented: $isSettingsPresented) {
-            EffectSettingsSheet(configuration: $viewModel.configuration, background: $viewModel.background)
+            EffectSettingsSheet(
+                configuration: $viewModel.configuration,
+                background: $viewModel.background,
+                availableBackgroundKinds: viewModel.availableBackgroundKinds
+            )
         }
     }
 }

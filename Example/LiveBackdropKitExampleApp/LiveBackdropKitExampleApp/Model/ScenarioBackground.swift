@@ -11,11 +11,10 @@ import SwiftUI
 /// the settings sheet's `Background` tab.
 ///
 /// Mirrors `LayerEffectKind`'s shape: a case per background type, each carrying its own
-/// parameters as associated values. Only `.checkerboard` is implemented so far — `.photo` and
-/// `.video` are follow-up work (photo/video need a way to size a large-content `ScrollView`
-/// from media rather than a fixed `.frame(height:)`, which isn't solved yet; video may end up
-/// restricted to stationary-background scenarios only).
-enum ScenarioBackground: Hashable {
+/// parameters as associated values. `.video` is follow-up work — it needs a way to size a
+/// large-content `ScrollView` from media rather than a fixed `.frame(height:)`, which isn't
+/// solved yet, and will likely end up restricted to stationary-background scenarios only.
+enum ScenarioBackground {
     /// A high-contrast checkerboard pattern, used to make blur quality and edge artifacts
     /// clearly visible.
     /// - Parameters:
@@ -24,6 +23,13 @@ enum ScenarioBackground: Hashable {
     ///   - secondaryColor: The second color in the alternating pattern.
     case checkerboard(squareSize: CGFloat, primaryColor: Color, secondaryColor: Color)
 
+    /// A user-picked photo, chosen via `PhotosPicker`. Only meaningful for stationary-background
+    /// scenarios — a single photo has no natural way to fill a tall, scrolling `ScrollView`
+    /// without stretching or tiling, so this case isn't offered there (see
+    /// `ScenarioBackgroundKind.availableKinds(forMovingBackground:)`).
+    /// - Parameter image: The picked photo, or `nil` before the user has picked one.
+    case photo(image: Image?)
+
     /// The default checkerboard configuration, matching `CheckerboardBackground`'s own defaults.
     static let defaultCheckerboard = ScenarioBackground.checkerboard(
         squareSize: 64,
@@ -31,45 +37,7 @@ enum ScenarioBackground: Hashable {
         secondaryColor: .indigo
     )
 
-    /// Renders this background's content, so scenarios don't need their own `switch` over
-    /// every `ScenarioBackground` case.
-    @ViewBuilder
-    var content: some View {
-        switch self {
-        case let .checkerboard(squareSize, primaryColor, secondaryColor):
-            CheckerboardBackground(squareSize: squareSize, primaryColor: primaryColor, secondaryColor: secondaryColor)
-        }
-    }
+    /// The default photo configuration — no photo picked yet.
+    static let defaultPhoto = ScenarioBackground.photo(image: nil)
 }
 
-/// A parameter-less identifier for each `ScenarioBackground` case, used to drive the background
-/// picker in a scenario's settings sheet — same rationale as `LayerEffectKind` for
-/// `LayerEffectConfiguration`.
-enum ScenarioBackgroundKind: String, CaseIterable, Identifiable {
-    case checkerboard
-
-    var id: Self { self }
-
-    /// The display name shown in the background picker.
-    var title: String {
-        switch self {
-        case .checkerboard: "Checkerboard"
-        }
-    }
-
-    /// The kind backing a given background, for initializing the picker's selection from an
-    /// existing `ScenarioBackground`.
-    init(_ background: ScenarioBackground) {
-        switch background {
-        case .checkerboard: self = .checkerboard
-        }
-    }
-
-    /// The default parameter values used when this kind is first selected in the background
-    /// picker.
-    var defaultBackground: ScenarioBackground {
-        switch self {
-        case .checkerboard: .defaultCheckerboard
-        }
-    }
-}
