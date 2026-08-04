@@ -67,15 +67,18 @@ public enum LayerEffectConfiguration: Hashable, Sendable {
     case wave(speed: CGFloat, smoothing: CGFloat, strength: CGFloat)
 
     /// A shimmering gradient sweep adapted from Inferno's `Shimmer.metal` — see `Shimmer.metal`
-    /// for the shader and `shimmerColorEffect(size:time:animationDuration:gradientWidth:maxLightness:)`
-    /// for how it's applied via `.colorEffect`, the third shader-modifier primitive in this
-    /// pipeline (alongside `.layerEffect` and `.distortionEffect`) — a `.colorEffect` shader only
+    /// for the shader (note its header: the sweep-angle support is a functional addition beyond
+    /// Inferno's horizontal-only original) and
+    /// `shimmerColorEffect(size:time:animationDuration:gradientWidth:maxLightness:angle:)` for how
+    /// it's applied via `.colorEffect`, the third shader-modifier primitive in this pipeline
+    /// (alongside `.layerEffect` and `.distortionEffect`) — a `.colorEffect` shader only
     /// transforms an already-sampled color, with no `SwiftUI::Layer` access at all.
     /// - Parameters:
     ///   - animationDuration: The duration of a single loop of the shimmer animation, in seconds.
     ///   - gradientWidth: The width of the shimmer gradient in UV space.
     ///   - maxLightness: The maximum lightness at the peak of the gradient.
-    case shimmer(animationDuration: CGFloat, gradientWidth: CGFloat, maxLightness: CGFloat)
+    ///   - angle: The sweep direction, in degrees (0–360).
+    case shimmer(animationDuration: CGFloat, gradientWidth: CGFloat, maxLightness: CGFloat, angle: CGFloat)
 
     /// Dynamic, grayscale noise adapted from Inferno's `WhiteNoise.metal` — see
     /// `WhiteNoise.metal` for the shader.

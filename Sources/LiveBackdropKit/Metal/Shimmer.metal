@@ -7,6 +7,13 @@
 //  Adapted from Shimmer.metal in Inferno (https://github.com/twostraws/Inferno),
 //  by Paul Hudson / twostraws. Adaptation by Maksim Gaisin.
 //
+//  Functional change beyond a straight port: the original Inferno shader only sweeps
+//  horizontally (built directly on uv.x, with uv.y only tilting the band). This version adds a
+//  configurable `angle` parameter — the sweep direction is a unit vector derived from `angle`,
+//  and the UV coordinate is projected onto that vector (normalized so the movement range stays
+//  [0, 1] at any angle) in place of uv.x, with the perpendicular projection taking over uv.y's
+//  role of tilting the band.
+//
 
 #include <metal_stdlib>
 
@@ -71,8 +78,8 @@ half3 hslToRGB(half3 hsl) {
     return rgb + m;
 }
 
-/// Generates a shimmering effect by sweeping a gradient horizontally across the view and using
-/// it to modulate the lightness of each pixel.
+/// Generates a shimmering effect by sweeping a gradient across the view at a configurable angle
+/// and using it to modulate the lightness of each pixel.
 ///
 /// This is a `.colorEffect` shader: it has no access to `SwiftUI::Layer` and simply transforms
 /// the color already sampled by SwiftUI for the current pixel.
@@ -84,8 +91,9 @@ half3 hslToRGB(half3 hsl) {
 ///   - animationDuration: The duration of a single loop of the shimmer animation, in seconds.
 ///   - gradientWidth: The width of the shimmer gradient in UV space.
 ///   - maxLightness: The maximum lightness at the peak of the gradient.
+///   - angle: The sweep direction, in radians.
 /// - Returns: The new pixel color.
-[[ stitchable ]] half4 shimmer(float2 position, half4 color, float2 size, float time, float animationDuration, float gradientWidth, float maxLightness) {
+[[ stitchable ]] half4 shimmer(float2 position, half4 color, float2 size, float time, float animationDuration, float gradientWidth, float maxLightness, float angle) {
     if (color.a == 0.0h) {
         return color;
     }
@@ -97,17 +105,29 @@ half3 hslToRGB(half3 hsl) {
     // Convert coordinate to UV space, 0 to 1.
     half2 uv = half2(position / size);
 
-    // Calculate u beyond the views's edges based on the gradient size
+    // Project the UV coordinate onto a unit direction vector derived from `angle`, normalized so
+    // the movement range stays [0, 1] at any angle rather than expanding to sqrt(2) on the
+    // diagonal. This replaces uv.x from the original horizontal-only version.
+    float2 direction = float2(cos(angle), sin(angle));
+    half normalizer = half(abs(direction.x) + abs(direction.y));
+    half projected = half(dot(float2(uv), direction)) / normalizer;
+
+    // The perpendicular projection (direction rotated 90°) takes over uv.y's role of tilting the
+    // band.
+    float2 perpendicular = float2(-direction.y, direction.x);
+    half perpendicularProjected = half(dot(float2(uv), perpendicular));
+
+    // Calculate beyond the view's edges based on the gradient size
     half minU = 0.0h - gradientWidth;
     half maxU = 1.0h + gradientWidth;
 
-    // Based on the current progress and v, calculate the starting and ending u of the gradient
-    half start = minU + maxU * progress + gradientWidth * uv.y;
+    // Based on the current progress and the perpendicular projection, calculate the starting and ending position of the gradient
+    half start = minU + maxU * progress + gradientWidth * perpendicularProjected;
     half end = start + gradientWidth;
 
-    if (uv.x > start && uv.x < end) {
+    if (projected > start && projected < end) {
         // Determine the pixel's position within the gradient, from 0 to 1
-        half gradient = smoothstep(start, end, uv.x);
+        half gradient = smoothstep(start, end, projected);
         // Determine gradient intensity using a sine wave
         half intensity = sin(gradient * M_PI_H);
 
