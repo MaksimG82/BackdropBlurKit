@@ -17,11 +17,15 @@ import LiveBackdropKit
 /// `LayerEffectSourceViewModifier` — so nothing coordinator-shaped lives in this file anymore.
 struct MovingBackgroundFixedPanelsLayerEffectView: View {
 
-    /// The effect applied to `scrollingBackdrop`.
-    @State private var configuration: LayerEffectConfiguration = .gaussianBlur(radius: 10, maxSamples: 5)
+    /// Owns the applied `LayerEffectConfiguration`, shared between this view's rendering and
+    /// its settings sheet.
+    @State private var viewModel = MovingBackgroundFixedPanelsLayerEffectViewModel()
 
     /// Incremented on each marker tap, driving `.sensoryFeedback`'s trigger.
     @State private var tapCount = 0
+
+    /// Whether the settings sheet is currently presented.
+    @State private var isSettingsPresented = false
 
     var body: some View {
         ZStack {
@@ -32,6 +36,25 @@ struct MovingBackgroundFixedPanelsLayerEffectView: View {
         }
         .layerEffectCoordinator()
         .ignoresSafeArea()
+        .toolbar { settingsButton }
+        .sheet(isPresented: $isSettingsPresented) {
+            MovingBackgroundFixedPanelsLayerEffectSettingsSheet(viewModel: viewModel)
+        }
+    }
+}
+
+// MARK: - Toolbar
+
+private extension MovingBackgroundFixedPanelsLayerEffectView {
+
+    var settingsButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                isSettingsPresented = true
+            } label: {
+                Image(systemName: "slider.horizontal.3")
+            }
+        }
     }
 }
 
@@ -46,7 +69,7 @@ private extension MovingBackgroundFixedPanelsLayerEffectView {
             // continuously-changing scroll origin — and `.frame(height:)` must come after it,
             // since that GeometryReader has no intrinsic size (see the modifier's doc comment).
             CheckerboardBackground()
-                .layerEffectSource(configuration: configuration, cornerRadius: 16)
+                .layerEffectSource(configuration: viewModel.configuration, cornerRadius: 16)
                 .frame(height: 2000)
         }
     }

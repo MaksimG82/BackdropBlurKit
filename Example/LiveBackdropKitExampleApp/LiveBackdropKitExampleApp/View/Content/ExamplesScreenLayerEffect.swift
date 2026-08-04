@@ -21,10 +21,6 @@ struct ExamplesScreenLayerEffect: View {
 
     let viewModel: ExampleViewModel
 
-    /// Whether the settings sheet is currently presented for the active scenario. Placeholder
-    /// for now — will grow into per-scenario effect/background controls.
-    @State private var isSettingsPresented = false
-
     // MARK: - Body
 
     var body: some View {
@@ -35,27 +31,7 @@ struct ExamplesScreenLayerEffect: View {
                         .navigationTitle(scenario.title)
                         .navigationBarTitleDisplayMode(.inline)
                         .hideBar(id: "tabBar")
-                        .toolbar { settingsButton }
-                        .sheet(isPresented: $isSettingsPresented) {
-                            Text("Settings")
-                        }
                 }
-        }
-    }
-}
-
-// MARK: - Toolbar
-
-private extension ExamplesScreenLayerEffect {
-
-    /// Opens the (currently placeholder) settings sheet for the active scenario.
-    var settingsButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            Button {
-                isSettingsPresented = true
-            } label: {
-                Image(systemName: "slider.horizontal.3")
-            }
         }
     }
 }
