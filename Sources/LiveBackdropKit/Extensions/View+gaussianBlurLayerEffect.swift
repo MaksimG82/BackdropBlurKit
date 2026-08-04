@@ -8,19 +8,47 @@
 import SwiftUI
 
 public extension View {
-    /// Applies the single-pass, 9-tap Gaussian-approximation blur shader to this view via
-    /// `.layerEffect` (see `GaussianBlur.metal` for the kernel and its known tradeoffs versus
-    /// the CPU pipeline's `CIGaussianBlur`-backed `EffectConfiguration.gaussian`).
-    /// - Parameter radius: The blur radius, in points. Also sets `maxSampleOffset` to
-    ///   `CGSize(width: radius, height: radius)` — the shader's widest taps sit exactly
-    ///   `radius` points from center on each axis, so `maxSampleOffset` must scale with
-    ///   `radius` or the blur silently clips at the layer's edge.
-    /// - Returns: This view with the Gaussian-approximation layer effect applied.
+    /// Applies the two-pass separable Gaussian blur shader to this view via `.layerEffect` (see
+    /// `GaussianBlur.metal`, adapted from Inferno's `VariableGaussianBlur.metal`).
+    ///
+    /// Runs the shader twice in sequence — once along X, once along Y — since `.layerEffect`
+    /// doesn't support multi-pass shaders in a single call.
+    /// - Parameters:
+    ///   - radius: The blur radius, in points, applied uniformly to every pixel.
+    ///   - boundingRect: The bounding rectangle of this view in its own local coordinate space —
+    ///     used to reject samples that fall outside the view's edges.
+    ///   - maxSamples: The maximum number of samples to take in each direction from a pixel, per
+    ///     axis pass.
+    /// - Returns: This view with the two-pass Gaussian blur layer effect applied.
     @ViewBuilder
-    func gaussianBlurLayerEffect(radius: CGFloat) -> some View {
-        self.layerEffect(
-            ShaderLibrary.liveBackdropKit.gaussianBlur(.float(radius)),
-            maxSampleOffset: CGSize(width: radius, height: radius)
+    func gaussianBlurLayerEffect(radius: CGFloat, boundingRect: CGRect, maxSamples: Float) -> some View {
+        let boundingRectArg: SwiftUI.Shader.Argument = .float4(
+            Float(boundingRect.origin.x),
+            Float(boundingRect.origin.y),
+            Float(boundingRect.width),
+            Float(boundingRect.height)
         )
+
+        self
+            .layerEffect(
+                ShaderLibrary.liveBackdropKit.gaussianBlur(
+                    boundingRectArg,
+                    .float(radius),
+                    .float(maxSamples),
+                    .float(0),
+                    .float(1)
+                ),
+                maxSampleOffset: CGSize(width: radius, height: 0)
+            )
+            .layerEffect(
+                ShaderLibrary.liveBackdropKit.gaussianBlur(
+                    boundingRectArg,
+                    .float(radius),
+                    .float(maxSamples),
+                    .float(1),
+                    .float(1)
+                ),
+                maxSampleOffset: CGSize(width: 0, height: radius)
+            )
     }
 }

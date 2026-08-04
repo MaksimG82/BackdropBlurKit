@@ -36,6 +36,11 @@ struct LayerEffectSourceViewModifier: ViewModifier {
     /// The shared target-frame store distributed by the nearest ancestor `layerEffectCoordinator`.
     @Environment(\.layerEffectTargetStore) private var store
 
+    /// The moment this modifier's view was created, used as the zero point for time-based
+    /// configurations (e.g. `.water`) — see `effectLayer(content:boundingRect:)`. Unused, and
+    /// costs nothing, for static configurations.
+    @State private var startTime = Date.now
+
     private var targetFrames: [UUID: CGRect] {
         store?.targetFrames ?? [:]
     }
@@ -47,7 +52,7 @@ struct LayerEffectSourceViewModifier: ViewModifier {
             ZStack {
                 content
 
-                appliedEffect(to: content)
+                effectLayer(content: content, boundingRect: CGRect(origin: .zero, size: contentGeometry.size))
                     .mask(
                         ZStack {
                             ForEach(Array(targetFrames), id: \.key) { _, frame in
@@ -65,14 +70,49 @@ struct LayerEffectSourceViewModifier: ViewModifier {
         }
     }
 
-    /// Dispatches to the shader-applying modifier for `configuration`.
+    /// Renders the effect for `configuration`, wrapping in a `TimelineView(.animation)` only when
+    /// `configuration.isTimeBased` — the single shared time source for every time-based effect in
+    /// this pipeline, so adding another animated case later doesn't need its own frame source.
+    /// Static configurations render once per SwiftUI update, same as before this existed.
     @ViewBuilder
-    private func appliedEffect(to content: Content) -> some View {
+    private func effectLayer(content: Content, boundingRect: CGRect) -> some View {
+        if configuration.isTimeBased {
+            TimelineView(.animation) { timeline in
+                appliedEffect(to: content, boundingRect: boundingRect, time: startTime.distance(to: timeline.date))
+            }
+        } else {
+            appliedEffect(to: content, boundingRect: boundingRect, time: 0)
+        }
+    }
+
+    /// Dispatches to the shader-applying modifier for `configuration`.
+    /// - Parameters:
+    ///   - boundingRect: The content's bounds in its own local coordinate space, as measured by
+    ///     the enclosing `GeometryReader` — passed through to shaders that need it (e.g. to reject
+    ///     samples falling outside the view's edges, or to normalize UV coordinates).
+    ///   - time: Elapsed seconds since `startTime`, for time-based configurations. Ignored by
+    ///     static ones.
+    @ViewBuilder
+    private func appliedEffect(to content: Content, boundingRect: CGRect, time: TimeInterval) -> some View {
         switch configuration {
         case .invert:
             content.invertedLayerEffect()
-        case let .gaussianBlur(radius):
-            content.gaussianBlurLayerEffect(radius: radius)
+        case let .gaussianBlur(radius, maxSamples):
+            content.gaussianBlurLayerEffect(radius: radius, boundingRect: boundingRect, maxSamples: maxSamples)
+        case let .colorPlanes(offset):
+            content.colorPlanesLayerEffect(offset: offset)
+        case let .emboss(strength):
+            content.embossLayerEffect(strength: strength)
+        case let .water(speed, strength, frequency):
+            content.waterDistortionEffect(size: boundingRect.size, time: time, speed: speed, strength: strength, frequency: frequency)
+        case let .wave(speed, smoothing, strength):
+            content.waveDistortionEffect(time: time, speed: speed, smoothing: smoothing, strength: strength)
+        case let .shimmer(animationDuration, gradientWidth, maxLightness, angle):
+            content.shimmerColorEffect(size: boundingRect.size, time: time, animationDuration: animationDuration, gradientWidth: gradientWidth, maxLightness: maxLightness, angle: angle)
+        case .whiteNoise:
+            content.whiteNoiseColorEffect(time: time)
+        case .rainbowNoise:
+            content.rainbowNoiseColorEffect(time: time)
         }
     }
 }
