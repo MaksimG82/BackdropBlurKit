@@ -20,6 +20,9 @@ struct MovingBackgroundFixedPanelsLayerEffectView: View {
     /// The effect applied to `scrollingBackdrop`.
     @State private var configuration: LayerEffectConfiguration = .gaussianBlur(radius: 10, maxSamples: 5)
 
+    /// Incremented on each marker tap, driving `.sensoryFeedback`'s trigger.
+    @State private var tapCount = 0
+
     var body: some View {
         ZStack {
             scrollingBackdrop
@@ -54,35 +57,37 @@ private extension MovingBackgroundFixedPanelsLayerEffectView {
         GeometryReader { viewportGeometry in
             let size = viewportGeometry.size
             let inset: CGFloat = 70
+            let topInset: CGFloat = 140
 
             ZStack {
-                marker(label: "A", color: .pink, size: CGSize(width: 90, height: 90))
-                    .position(x: inset, y: inset)
-                marker(label: "B", color: .green, size: CGSize(width: 90, height: 90))
-                    .position(x: size.width - inset, y: inset)
-                marker(label: "C", color: .yellow, size: CGSize(width: 90, height: 90))
+                marker(size: CGSize(width: 90, height: 90))
+                    .position(x: inset, y: topInset)
+                marker(size: CGSize(width: 90, height: 90))
+                    .position(x: size.width - inset, y: topInset)
+                marker(size: CGSize(width: 90, height: 90))
                     .position(x: inset, y: size.height - inset)
-                marker(label: "D", color: .cyan, size: CGSize(width: 90, height: 90))
+                marker(size: CGSize(width: 90, height: 90))
                     .position(x: size.width - inset, y: size.height - inset)
-                marker(label: "E", color: .white, size: CGSize(width: 180, height: 340))
+                marker(size: CGSize(width: 180, height: 340))
                     .position(x: size.width / 2, y: size.height / 2)
             }
-            .allowsHitTesting(false)
         }
     }
 
     /// A visible marker: a stroked, labeled rect. `.layerEffectTarget()` reports its frame;
-    /// the stroke/label are only so it's identifiable on screen against its mask window.
-    func marker(label: String, color: Color, size: CGSize) -> some View {
-        Text(label)
+    /// tapping it confirms the marker is live and hit-testable.
+    func marker(size: CGSize) -> some View {
+        Text("Tap me")
             .font(.headline)
-            .foregroundStyle(color)
             .frame(width: size.width, height: size.height)
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
-                    .stroke(color, lineWidth: 2)
+                    .stroke(Color.white.opacity(0.6), lineWidth: 1)
             )
+            .contentShape(Rectangle())
+            .onTapGesture { tapCount += 1 }
             .layerEffectTarget()
+            .sensoryFeedback(.impact, trigger: tapCount)
     }
 }
 

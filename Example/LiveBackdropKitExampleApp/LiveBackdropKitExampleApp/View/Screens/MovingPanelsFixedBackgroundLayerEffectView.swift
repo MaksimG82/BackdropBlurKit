@@ -27,6 +27,9 @@ struct MovingPanelsFixedBackgroundLayerEffectView: View {
     /// The effect applied to the fixed backdrop.
     @State private var configuration: LayerEffectConfiguration = .gaussianBlur(radius: 10, maxSamples: 5)
 
+    /// Incremented on each cell tap, driving `.sensoryFeedback`'s trigger.
+    @State private var tapCount = 0
+
     // MARK: - Body
 
     var body: some View {
@@ -56,17 +59,20 @@ struct MovingPanelsFixedBackgroundLayerEffectView: View {
 
 private extension MovingPanelsFixedBackgroundLayerEffectView {
 
-    /// A single scrolling effect-target cell labeled with its index.
+    /// A single scrolling effect-target cell. Tapping it confirms it's live and hit-testable.
     func cell(_ index: Int) -> some View {
-        Text("Cell \(index)")
+        Text("Tap me")
             .font(.headline)
             .frame(maxWidth: .infinity)
             .frame(height: 90)
-            .layerEffectTarget()
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(Color.white.opacity(0.6), lineWidth: 1)
             )
+            .contentShape(Rectangle())
+            .onTapGesture { tapCount += 1 }
+            .layerEffectTarget()
+            .sensoryFeedback(.impact, trigger: tapCount)
     }
 }
 

@@ -18,7 +18,10 @@ struct FixedBackgroundOffsetFromTopView: View {
 
     // MARK: - Property Wrappers
 
-    @State private var blockHeight: CGFloat = 150
+    @State private var blockHeight: CGFloat = 170
+
+    /// Incremented on each panel tap, driving `.sensoryFeedback`'s trigger.
+    @State private var tapCount = 0
 
     // MARK: - Body
 
@@ -69,15 +72,20 @@ private extension FixedBackgroundOffsetFromTopView {
         }
     }
 
-    /// A fixed panel rendered above the scrolling content.
+    /// A fixed panel rendered above the scrolling content. Tapping it confirms it's live and
+    /// hit-testable.
     var targetView: some View {
-        Text("Fixed target view")
+        Text("Tap me")
             .font(.headline)
-            .padding(100)
+            .frame(width: 260, height: 260)
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(Color.white.opacity(0.6), lineWidth: 1)
             )
+            .contentShape(Rectangle())
+            .onTapGesture { tapCount += 1 }
+            .effectTarget()
+            .sensoryFeedback(.impact, trigger: tapCount)
     }
 }
 

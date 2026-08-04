@@ -12,6 +12,9 @@ import LiveBackdropKit
 /// demonstrating the basic capture-and-blur pipeline.
 struct MovingBackgroundFixedPanelView: View {
 
+    /// Incremented on each panel tap, driving `.sensoryFeedback`'s trigger.
+    @State private var tapCount = 0
+
     var body: some View {
         ZStack() {
             scrollingBackdrop
@@ -43,16 +46,20 @@ private extension MovingBackgroundFixedPanelView {
         }
     }
 
-
-    /// A fixed panel rendered above the scrolling content.
+    /// A fixed panel rendered above the scrolling content. Tapping it confirms it's live and
+    /// hit-testable.
     var targetView: some View {
-        Text("Fixed target view")
+        Text("Tap me")
             .font(.headline)
-            .padding(100)
+            .frame(width: 260, height: 260)
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(Color.white.opacity(0.6), lineWidth: 1)
             )
+            .contentShape(Rectangle())
+            .onTapGesture { tapCount += 1 }
+            .effectTarget()
+            .sensoryFeedback(.impact, trigger: tapCount)
     }
 }
 
