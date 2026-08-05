@@ -3,22 +3,22 @@
 import PackageDescription
 
 let package = Package(
-    name: "LiveBackdropKit",
+    name: "Undertow",
     platforms: [.iOS(.v17)],
     products: [
         .library(
-            name: "LiveBackdropKit",
-            targets: ["LiveBackdropKit"]
+            name: "Undertow",
+            targets: ["Undertow"]
         ),
     ],
     targets: [
         .target(
-            name: "LiveBackdropKit",
+            name: "Undertow",
             resources: [.process("Metal")]
         ),
         .testTarget(
-            name: "LiveBackdropKitTests",
-            path: "Tests/LiveBackdropKitTests"
+            name: "UndertowTests",
+            path: "Tests/UndertowTests"
         ),
     ],
     swiftLanguageModes: [.v6]
