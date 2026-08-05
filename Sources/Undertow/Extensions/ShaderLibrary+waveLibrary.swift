@@ -8,8 +8,7 @@
 import SwiftUI
 
 extension ShaderLibrary {
-    /// The precompiled Metal shader library for the uniform wave-distortion effect,
-    /// selected based on the current runtime environment.
+    /// The precompiled Metal shader library for the uniform wave-distortion effect.
     static let waveLibrary: ShaderLibrary = {
 #if targetEnvironment(simulator)
         let name = "Wave-iphonesimulator"

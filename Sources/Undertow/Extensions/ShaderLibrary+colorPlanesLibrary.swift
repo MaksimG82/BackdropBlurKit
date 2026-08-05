@@ -8,8 +8,7 @@
 import SwiftUI
 
 extension ShaderLibrary {
-    /// The precompiled Metal shader library for the RGB-shift/glitch color-planes effect,
-    /// selected based on the current runtime environment.
+    /// The precompiled Metal shader library for the RGB-shift/glitch color-planes effect
     static let colorPlanesLibrary: ShaderLibrary = {
 #if targetEnvironment(simulator)
         let name = "ColorPlanes-iphonesimulator"

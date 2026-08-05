@@ -21,7 +21,7 @@ public extension View {
     @ViewBuilder
     func invertedEffect() -> some View {
         self.layerEffect(
-            ShaderLibrary.colorInversionTestLibrary.invertColors(),
+            ShaderLibrary.colorRGBInversionLibrary.invertColors(),
             maxSampleOffset: .zero
         )
     }

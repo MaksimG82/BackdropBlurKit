@@ -8,8 +8,7 @@
 import SwiftUI
 
 extension ShaderLibrary {
-    /// The precompiled Metal shader library for the embossing/relief effect,
-    /// selected based on the current runtime environment.
+    /// The precompiled Metal shader library for the embossing/relief effect.
     static let embossLibrary: ShaderLibrary = {
 #if targetEnvironment(simulator)
         let name = "Emboss-iphonesimulator"
