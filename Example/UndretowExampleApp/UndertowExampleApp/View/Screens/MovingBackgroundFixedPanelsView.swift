@@ -74,8 +74,8 @@ private extension MovingBackgroundFixedPanelsView {
     var targetMarkers: some View {
         GeometryReader { viewportGeometry in
             let size = viewportGeometry.size
-            let inset: CGFloat = 70
-            let topInset: CGFloat = 140
+            let inset: CGFloat = 90
+            let topInset: CGFloat = 170
 
             ZStack {
                 marker(size: CGSize(width: 90, height: 90), cornerRadius: 16)
