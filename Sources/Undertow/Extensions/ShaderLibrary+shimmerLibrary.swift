@@ -7,10 +7,8 @@
 
 import SwiftUI
 
-@available(iOS 17.0, *)
 extension ShaderLibrary {
-    /// The precompiled Metal shader library for the shimmering gradient-sweep effect,
-    /// selected based on the current runtime environment.
+    /// The precompiled Metal shader library for the shimmering gradient-sweep effect.
     static let shimmerLibrary: ShaderLibrary = {
 #if targetEnvironment(simulator)
         let name = "Shimmer-iphonesimulator"

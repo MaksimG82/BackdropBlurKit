@@ -1,5 +1,5 @@
 //
-//  LayerEffectKind.swift
+//  EffectKind.swift
 //  UndertowExampleApp
 //
 //  Created by Maksim Gaisin on 04.08.26.
@@ -8,11 +8,11 @@
 import CoreGraphics
 import Undertow
 
-/// A parameter-less identifier for each `LayerEffectConfiguration` case, used to drive the
-/// effect picker in a scenario's settings sheet. `LayerEffectConfiguration` itself can't back a
+/// A parameter-less identifier for each `Effect` case, used to drive the
+/// effect picker in a scenario's settings sheet. `Effect` itself can't back a
 /// `Picker` directly — most of its cases carry associated values, so two selections of the same
 /// case with different parameters wouldn't compare equal the way a `Picker` selection needs to.
-enum LayerEffectKind: String, CaseIterable, Identifiable {
+enum EffectKind: String, CaseIterable, Identifiable {
     case invert
     case gaussianBlur
     case colorPlanes
@@ -41,8 +41,8 @@ enum LayerEffectKind: String, CaseIterable, Identifiable {
     }
 
     /// The kind backing a given configuration, for initializing the picker's selection from an
-    /// existing `LayerEffectConfiguration`.
-    init(_ configuration: LayerEffectConfiguration) {
+    /// existing `Effect`.
+    init(_ configuration: Effect) {
         switch configuration {
         case .invert: self = .invert
         case .gaussianBlur: self = .gaussianBlur
@@ -57,15 +57,8 @@ enum LayerEffectKind: String, CaseIterable, Identifiable {
     }
 
     /// The default parameter values used when this kind is first selected in the effect
-    /// picker. Cross-checked against Inferno (the shader library these effects are adapted
-    /// from) where it provides a reference: `.water` and `.wave` match the starting values
-    /// Inferno's own demo app (`TimeTransformationShader.shaders`) passes to those shaders;
-    /// `.shimmer`'s duration/gradientWidth/maxLightness likewise match Inferno's demo values
-    /// (its `direction`/`angle` parameters have no Inferno counterpart — see
-    /// `LayerEffectConfiguration`'s doc comment on `.shimmer` — so they default to a rightward
-    /// sweep with a vertical band, matching Inferno's horizontal-only original). `.colorPlanes`
-    /// has no Inferno demo entry to check against, so its default is this library's own choice.
-    var defaultConfiguration: LayerEffectConfiguration {
+    /// picker.
+    var defaultConfiguration: Effect {
         switch self {
         case .invert:
             .invert

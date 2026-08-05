@@ -1,45 +1,34 @@
 //
 //  ExamplesScreen.swift
-//  BackdropBlurKitExampleApp
+//  UndertowExampleApp
 //
-//  Created by Maksim Gaisin on 30.06.26.
+//  Created by Maksim Gaisin on 04.08.26.
 //
 
 import SwiftUI
 import BarKit
 
-/// Catalog of CPU-snapshot-pipeline (`.layout` section) scenarios, shown on the CPU tab.
+/// Catalog of effect scenarios, shown on the GPU tab.
 ///
-/// Selecting a scenario swaps the catalog for its detail view in place — there is no
-/// `NavigationStack`/push transition, since capturing snapshots of views inside a push
-/// transition has proven unreliable for this pipeline. See `ExamplesScreenLayerEffect` for the
-/// GPU tab's counterpart, which has no such limitation and uses a real `NavigationStack`.
+/// Scenarios push via a real `NavigationStack`, giving native transitions, back-swipe, and a
+/// system navigation bar to hang a settings toolbar button on later.
 struct ExamplesScreen: View {
 
     // MARK: - Properties
 
     let viewModel: ExampleViewModel
 
-    /// Whether the settings sheet is currently presented for the active scenario. Placeholder
-    /// for now — will grow into per-scenario effect/background controls.
-    @State private var isSettingsPresented = false
-
     // MARK: - Body
 
     var body: some View {
-        ZStack(alignment: .top) {
-            if let scenario = viewModel.state.selectedScenario {
-                Group {
+        NavigationStack(path: pathBinding) {
+            catalog
+                .navigationDestination(for: ExampleScenario.self) { scenario in
                     destination(for: scenario)
-                    scenarioHeader(for: scenario)
+                        .navigationTitle(scenario.title)
+                        .navigationBarTitleDisplayMode(.inline)
+                        .hideBar(id: "tabBar")
                 }
-                .hideBar(id: "tabBar")
-                .sheet(isPresented: $isSettingsPresented) {
-                    Text("Settings")
-                }
-            } else {
-                catalog
-            }
         }
     }
 }
@@ -52,20 +41,7 @@ private extension ExamplesScreen {
         List {
             Section {
                 ForEach(scenarios) { scenario in
-                    Button {
-                        viewModel.send(.selectScenario(scenario))
-                    } label: {
-                        HStack {
-                            Text(scenario.title)
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.footnote.weight(.semibold))
-                                .foregroundStyle(.secondary)
-                        }
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(.primary)
+                    NavigationLink(scenario.title, value: scenario)
                 }
             } header: {
                 catalogTitle
@@ -73,10 +49,9 @@ private extension ExamplesScreen {
         }
     }
 
-    /// A large-title-style header mimicking `.navigationTitle`'s appearance, since this screen
-    /// has no `NavigationStack` to provide one natively.
+    /// A large-title-style header shown above the scenario list.
     var catalogTitle: some View {
-        Text("CPU")
+        Text("GPU")
             .font(.largeTitle.bold())
             .foregroundStyle(.primary)
             .textCase(nil)
@@ -84,56 +59,34 @@ private extension ExamplesScreen {
             .padding(.bottom, 4)
     }
 
-    /// A minimal back control shown above the active scenario's content, with a settings
-    /// button on the trailing edge — this screen has no system navigation bar to hang a
-    /// `.toolbar` item on, so both controls are hand-rolled here.
-    func scenarioHeader(for scenario: ExampleScenario) -> some View {
-        HStack(spacing: 8) {
-            Button {
-                viewModel.send(.dismissScenario)
-            } label: {
-                Image(systemName: "chevron.left")
-                    .frame(width: 48, height: 48)
-                    .background(.ultraThinMaterial, in: Circle())
-                    .contentShape(Rectangle())
-            }
-
-            Text(scenario.title)
-                .font(.headline)
-
-            Spacer()
-
-            Button {
-                isSettingsPresented = true
-            } label: {
-                Image(systemName: "slider.horizontal.3")
-                    .frame(width: 48, height: 48)
-                    .background(.ultraThinMaterial, in: Circle())
-                    .contentShape(Rectangle())
-            }
-        }
-        .padding()
-    }
-
-    /// All scenarios belonging to the `.layout` section.
+    /// All available scenarios.
     var scenarios: [ExampleScenario] {
-        ExampleScenario.allCases.filter { $0.section == .layout }
+        ExampleScenario.allCases
     }
 
     /// Routes to the detail view for the given scenario.
     @ViewBuilder
     func destination(for scenario: ExampleScenario) -> some View {
         switch scenario {
-        case .movingBackgroundFixedPanel:
-            MovingBackgroundFixedPanelView()
-        case .fixedBackgroundOffsetFromTop:
-            FixedBackgroundOffsetFromTopView()
+        case .movingBackgroundFixedPanels:
+            MovingBackgroundFixedPanelsView()
         case .movingPanelsFixedBackground:
             MovingPanelsFixedBackgroundView()
-        case .movingBackgroundFixedPanelsLayerEffect, .movingPanelsFixedBackgroundLayerEffect:
-            // GPU-pipeline scenarios never appear in this tab's filtered `scenarios` list.
-            EmptyView()
         }
+    }
+}
+
+// MARK: - Navigation Path Binding
+
+private extension ExamplesScreen {
+
+    /// Bridges the `NavigationStack`'s own path binding to `ExampleIntent`, so both push (via
+    /// `NavigationLink(value:)`) and pop (back button, back-swipe) flow through the view model.
+    var pathBinding: Binding<[ExampleScenario]> {
+        Binding(
+            get: { viewModel.state.gpuPath },
+            set: { viewModel.send(.setGPUPath($0)) }
+        )
     }
 }
 

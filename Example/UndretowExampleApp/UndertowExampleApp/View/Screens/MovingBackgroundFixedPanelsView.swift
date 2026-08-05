@@ -1,6 +1,6 @@
 //
-//  MovingBackgroundFixedPanelsLayerEffectView.swift
-//  BackdropBlurKitExampleApp
+//  MovingBackgroundFixedPanelsView.swift
+//  UndertowExampleApp
 //
 //  Created by Maksim Gaisin on 03.08.26.
 //
@@ -9,17 +9,15 @@ import SwiftUI
 import Undertow
 
 /// Five real, fixed-position SwiftUI target markers, each using the public
-/// `.layerEffectTarget()` API to report its frame — the GPU `.layerEffect` pipeline's
-/// counterpart to `MovingBackgroundFixedPanelView`'s CPU-snapshot `.effectTarget()` usage. The
-/// frame collection this scenario originally prototyped locally (a hand-rolled `PreferenceKey`
-/// + `@State`) has been promoted into `Undertow` itself — see
-/// `LayerEffectCoordinatorModifier`, `LayerEffectTargetViewModifier`, and
-/// `LayerEffectSourceViewModifier` — so nothing coordinator-shaped lives in this file anymore.
-struct MovingBackgroundFixedPanelsLayerEffectView: View {
+/// `.effectTarget()` API to report its frame. The frame collection this scenario
+/// originally prototyped locally (a hand-rolled `PreferenceKey` + `@State`) has been promoted
+/// into `Undertow` itself — see `EffectCoordinatorModifier`, `EffectTargetViewModifier`,
+/// and `EffectSourceViewModifier` — so nothing coordinator-shaped lives in this file anymore.
+struct MovingBackgroundFixedPanelsView: View {
 
-    /// Owns the applied `LayerEffectConfiguration`, shared between this view's rendering and
+    /// Owns the applied `Effect`, shared between this view's rendering and
     /// its settings sheet.
-    @State private var viewModel = LayerEffectScenarioViewModel(isBackgroundMoving: true)
+    @State private var viewModel = EffectScenarioViewModel(isBackgroundMoving: true)
 
     /// Incremented on each marker tap, driving `.sensoryFeedback`'s trigger.
     @State private var tapCount = 0
@@ -34,7 +32,7 @@ struct MovingBackgroundFixedPanelsLayerEffectView: View {
 
             targetMarkers
         }
-        .layerEffectCoordinator()
+        .effectCoordinator()
         .ignoresSafeArea()
         .toolbar { settingsButton }
         .sheet(isPresented: $isSettingsPresented) {
@@ -49,7 +47,7 @@ struct MovingBackgroundFixedPanelsLayerEffectView: View {
 
 // MARK: - Toolbar
 
-private extension MovingBackgroundFixedPanelsLayerEffectView {
+private extension MovingBackgroundFixedPanelsView {
 
     var settingsButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
@@ -64,16 +62,16 @@ private extension MovingBackgroundFixedPanelsLayerEffectView {
 
 // MARK: - Subviews
 
-private extension MovingBackgroundFixedPanelsLayerEffectView {
+private extension MovingBackgroundFixedPanelsView {
 
     var scrollingBackdrop: some View {
         ScrollView {
-            // `.layerEffectSource()` must sit directly on the scrolled content (not on the
+            // `.effectSource()` must sit directly on the scrolled content (not on the
             // `ScrollView` itself) so its internal GeometryReader measures the content's own,
             // continuously-changing scroll origin — and `.frame(height:)` must come after it,
             // since that GeometryReader has no intrinsic size (see the modifier's doc comment).
             ScenarioBackgroundView(background: viewModel.background)
-                .layerEffectSource(configuration: viewModel.configuration, cornerRadius: 16)
+                .effectSource(configuration: viewModel.configuration)
                 .frame(height: 2000)
         }
     }
@@ -87,37 +85,37 @@ private extension MovingBackgroundFixedPanelsLayerEffectView {
             let topInset: CGFloat = 140
 
             ZStack {
-                marker(size: CGSize(width: 90, height: 90))
+                marker(size: CGSize(width: 90, height: 90), cornerRadius: 16)
                     .position(x: inset, y: topInset)
-                marker(size: CGSize(width: 90, height: 90))
+                marker(size: CGSize(width: 90, height: 90), cornerRadius: 16)
                     .position(x: size.width - inset, y: topInset)
-                marker(size: CGSize(width: 90, height: 90))
+                marker(size: CGSize(width: 90, height: 90), cornerRadius: 16)
                     .position(x: inset, y: size.height - inset)
-                marker(size: CGSize(width: 90, height: 90))
+                marker(size: CGSize(width: 90, height: 90), cornerRadius: 16)
                     .position(x: size.width - inset, y: size.height - inset)
-                marker(size: CGSize(width: 180, height: 340))
+                marker(size: CGSize(width: 180, height: 340), cornerRadius: 32)
                     .position(x: size.width / 2, y: size.height / 2)
             }
         }
     }
 
-    /// A visible marker: a stroked, labeled rect. `.layerEffectTarget()` reports its frame;
+    /// A visible marker: a stroked, labeled rect. `.effectTarget()` reports its frame;
     /// tapping it confirms the marker is live and hit-testable.
-    func marker(size: CGSize) -> some View {
+    func marker(size: CGSize, cornerRadius: CGFloat = 0) -> some View {
         Text("Tap me")
             .font(.headline)
             .frame(width: size.width, height: size.height)
             .overlay(
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: cornerRadius)
                     .stroke(Color.white.opacity(0.6), lineWidth: 1)
             )
             .contentShape(Rectangle())
             .onTapGesture { tapCount += 1 }
-            .layerEffectTarget()
+            .effectTarget(cornerRadius: cornerRadius)
             .sensoryFeedback(.impact, trigger: tapCount)
     }
 }
 
 #Preview {
-    MovingBackgroundFixedPanelsLayerEffectView()
+    MovingBackgroundFixedPanelsView()
 }

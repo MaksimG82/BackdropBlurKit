@@ -1,5 +1,5 @@
 //
-//  View+gaussianBlurLayerEffect.swift
+//  View+gaussianBlurEffect.swift
 //  Undertow
 //
 //  Created by Maksim Gaisin on 04.08.26.
@@ -9,7 +9,7 @@ import SwiftUI
 
 public extension View {
     /// Applies the two-pass separable Gaussian blur shader to this view via `.layerEffect` (see
-    /// `GaussianBlur.metal`, adapted from Inferno's `VariableGaussianBlur.metal`).
+    /// `GaussianBlur.metal`).
     ///
     /// Runs the shader twice in sequence — once along X, once along Y — since `.layerEffect`
     /// doesn't support multi-pass shaders in a single call.
@@ -19,9 +19,9 @@ public extension View {
     ///     used to reject samples that fall outside the view's edges.
     ///   - maxSamples: The maximum number of samples to take in each direction from a pixel, per
     ///     axis pass.
-    /// - Returns: This view with the two-pass Gaussian blur layer effect applied.
+    /// - Returns: This view with the two-pass Gaussian blur effect applied.
     @ViewBuilder
-    func gaussianBlurLayerEffect(radius: CGFloat, boundingRect: CGRect, maxSamples: Float) -> some View {
+    func gaussianBlurEffect(radius: CGFloat, boundingRect: CGRect, maxSamples: Float) -> some View {
         let boundingRectArg: SwiftUI.Shader.Argument = .float4(
             Float(boundingRect.origin.x),
             Float(boundingRect.origin.y),

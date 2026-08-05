@@ -23,10 +23,6 @@ final class ExampleViewModel {
         switch intent {
         case let .selectTab(item):
             state.selectedTab = item
-        case let .selectScenario(scenario):
-            state.selectedScenario = scenario
-        case .dismissScenario:
-            state.selectedScenario = nil
         case let .setGPUPath(path):
             state.gpuPath = path
         }

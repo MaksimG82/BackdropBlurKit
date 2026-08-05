@@ -10,7 +10,7 @@
 
 using namespace metal;
 
-/// Color-inversion shader for the `.layerEffect` GPU pipeline (`LayerEffectConfiguration.invert`).
+/// Color-inversion shader for the `.layerEffect` GPU pipeline (`Effect.invert`).
 ///
 /// Originally written to confirm that a `[[stitchable]]` layer-effect shader can be authored,
 /// compiled into this package's `.metallib` resource, loaded via `ShaderLibrary`, and applied

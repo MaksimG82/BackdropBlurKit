@@ -1,5 +1,5 @@
 //
-//  View+shimmerColorEffect.swift
+//  View+shimmerEffect.swift
 //  Undertow
 //
 //  Created by Maksim Gaisin on 04.08.26.
@@ -9,7 +9,7 @@ import SwiftUI
 
 public extension View {
     /// Applies the shimmering gradient-sweep effect to this view via `.colorEffect` (see
-    /// `Shimmer.metal`, adapted from Inferno's `Shimmer.metal`).
+    /// `Shimmer.metal`).
     /// - Parameters:
     ///   - size: The size of this view, in its own local coordinate space.
     ///   - time: Elapsed seconds since the effect's animation began.
@@ -20,9 +20,9 @@ public extension View {
     ///     x-axis, 0 = rightward) — converted to radians for the shader.
     ///   - angle: The orientation of the band itself, in degrees (0 = vertical, measured from the
     ///     y-axis; only meaningful modulo 180°) — converted to radians for the shader.
-    /// - Returns: This view with the shimmer color effect applied.
+    /// - Returns: This view with the shimmer effect applied.
     @ViewBuilder
-    func shimmerColorEffect(size: CGSize, time: TimeInterval, animationDuration: CGFloat, gradientWidth: CGFloat, maxLightness: CGFloat, direction: CGFloat, angle: CGFloat) -> some View {
+    func shimmerEffect(size: CGSize, time: TimeInterval, animationDuration: CGFloat, gradientWidth: CGFloat, maxLightness: CGFloat, direction: CGFloat, angle: CGFloat) -> some View {
         self.colorEffect(
             ShaderLibrary.shimmerLibrary.shimmer(
                 .float2(size),

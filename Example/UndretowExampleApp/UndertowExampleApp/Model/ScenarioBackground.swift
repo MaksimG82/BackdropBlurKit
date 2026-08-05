@@ -10,7 +10,7 @@ import SwiftUI
 /// The background content a scenario renders behind its effect/target views, selectable from
 /// the settings sheet's `Background` tab.
 ///
-/// Mirrors `LayerEffectKind`'s shape: a case per background type, each carrying its own
+/// Mirrors `EffectKind`'s shape: a case per background type, each carrying its own
 /// parameters as associated values. `.video` is follow-up work — it needs a way to size a
 /// large-content `ScrollView` from media rather than a fixed `.frame(height:)`, which isn't
 /// solved yet, and will likely end up restricted to stationary-background scenarios only.

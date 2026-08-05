@@ -7,10 +7,8 @@
 
 import SwiftUI
 
-@available(iOS 17.0, *)
 extension ShaderLibrary {
-    /// The precompiled Metal shader library for the water-ripple distortion effect,
-    /// selected based on the current runtime environment.
+    /// The precompiled Metal shader library for the water-ripple distortion effect.
     static let waterLibrary: ShaderLibrary = {
 #if targetEnvironment(simulator)
         let name = "Water-iphonesimulator"

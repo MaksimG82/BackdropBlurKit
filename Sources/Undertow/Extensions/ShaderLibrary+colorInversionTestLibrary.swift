@@ -7,11 +7,9 @@
 
 import SwiftUI
 
-@available(iOS 17.0, *)
 extension ShaderLibrary {
-    /// The precompiled Metal shader library for the color-inversion test effect,
-    /// selected based on the current runtime environment.
-    static let colorInversionTestLibrary: ShaderLibrary = {
+    /// The precompiled Metal shader library for the color-inversio effect.
+    static let colorRGBInversionLibrary: ShaderLibrary = {
 #if targetEnvironment(simulator)
         let name = "ColorInversionTest-iphonesimulator"
 #else

@@ -39,26 +39,22 @@ inline half gaussian(half distance, half sigma) {
 ///     Texture sampling is expensive, so instead of sampling every pixel, a lower count is
 ///     spread out across the radius.
 half4 gaussianBlur1D(float2 position, float4 boundingRect, SwiftUI::Layer layer, bool normalizeEdges, half radius, half2 axisMultiplier, half maxSamples) {
-    // Calculate how far apart the samples should be: either 1 pixel or the desired radius divided by the maximum number of samples, whichever is farther.
+    // Sample spacing: at least 1 pixel, or wider if the sample budget is tight for this radius.
     const half interval = max(1.0h, radius / maxSamples);
 
-    // Take the first sample, at the center, and start the weighted-average accumulators with it.
     const half weight = gaussian(0.0h, radius / 3.0h);
     half4 weightedColorSum = layer.sample(position) * weight;
     half totalWeight = weight;
 
-    // If the radius is high enough to take more samples, take them.
     if (interval <= radius) {
-        // Bounding box that all samples must be within when normalizing edges; otherwise unbounded.
+        // Bounding box samples must stay within when normalizing edges; otherwise unbounded.
         const float2 minSamplePos = normalizeEdges ? float2(boundingRect[0], boundingRect[1]) : float2(-HUGE_VALF);
         const float2 maxSamplePos = normalizeEdges ? float2(boundingRect[0] + boundingRect[2], boundingRect[1] + boundingRect[3]) : float2(HUGE_VALF);
 
-        // Take a sample every `interval` up to and including the desired blur radius.
         for (half distance = interval; distance <= radius; distance += interval) {
             const half2 offsetDistance = axisMultiplier * distance;
             const half weight = gaussian(distance, radius / 3.0h);
 
-            // Take two samples along the axis, one in each direction, and accumulate any that fall within the bounding box.
             const half2 positiveOffsetSamplePos = half2(position) + offsetDistance;
             const half2 negativeOffsetSamplePos = half2(position) - offsetDistance;
             if (!any(float2(positiveOffsetSamplePos) > maxSamplePos)) {
@@ -78,7 +74,7 @@ half4 gaussianBlur1D(float2 position, float4 boundingRect, SwiftUI::Layer layer,
 /// Single-axis pass of a two-pass separable Gaussian blur for the `.layerEffect` GPU pipeline.
 ///
 /// Must be applied twice — once with `vertical == 0.0` (X axis) and once with `vertical != 0.0`
-/// (Y axis) — see `gaussianBlurLayerEffect(radius:boundingRect:normalizeEdges:)`, which
+/// (Y axis) — see `gaussianBlurEffect(radius:boundingRect:normalizeEdges:)`, which
 /// dispatches both passes since `.layerEffect` doesn't support multi-pass shaders in a single
 /// call.
 /// - Parameters:
@@ -91,15 +87,12 @@ half4 gaussianBlur1D(float2 position, float4 boundingRect, SwiftUI::Layer layer,
 ///     booleans).
 ///   - normalizeEdges: `1.0` avoids sampling outside `boundingRect`; `0.0` allows it.
 [[ stitchable ]] half4 gaussianBlur(float2 position, SwiftUI::Layer layer, float4 boundingRect, float radius, float maxSamples, float vertical, float normalizeEdges) {
-    // Calculate the position in UV space within the bounding rect (0 to 1).
     const float2 uv = float2(position.x / boundingRect[2], position.y / boundingRect[3]);
 
-    // If we are normalizing edges, return clear for any pixel outside of the bounding box.
     if (normalizeEdges == 1.0 && (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0)) {
         return half4(0.0h);
     }
 
-    // If the radius is less than 1 pixel, there's nothing to blur.
     if (radius < 1.0) {
         return layer.sample(position);
     }

@@ -1,17 +1,16 @@
 //
 //  MovingPanelsFixedBackgroundView.swift
-//  BackdropBlurKitExampleApp
+//  UndertowExampleApp
 //
-//  Created by Maksim Gaisin on 28.07.26.
+//  Created by Maksim Gaisin on 04.08.26.
 //
 
 import SwiftUI
 import Undertow
 
-/// A single fixed (non-scrolling) effect source with multiple effect targets scrolling over it
-/// inside a `ScrollView`/`LazyVStack`, each cell tracking its own frame independently as it
-/// scrolls — the demo app's primary test of concurrent multi-target support (2+ targets against
-/// one source).
+/// A single fixed (non-scrolling) effect source with multiple effect targets
+/// scrolling over it in a `ScrollView`/`LazyVStack`, each cell tracking its own frame
+/// independently as it scrolls.
 struct MovingPanelsFixedBackgroundView: View {
 
     // MARK: - Constants
@@ -20,16 +19,26 @@ struct MovingPanelsFixedBackgroundView: View {
 
     // MARK: - Property Wrappers
 
+    /// Owns the applied `Effect`, shared between this view's rendering and
+    /// its settings sheet.
+    @State private var viewModel = EffectScenarioViewModel(isBackgroundMoving: false)
+
     /// Incremented on each cell tap, driving `.sensoryFeedback`'s trigger.
     @State private var tapCount = 0
+
+    /// Whether the settings sheet is currently presented.
+    @State private var isSettingsPresented = false
 
     // MARK: - Body
 
     var body: some View {
         ZStack {
-            CheckerboardBackground()
+            // `.effectSource()` sits directly on the fixed backdrop content. It does not
+            // scroll, so its internal GeometryReader's measured origin is constant — only the
+            // targets' global frames change as the list scrolls underneath.
+            ScenarioBackgroundView(background: viewModel.background)
+                .effectSource(configuration: viewModel.configuration)
                 .ignoresSafeArea()
-                .effectSource(navigationBarOverlap: .none, captureMode: .unionFrame)
 
             ScrollView {
                 LazyVStack(spacing: 16) {
@@ -42,6 +51,29 @@ struct MovingPanelsFixedBackgroundView: View {
         }
         .effectCoordinator()
         .ignoresSafeArea()
+        .toolbar { settingsButton }
+        .sheet(isPresented: $isSettingsPresented) {
+            EffectSettingsSheet(
+                configuration: $viewModel.configuration,
+                background: $viewModel.background,
+                availableBackgroundKinds: viewModel.availableBackgroundKinds
+            )
+        }
+    }
+}
+
+// MARK: - Toolbar
+
+private extension MovingPanelsFixedBackgroundView {
+
+    var settingsButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                isSettingsPresented = true
+            } label: {
+                Image(systemName: "slider.horizontal.3")
+            }
+        }
     }
 }
 

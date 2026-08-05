@@ -7,10 +7,8 @@
 
 import SwiftUI
 
-@available(iOS 17.0, *)
 extension ShaderLibrary {
-    /// The precompiled Metal shader library for the dynamic multi-colored-noise effect,
-    /// selected based on the current runtime environment.
+    /// The precompiled Metal shader library for the dynamic multi-colored-noise effect.
     static let rainbowNoiseLibrary: ShaderLibrary = {
 #if targetEnvironment(simulator)
         let name = "RainbowNoise-iphonesimulator"
