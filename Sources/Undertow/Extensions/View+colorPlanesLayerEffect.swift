@@ -17,7 +17,7 @@ public extension View {
     @ViewBuilder
     func colorPlanesLayerEffect(offset: CGSize) -> some View {
         self.layerEffect(
-            ShaderLibrary.liveBackdropKit.colorPlanes(.float2(Float(offset.width), Float(offset.height))),
+            ShaderLibrary.colorPlanesLibrary.colorPlanes(.float2(Float(offset.width), Float(offset.height))),
             maxSampleOffset: CGSize(width: offset.width * 2, height: offset.height * 2)
         )
     }

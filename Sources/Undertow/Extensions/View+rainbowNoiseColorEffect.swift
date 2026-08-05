@@ -15,7 +15,7 @@ public extension View {
     @ViewBuilder
     func rainbowNoiseColorEffect(time: TimeInterval) -> some View {
         self.colorEffect(
-            ShaderLibrary.liveBackdropKit.rainbowNoise(.float(time))
+            ShaderLibrary.rainbowNoiseLibrary.rainbowNoise(.float(time))
         )
     }
 }

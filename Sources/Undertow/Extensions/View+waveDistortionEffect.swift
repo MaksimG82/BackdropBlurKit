@@ -20,7 +20,7 @@ public extension View {
     @ViewBuilder
     func waveDistortionEffect(time: TimeInterval, speed: CGFloat, smoothing: CGFloat, strength: CGFloat) -> some View {
         self.distortionEffect(
-            ShaderLibrary.liveBackdropKit.wave(
+            ShaderLibrary.waveLibrary.wave(
                 .float(time),
                 .float(speed),
                 .float(smoothing),

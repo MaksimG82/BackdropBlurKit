@@ -15,7 +15,7 @@ public extension View {
     @ViewBuilder
     func embossLayerEffect(strength: CGFloat) -> some View {
         self.layerEffect(
-            ShaderLibrary.liveBackdropKit.emboss(.float(strength)),
+            ShaderLibrary.embossLibrary.emboss(.float(strength)),
             maxSampleOffset: CGSize(width: 1, height: 1)
         )
     }

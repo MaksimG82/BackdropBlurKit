@@ -122,6 +122,32 @@ All public and internal types, properties, and functions must have DocC-style
 doc comments (`///`). Use `- Parameters:` and `- Returns:` where applicable.
 No exceptions for "obvious" declarations — every declaration gets a doc comment.
 
+## Metal shaders
+
+Shader sources (`.metal`) live in `/Shaders` at the package root, not in `Sources/Undertow`.
+`Sources/Undertow/Metal/` contains only precompiled `.metallib` binaries (two per shader —
+`<Name>-iphoneos.metallib` and `<Name>-iphonesimulator.metallib`), bundled as package resources.
+This avoids requiring consumers to have the Metal toolchain installed just to build the package.
+
+To change a shader:
+
+1. Edit the `.metal` source in `/Shaders`.
+2. Recompile it with `Scripts/compileShader.sh <ShaderName>` — this regenerates both the
+   `iphoneos` and `iphonesimulator` `.metallib` files into `Sources/Undertow/Metal/`, overwriting
+   the old ones. Run it once per shader file (it does not batch-compile).
+3. Commit the updated `.metallib` files alongside the `.metal` source change — they are not
+   regenerated automatically (no CI step does this).
+
+Each shader has a corresponding `ShaderLibrary+<name>Library.swift` file (`Extensions/`) that
+picks the right `.metallib` (device vs. simulator) at runtime and exposes it as a static
+`ShaderLibrary` property — see `ShaderLibrary+waterLibrary.swift` for the pattern.
+
+For fast local iteration without recompiling `.metallib` on every change, `.metal` files can
+temporarily be added back into `Sources/Undertow` and referenced via `ShaderLibrary.default`
+instead of the bundled `.metallib` — this requires the Metal toolchain (`xcrun metal`) to be
+installed, which SPM invokes automatically when compiling `.metal` sources inside a target.
+Revert to the bundled `.metallib` before committing.
+
 ## Build policy
 
 Do NOT run `swift build`, `swift test`, or `xcodebuild` (including against the

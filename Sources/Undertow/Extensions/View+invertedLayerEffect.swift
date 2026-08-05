@@ -7,22 +7,6 @@
 
 import SwiftUI
 
-extension ShaderLibrary {
-    /// The compiled Metal shader library bundled with this package, built from the `.metal`
-    /// sources under `Sources/Undertow/Metal/`.
-    ///
-    /// SwiftPM's `resources: [.process("Metal")]` rule compiles those sources into a single
-    /// `default.metallib` embedded in `Bundle.module`'s resource bundle — verified against
-    /// both a simulator and a device build of this target; neither produces a
-    /// platform-suffixed file name, so none is applied here.
-    static var liveBackdropKit: ShaderLibrary {
-        guard let url = Bundle.module.url(forResource: "default", withExtension: "metallib") else {
-            fatalError("Missing default.metallib in Bundle.module — check the Metal resource build output.")
-        }
-        return ShaderLibrary(url: url)
-    }
-}
-
 public extension View {
     /// Applies the `invertColors` shader to this view via `.layerEffect`.
     ///
@@ -38,7 +22,7 @@ public extension View {
     @ViewBuilder
     func invertedLayerEffect() -> some View {
         self.layerEffect(
-            ShaderLibrary.liveBackdropKit.invertColors(),
+            ShaderLibrary.colorInversionTestLibrary.invertColors(),
             maxSampleOffset: .zero
         )
     }

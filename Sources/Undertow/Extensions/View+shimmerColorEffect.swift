@@ -24,7 +24,7 @@ public extension View {
     @ViewBuilder
     func shimmerColorEffect(size: CGSize, time: TimeInterval, animationDuration: CGFloat, gradientWidth: CGFloat, maxLightness: CGFloat, direction: CGFloat, angle: CGFloat) -> some View {
         self.colorEffect(
-            ShaderLibrary.liveBackdropKit.shimmer(
+            ShaderLibrary.shimmerLibrary.shimmer(
                 .float2(size),
                 .float(time),
                 .float(animationDuration),
