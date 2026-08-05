@@ -15,7 +15,7 @@ public extension View {
     @ViewBuilder
     func whiteNoiseColorEffect(time: TimeInterval) -> some View {
         self.colorEffect(
-            ShaderLibrary.liveBackdropKit.whiteNoise(.float(time))
+            ShaderLibrary.whiteNoiseLibrary.whiteNoise(.float(time))
         )
     }
 }

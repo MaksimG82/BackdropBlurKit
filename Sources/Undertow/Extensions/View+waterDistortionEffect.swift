@@ -20,7 +20,7 @@ public extension View {
     @ViewBuilder
     func waterDistortionEffect(size: CGSize, time: TimeInterval, speed: CGFloat, strength: CGFloat, frequency: CGFloat) -> some View {
         self.distortionEffect(
-            ShaderLibrary.liveBackdropKit.water(
+            ShaderLibrary.waterLibrary.water(
                 .float2(size),
                 .float(time),
                 .float(speed),

@@ -31,7 +31,7 @@ public extension View {
 
         self
             .layerEffect(
-                ShaderLibrary.liveBackdropKit.gaussianBlur(
+                ShaderLibrary.gaussianBlurLibrary.gaussianBlur(
                     boundingRectArg,
                     .float(radius),
                     .float(maxSamples),
@@ -41,7 +41,7 @@ public extension View {
                 maxSampleOffset: CGSize(width: radius, height: 0)
             )
             .layerEffect(
-                ShaderLibrary.liveBackdropKit.gaussianBlur(
+                ShaderLibrary.gaussianBlurLibrary.gaussianBlur(
                     boundingRectArg,
                     .float(radius),
                     .float(maxSamples),
