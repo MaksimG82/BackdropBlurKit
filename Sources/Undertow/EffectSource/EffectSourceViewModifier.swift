@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-/// A view modifier that applies the shader for a given `EffectConfiguration` to the view
+/// A view modifier that applies the shader for a given `Effect` to the view
 /// and masks it down to the frames collected from descendant `.effectTarget()` views
 /// (read from the environment, as distributed by the nearest ancestor
 /// `.effectCoordinator()`).
@@ -27,7 +27,7 @@ struct EffectSourceViewModifier: ViewModifier {
     /// Which GPU effect to apply — one configuration per source, dispatched via
     /// `appliedEffect(to:)` below. No per-target override: running several effects on screen
     /// means several independent source/target/coordinator trees.
-    let configuration: EffectConfiguration
+    let configuration: Effect
 
     /// The corner radius applied to every target's mask window.
     let cornerRadius: CGFloat

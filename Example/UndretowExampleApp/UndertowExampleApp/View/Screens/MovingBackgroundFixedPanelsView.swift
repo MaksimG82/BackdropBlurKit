@@ -15,7 +15,7 @@ import Undertow
 /// and `EffectSourceViewModifier` — so nothing coordinator-shaped lives in this file anymore.
 struct MovingBackgroundFixedPanelsView: View {
 
-    /// Owns the applied `EffectConfiguration`, shared between this view's rendering and
+    /// Owns the applied `Effect`, shared between this view's rendering and
     /// its settings sheet.
     @State private var viewModel = EffectScenarioViewModel(isBackgroundMoving: true)
 

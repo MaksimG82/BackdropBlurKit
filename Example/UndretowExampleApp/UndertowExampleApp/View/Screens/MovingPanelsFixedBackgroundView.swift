@@ -19,7 +19,7 @@ struct MovingPanelsFixedBackgroundView: View {
 
     // MARK: - Property Wrappers
 
-    /// Owns the applied `EffectConfiguration`, shared between this view's rendering and
+    /// Owns the applied `Effect`, shared between this view's rendering and
     /// its settings sheet.
     @State private var viewModel = EffectScenarioViewModel(isBackgroundMoving: false)
 

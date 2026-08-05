@@ -26,7 +26,7 @@ public extension View {
     ///     `0`.
     /// - Returns: A view with the effect applied and masked to the collected target frames.
     func effectSource(
-        configuration: EffectConfiguration = .invert,
+        configuration: Effect = .invert,
         cornerRadius: CGFloat = 0
     ) -> some View {
         modifier(EffectSourceViewModifier(configuration: configuration, cornerRadius: cornerRadius))

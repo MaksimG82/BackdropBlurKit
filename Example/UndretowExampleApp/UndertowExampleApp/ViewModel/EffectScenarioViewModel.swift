@@ -9,7 +9,7 @@ import Foundation
 import Observation
 import Undertow
 
-/// Owns a scenario's applied `EffectConfiguration` and `ScenarioBackground`,
+/// Owns a scenario's applied `Effect` and `ScenarioBackground`,
 /// so the same state can be read by the scenario's content (to render the effect/background) and
 /// edited by its settings sheet (via `Binding`s), without needing separate, synchronized copies.
 ///
@@ -22,7 +22,7 @@ import Undertow
 final class EffectScenarioViewModel {
 
     /// The effect currently applied to the scenario's backdrop.
-    var configuration: EffectConfiguration = .gaussianBlur(radius: 10, maxSamples: 5)
+    var configuration: Effect = .gaussianBlur(radius: 10, maxSamples: 5)
 
     /// The background content currently rendered behind the scenario's effect/target views.
     var background: ScenarioBackground = .defaultCheckerboard

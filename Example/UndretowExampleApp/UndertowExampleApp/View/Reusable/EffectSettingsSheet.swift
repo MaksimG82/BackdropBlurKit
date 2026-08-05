@@ -11,7 +11,7 @@ import Undertow
 
 /// A reusable settings sheet for any effect scenario — an effect picker/parameters
 /// tab and a background picker/parameters tab, reading and writing the caller's
-/// `EffectConfiguration` and `ScenarioBackground` directly via `Binding` (no separate
+/// `Effect` and `ScenarioBackground` directly via `Binding` (no separate
 /// settings state to keep in sync, and no dependency on any particular scenario's view model —
 /// every `.effectSource()` scenario stores these same two types, so one sheet type covers
 /// all of them).
@@ -25,7 +25,7 @@ struct EffectSettingsSheet: View {
 
     // MARK: - Properties
 
-    @Binding var configuration: EffectConfiguration
+    @Binding var configuration: Effect
     @Binding var background: ScenarioBackground
 
     /// The background kinds offered in the background picker — scenario-dependent (a scrolling
@@ -141,9 +141,8 @@ private extension EffectSettingsSheet {
             )
 
             // Max samples per axis pass — the sampling budget spent approximating the blur.
-            // Lower is cheaper; per `EffectConfiguration`'s doc comment, 5 already reads
-            // as visually indistinguishable from 15 (Inferno's own default for its equivalent
-            // `variableBlur` parameter) on typical content.
+            // Lower is cheaper; 5 already reads as visually indistinguishable from 15 on
+            // typical content.
             SettingSlider(
                 title: "Max Samples",
                 value: gaussianBlurMaxSamplesBinding,
@@ -276,8 +275,7 @@ private extension EffectSettingsSheet {
         )
     }
 
-    /// Water's parameters: ripple speed, strength, and frequency. Ranges and defaults match
-    /// both `EffectConfiguration`'s doc comment and Inferno's own demo app defaults.
+    /// Water's parameters: ripple speed, strength, and frequency.
     var waterSection: some View {
         Section {
             // How fast the ripples animate.
@@ -682,7 +680,7 @@ private extension EffectSettingsSheet {
 }
 
 #Preview {
-    @Previewable @State var configuration: EffectConfiguration = .gaussianBlur(radius: 10, maxSamples: 5)
+    @Previewable @State var configuration: Effect = .gaussianBlur(radius: 10, maxSamples: 5)
     @Previewable @State var background: ScenarioBackground = .defaultCheckerboard
     EffectSettingsSheet(configuration: $configuration, background: $background)
 }

@@ -17,7 +17,7 @@ performant backdrop visual-effects pipeline for SwiftUI, similar to `UIVisualEff
 across arbitrary scrolling/animating content and multiple simultaneous effect targets. It ships as a
 library target (`Sources/Undertow`) plus an example iOS app (`Example/UndertowExampleApp`)
 that consumes the package locally. Effects run entirely on the GPU via SwiftUI's `.layerEffect`,
-`.distortionEffect`, and `.colorEffect` shader modifiers — see `EffectConfiguration` for the
+`.distortionEffect`, and `.colorEffect` shader modifiers — see `Effect` for the
 full list of implemented effects (Gaussian blur, color inversion, RGB-shift, emboss, water/wave
 distortion, shimmer, and noise).
 
@@ -51,7 +51,7 @@ Understanding it requires following data through three cooperating pieces:
    `ZStack` of rounded rects — one per collected target frame, unioned into a single `.mask(...)`
    pass. Each mask shape is counter-scrolled against the source's own global-space origin so it
    stays pinned to its target's screen position while the content scrolls underneath. Dispatches
-   to the shader-applying modifier for the given `EffectConfiguration` (e.g.
+   to the shader-applying modifier for the given `Effect` (e.g.
    `gaussianBlurEffect(radius:boundingRect:maxSamples:)`), wrapping in a
    `TimelineView(.animation)` only for time-based configurations (`configuration.isTimeBased`).
 
@@ -61,7 +61,7 @@ Understanding it requires following data through three cooperating pieces:
    and reports it through `EffectTargetFramePreferenceKey` (consumed by the coordinator, see
    above) — a standard SwiftUI multi-value `PreferenceKey` merge.
 
-One source drives exactly one `EffectConfiguration` — there's no per-target override or
+One source drives exactly one `Effect` — there's no per-target override or
 environment-inherited default. Running several effects on screen at once means several
 independent `effectSource()`/`effectTarget()`/`effectCoordinator()` trees.
 
