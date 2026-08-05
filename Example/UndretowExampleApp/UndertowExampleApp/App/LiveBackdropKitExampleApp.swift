@@ -1,6 +1,6 @@
 //
-//  LiveBackdropKitExampleApp.swift
-//  LiveBackdropKitExampleApp
+//  UndertowExampleApp.swift
+//  UndertowExampleApp
 //
 //  Created by Maksim Gaisin on 19.06.26.
 //
@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct LiveBackdropKitExampleApp: App {
+struct UndertowExampleApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()

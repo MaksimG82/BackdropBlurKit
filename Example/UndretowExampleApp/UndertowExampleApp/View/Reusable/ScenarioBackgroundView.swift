@@ -1,6 +1,6 @@
 //
 //  ScenarioBackgroundView.swift
-//  LiveBackdropKitExampleApp
+//  UndertowExampleApp
 //
 //  Created by Maksim Gaisin on 04.08.26.
 //

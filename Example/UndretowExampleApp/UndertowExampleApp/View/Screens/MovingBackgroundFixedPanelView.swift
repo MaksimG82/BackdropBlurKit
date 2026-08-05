@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import LiveBackdropKit
+import Undertow
 
 /// A vertically scrolling checkerboard background with a fixed blurred panel,
 /// demonstrating the basic capture-and-blur pipeline.

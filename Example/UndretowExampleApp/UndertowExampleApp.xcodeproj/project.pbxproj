@@ -7,20 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D73490943017CCF0000D86BA /* LiveBackdropKit in Frameworks */ = {isa = PBXBuildFile; productRef = D73490933017CCF0000D86BA /* LiveBackdropKit */; };
 		D79F6D9B2FF5BF24001BD7F9 /* BarKit in Frameworks */ = {isa = PBXBuildFile; productRef = D79F6D9A2FF5BF24001BD7F9 /* BarKit */; };
 		D7AC09032FEA827E00A38510 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D7AC08FE2FEA827E00A38510 /* Assets.xcassets */; };
+		D7DFE58230236F2D006E5874 /* Undertow in Frameworks */ = {isa = PBXBuildFile; productRef = D7DFE58130236F2D006E5874 /* Undertow */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		D74BC5032FE57CB3002C06A8 /* LiveBackdropKitExampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LiveBackdropKitExampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D74BC5032FE57CB3002C06A8 /* UndertowExampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UndertowExampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D7AC08FE2FEA827E00A38510 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		D74BC5052FE57CB3002C06A8 /* LiveBackdropKitExampleApp */ = {
+		D74BC5052FE57CB3002C06A8 /* UndertowExampleApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = LiveBackdropKitExampleApp;
+			path = UndertowExampleApp;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -30,7 +30,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D73490943017CCF0000D86BA /* LiveBackdropKit in Frameworks */,
+				D7DFE58230236F2D006E5874 /* Undertow in Frameworks */,
 				D79F6D9B2FF5BF24001BD7F9 /* BarKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -41,7 +41,7 @@
 		D74BC4FA2FE57CB3002C06A8 = {
 			isa = PBXGroup;
 			children = (
-				D74BC5052FE57CB3002C06A8 /* LiveBackdropKitExampleApp */,
+				D74BC5052FE57CB3002C06A8 /* UndertowExampleApp */,
 				D74BC5042FE57CB3002C06A8 /* Products */,
 				D7AC08FE2FEA827E00A38510 /* Assets.xcassets */,
 				D79F6D992FF5BF24001BD7F9 /* Frameworks */,
@@ -51,7 +51,7 @@
 		D74BC5042FE57CB3002C06A8 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D74BC5032FE57CB3002C06A8 /* LiveBackdropKitExampleApp.app */,
+				D74BC5032FE57CB3002C06A8 /* UndertowExampleApp.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -66,9 +66,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		D74BC5022FE57CB3002C06A8 /* LiveBackdropKitExampleApp */ = {
+		D74BC5022FE57CB3002C06A8 /* UndertowExampleApp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D74BC50E2FE57CB4002C06A8 /* Build configuration list for PBXNativeTarget "LiveBackdropKitExampleApp" */;
+			buildConfigurationList = D74BC50E2FE57CB4002C06A8 /* Build configuration list for PBXNativeTarget "UndertowExampleApp" */;
 			buildPhases = (
 				D74BC4FF2FE57CB3002C06A8 /* Sources */,
 				D74BC5002FE57CB3002C06A8 /* Frameworks */,
@@ -79,15 +79,15 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				D74BC5052FE57CB3002C06A8 /* LiveBackdropKitExampleApp */,
+				D74BC5052FE57CB3002C06A8 /* UndertowExampleApp */,
 			);
-			name = LiveBackdropKitExampleApp;
+			name = UndertowExampleApp;
 			packageProductDependencies = (
 				D79F6D9A2FF5BF24001BD7F9 /* BarKit */,
-				D73490933017CCF0000D86BA /* LiveBackdropKit */,
+				D7DFE58130236F2D006E5874 /* Undertow */,
 			);
 			productName = BackdropBlurKitExampleApp;
-			productReference = D74BC5032FE57CB3002C06A8 /* LiveBackdropKitExampleApp.app */;
+			productReference = D74BC5032FE57CB3002C06A8 /* UndertowExampleApp.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -105,7 +105,7 @@
 					};
 				};
 			};
-			buildConfigurationList = D74BC4FE2FE57CB3002C06A8 /* Build configuration list for PBXProject "LiveBackdropKitExampleApp" */;
+			buildConfigurationList = D74BC4FE2FE57CB3002C06A8 /* Build configuration list for PBXProject "UndertowExampleApp" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -116,14 +116,14 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				D76E76722FF5BECF0034BE48 /* XCRemoteSwiftPackageReference "BarKit" */,
-				D73490923017CCF0000D86BA /* XCLocalSwiftPackageReference "../../../LiveBackdropKit" */,
+				D7DFE58030236F2D006E5874 /* XCLocalSwiftPackageReference "../../../Undertow" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D74BC5042FE57CB3002C06A8 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D74BC5022FE57CB3002C06A8 /* LiveBackdropKitExampleApp */,
+				D74BC5022FE57CB3002C06A8 /* UndertowExampleApp */,
 			);
 		};
 /* End PBXProject section */
@@ -290,7 +290,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = maksim.gaisin.BackdropBlurKitExampleApp;
+				PRODUCT_BUNDLE_IDENTIFIER = maksim.gaisin.UndertowExampleApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -333,7 +333,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = maksim.gaisin.BackdropBlurKitExampleApp;
+				PRODUCT_BUNDLE_IDENTIFIER = maksim.gaisin.UndertowExampleApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -353,7 +353,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		D74BC4FE2FE57CB3002C06A8 /* Build configuration list for PBXProject "LiveBackdropKitExampleApp" */ = {
+		D74BC4FE2FE57CB3002C06A8 /* Build configuration list for PBXProject "UndertowExampleApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D74BC50C2FE57CB4002C06A8 /* Debug */,
@@ -362,7 +362,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D74BC50E2FE57CB4002C06A8 /* Build configuration list for PBXNativeTarget "LiveBackdropKitExampleApp" */ = {
+		D74BC50E2FE57CB4002C06A8 /* Build configuration list for PBXNativeTarget "UndertowExampleApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D74BC50F2FE57CB4002C06A8 /* Debug */,
@@ -374,9 +374,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		D73490923017CCF0000D86BA /* XCLocalSwiftPackageReference "../../../LiveBackdropKit" */ = {
+		D7DFE58030236F2D006E5874 /* XCLocalSwiftPackageReference "../../../Undertow" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../../LiveBackdropKit;
+			relativePath = ../../../Undertow;
 		};
 /* End XCLocalSwiftPackageReference section */
 
@@ -392,14 +392,14 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		D73490933017CCF0000D86BA /* LiveBackdropKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = LiveBackdropKit;
-		};
 		D79F6D9A2FF5BF24001BD7F9 /* BarKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D76E76722FF5BECF0034BE48 /* XCRemoteSwiftPackageReference "BarKit" */;
 			productName = BarKit;
+		};
+		D7DFE58130236F2D006E5874 /* Undertow */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Undertow;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

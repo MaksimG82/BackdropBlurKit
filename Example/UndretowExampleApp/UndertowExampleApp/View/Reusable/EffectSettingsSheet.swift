@@ -1,13 +1,13 @@
 //
 //  EffectSettingsSheet.swift
-//  LiveBackdropKitExampleApp
+//  UndertowExampleApp
 //
 //  Created by Maksim Gaisin on 04.08.26.
 //
 
 import SwiftUI
 import PhotosUI
-import LiveBackdropKit
+import Undertow
 
 /// A reusable settings sheet for any GPU `.layerEffect` scenario — an effect picker/parameters
 /// tab and a background picker/parameters tab, reading and writing the caller's

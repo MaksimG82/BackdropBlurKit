@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-/// Explains LiveBackdropKit's two effect pipelines and how to use the example app, shown as the
+/// Explains Undertow's two effect pipelines and how to use the example app, shown as the
 /// app's first tab.
 struct InfoScreen: View {
 
@@ -48,7 +48,7 @@ private extension InfoScreen {
     /// A short introduction to the library and its two pipelines.
     var overview: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("LiveBackdropKit")
+            Text("Undertow")
                 .font(.title2.bold())
             Text("A library of live backdrop effects for SwiftUI. Two independent pipelines are included, each with its own tradeoffs.")
                 .font(.body)

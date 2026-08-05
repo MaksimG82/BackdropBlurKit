@@ -1,12 +1,12 @@
 //
 //  MovingPanelsFixedBackgroundLayerEffectView.swift
-//  LiveBackdropKitExampleApp
+//  UndertowExampleApp
 //
 //  Created by Maksim Gaisin on 04.08.26.
 //
 
 import SwiftUI
-import LiveBackdropKit
+import Undertow
 
 /// A single fixed (non-scrolling) GPU `.layerEffect` source with multiple effect targets
 /// scrolling over it in a `ScrollView`/`LazyVStack`, each cell tracking its own frame

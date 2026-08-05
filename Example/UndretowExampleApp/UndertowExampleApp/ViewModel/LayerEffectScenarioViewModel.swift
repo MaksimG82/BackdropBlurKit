@@ -1,13 +1,13 @@
 //
 //  LayerEffectScenarioViewModel.swift
-//  LiveBackdropKitExampleApp
+//  UndertowExampleApp
 //
 //  Created by Maksim Gaisin on 04.08.26.
 //
 
 import Foundation
 import Observation
-import LiveBackdropKit
+import Undertow
 
 /// Owns a GPU `.layerEffect` scenario's applied `LayerEffectConfiguration` and `ScenarioBackground`,
 /// so the same state can be read by the scenario's content (to render the effect/background) and

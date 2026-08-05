@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import LiveBackdropKit
+import Undertow
 
 /// A fixed, non-scrolling block at the top of the screen with the scrolling backdrop
 /// starting exactly at its bottom edge, demonstrating that the capture pipeline correctly

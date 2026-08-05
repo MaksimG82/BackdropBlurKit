@@ -1,12 +1,12 @@
 //
 //  LayerEffectKind.swift
-//  LiveBackdropKitExampleApp
+//  UndertowExampleApp
 //
 //  Created by Maksim Gaisin on 04.08.26.
 //
 
 import CoreGraphics
-import LiveBackdropKit
+import Undertow
 
 /// A parameter-less identifier for each `LayerEffectConfiguration` case, used to drive the
 /// effect picker in a scenario's settings sheet. `LayerEffectConfiguration` itself can't back a

@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D74BC5022FE57CB3002C06A8"
-               BuildableName = "LiveBackdropKitExampleApp.app"
-               BlueprintName = "LiveBackdropKitExampleApp"
-               ReferencedContainer = "container:LiveBackdropKitExampleApp.xcodeproj">
+               BuildableName = "UndertowExampleApp.app"
+               BlueprintName = "UndertowExampleApp"
+               ReferencedContainer = "container:UndertowExampleApp.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -46,9 +46,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D74BC5022FE57CB3002C06A8"
-            BuildableName = "LiveBackdropKitExampleApp.app"
-            BlueprintName = "LiveBackdropKitExampleApp"
-            ReferencedContainer = "container:LiveBackdropKitExampleApp.xcodeproj">
+            BuildableName = "UndertowExampleApp.app"
+            BlueprintName = "UndertowExampleApp"
+            ReferencedContainer = "container:UndertowExampleApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -63,9 +63,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D74BC5022FE57CB3002C06A8"
-            BuildableName = "LiveBackdropKitExampleApp.app"
-            BlueprintName = "LiveBackdropKitExampleApp"
-            ReferencedContainer = "container:LiveBackdropKitExampleApp.xcodeproj">
+            BuildableName = "UndertowExampleApp.app"
+            BlueprintName = "UndertowExampleApp"
+            ReferencedContainer = "container:UndertowExampleApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

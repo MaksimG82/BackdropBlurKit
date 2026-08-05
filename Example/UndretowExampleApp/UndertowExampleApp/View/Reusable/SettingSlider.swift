@@ -1,6 +1,6 @@
 //
 //  SettingSlider.swift
-//  LiveBackdropKitExampleApp
+//  UndertowExampleApp
 //
 //  Created by Maksim Gaisin on 13.04.26.
 //
