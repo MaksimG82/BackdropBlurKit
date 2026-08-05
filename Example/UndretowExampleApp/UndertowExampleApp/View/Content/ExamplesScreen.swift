@@ -1,5 +1,5 @@
 //
-//  ExamplesScreenLayerEffect.swift
+//  ExamplesScreen.swift
 //  UndertowExampleApp
 //
 //  Created by Maksim Gaisin on 04.08.26.
@@ -8,11 +8,11 @@
 import SwiftUI
 import BarKit
 
-/// Catalog of `.layerEffect`-pipeline scenarios, shown on the GPU tab.
+/// Catalog of effect scenarios, shown on the GPU tab.
 ///
 /// Scenarios push via a real `NavigationStack`, giving native transitions, back-swipe, and a
 /// system navigation bar to hang a settings toolbar button on later.
-struct ExamplesScreenLayerEffect: View {
+struct ExamplesScreen: View {
 
     // MARK: - Properties
 
@@ -35,7 +35,7 @@ struct ExamplesScreenLayerEffect: View {
 
 // MARK: - Subviews
 
-private extension ExamplesScreenLayerEffect {
+private extension ExamplesScreen {
 
     var catalog: some View {
         List {
@@ -49,9 +49,7 @@ private extension ExamplesScreenLayerEffect {
         }
     }
 
-    /// A large-title-style header matching `ExamplesScreen`'s `catalogTitle`, so both scenario
-    /// catalogs look alike despite this screen sitting under a `NavigationStack` and that one
-    /// not.
+    /// A large-title-style header shown above the scenario list.
     var catalogTitle: some View {
         Text("GPU")
             .font(.largeTitle.bold())
@@ -70,17 +68,17 @@ private extension ExamplesScreenLayerEffect {
     @ViewBuilder
     func destination(for scenario: ExampleScenario) -> some View {
         switch scenario {
-        case .movingBackgroundFixedPanelsLayerEffect:
-            MovingBackgroundFixedPanelsLayerEffectView()
-        case .movingPanelsFixedBackgroundLayerEffect:
-            MovingPanelsFixedBackgroundLayerEffectView()
+        case .movingBackgroundFixedPanels:
+            MovingBackgroundFixedPanelsView()
+        case .movingPanelsFixedBackground:
+            MovingPanelsFixedBackgroundView()
         }
     }
 }
 
 // MARK: - Navigation Path Binding
 
-private extension ExamplesScreenLayerEffect {
+private extension ExamplesScreen {
 
     /// Bridges the `NavigationStack`'s own path binding to `ExampleIntent`, so both push (via
     /// `NavigationLink(value:)`) and pop (back button, back-swipe) flow through the view model.
@@ -93,5 +91,5 @@ private extension ExamplesScreenLayerEffect {
 }
 
 #Preview {
-    ExamplesScreenLayerEffect(viewModel: ExampleViewModel())
+    ExamplesScreen(viewModel: ExampleViewModel())
 }

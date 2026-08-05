@@ -7,8 +7,8 @@
 
 
 /// A parameter-less identifier for each `ScenarioBackground` case, used to drive the background
-/// picker in a scenario's settings sheet — same rationale as `LayerEffectKind` for
-/// `LayerEffectConfiguration`.
+/// picker in a scenario's settings sheet — same rationale as `EffectKind` for
+/// `EffectConfiguration`.
 enum ScenarioBackgroundKind: String, CaseIterable, Identifiable {
     case checkerboard
     case photo

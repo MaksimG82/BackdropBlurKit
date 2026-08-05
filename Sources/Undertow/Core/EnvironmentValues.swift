@@ -8,7 +8,6 @@
 import SwiftUI
 
 extension EnvironmentValues {
-    /// The shared target-frame store distributed by the nearest ancestor
-    /// `layerEffectCoordinator`, for the GPU `.layerEffect`-based pipeline.
-    @Entry var layerEffectTargetStore: LayerEffectTargetStore? = nil
+    /// The shared target-frame store distributed by the nearest ancestor `effectCoordinator`.
+    @Entry var effectTargetStore: EffectTargetStore? = nil
 }

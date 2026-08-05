@@ -1,5 +1,5 @@
 //
-//  LayerEffectConfiguration.swift
+//  EffectConfiguration.swift
 //  Undertow
 //
 //  Created by Maksim Gaisin on 04.08.26.
@@ -7,25 +7,23 @@
 
 import SwiftUI
 
-/// Defines the supported GPU `.layerEffect`-based visual effects and their parameters.
+/// Defines the supported GPU-based visual effects and their parameters.
 ///
-/// Mirrors `EffectConfiguration` in spirit — one configuration selects one effect for a
-/// `.layerEffectSource()` — but is a fully separate type: the two pipelines share no
-/// configuration, shader, or dispatch code. Unlike `EffectConfiguration`, there's no
-/// per-target override and no environment-inherited default — `.layerEffectSource()` takes
-/// its configuration directly, since one source drives exactly one effect; running several
-/// effects on screen at once means several independent source/target/coordinator trees, which
-/// this pipeline already supports naturally.
-public enum LayerEffectConfiguration: Hashable, Sendable {
+/// One configuration selects one effect for an `.effectSource()`. There's no per-target
+/// override and no environment-inherited default — `.effectSource()` takes its configuration
+/// directly, since one source drives exactly one effect; running several effects on screen at
+/// once means several independent source/target/coordinator trees, which this pipeline already
+/// supports naturally.
+public enum EffectConfiguration: Hashable, Sendable {
 
     /// Inverts the sampled color's RGB channels. Originally a throwaway validation shader for
-    /// proving out the `.layerEffect` pipeline end to end; kept on as a real, permanent effect
-    /// in its own right — see `invertedLayerEffect()` and `ColorInversionTest.metal`.
+    /// proving out the GPU pipeline end to end; kept on as a real, permanent effect
+    /// in its own right — see `invertedEffect()` and `ColorInversionTest.metal`.
     case invert
 
     /// A two-pass separable Gaussian blur adapted from Inferno's `VariableGaussianBlur.metal` —
     /// see `GaussianBlur.metal` for the shader and
-    /// `gaussianBlurLayerEffect(radius:boundingRect:maxSamples:)` for how the two passes are
+    /// `gaussianBlurEffect(radius:boundingRect:maxSamples:)` for how the two passes are
     /// dispatched.
     /// - Parameters:
     ///   - radius: The blur radius, in points, applied uniformly to every pixel.
@@ -45,10 +43,10 @@ public enum LayerEffectConfiguration: Hashable, Sendable {
     case emboss(strength: CGFloat)
 
     /// A rippling water-distortion effect adapted from Inferno's `Water.metal` — see
-    /// `Water.metal` for the shader and `waterDistortionEffect(size:time:speed:strength:frequency:)`
-    /// for how it's applied via `.distortionEffect` rather than `.layerEffect`. The first
-    /// time-based case in this enum — see `LayerEffectSourceViewModifier`, which wraps rendering
-    /// in a `TimelineView(.animation)` only for cases like this one.
+    /// `Water.metal` for the shader and `waterEffect(size:time:speed:strength:frequency:)`
+    /// for how it's applied. The first time-based case in this enum — see
+    /// `EffectSourceViewModifier`, which wraps rendering in a `TimelineView(.animation)` only
+    /// for cases like this one.
     /// - Parameters:
     ///   - speed: How fast the water ripples. 0.5–10 work best; try starting with 3.
     ///   - strength: How pronounced the rippling is. 1–5 work best; try starting with 3.
@@ -56,9 +54,9 @@ public enum LayerEffectConfiguration: Hashable, Sendable {
     case water(speed: CGFloat, strength: CGFloat, frequency: CGFloat)
 
     /// A uniform wave-distortion effect adapted from Inferno's `Wave.metal` — see `Wave.metal`
-    /// for the shader and `waveDistortionEffect(time:speed:smoothing:strength:)` for how it's
-    /// applied via `.distortionEffect`. Offsets each pixel's Y position by an amount of its X
-    /// position, unlike `.water`'s two-axis ripple.
+    /// for the shader and `waveEffect(time:speed:smoothing:strength:)` for how it's applied.
+    /// Offsets each pixel's Y position by an amount of its X position, unlike `.water`'s
+    /// two-axis ripple.
     /// - Parameters:
     ///   - speed: How fast the waves ripple. Try starting with 5.
     ///   - smoothing: How much to smooth out the ripples; greater values produce a smoother
@@ -69,10 +67,8 @@ public enum LayerEffectConfiguration: Hashable, Sendable {
     /// A shimmering gradient sweep adapted from Inferno's `Shimmer.metal` — see `Shimmer.metal`
     /// for the shader (note its header: the direction/angle support is a functional addition
     /// beyond Inferno's horizontal-only original) and
-    /// `shimmerColorEffect(size:time:animationDuration:gradientWidth:maxLightness:direction:angle:)`
-    /// for how it's applied via `.colorEffect`, the third shader-modifier primitive in this
-    /// pipeline (alongside `.layerEffect` and `.distortionEffect`) — a `.colorEffect` shader only
-    /// transforms an already-sampled color, with no `SwiftUI::Layer` access at all.
+    /// `shimmerEffect(size:time:animationDuration:gradientWidth:maxLightness:direction:angle:)`
+    /// for how it's applied.
     /// - Parameters:
     ///   - animationDuration: The duration of a single loop of the shimmer animation, in seconds.
     ///   - gradientWidth: The width of the shimmer gradient in UV space.
@@ -92,7 +88,7 @@ public enum LayerEffectConfiguration: Hashable, Sendable {
 
     /// Whether this configuration needs a continuously-updating time value to animate, as
     /// opposed to rendering the same output for a fixed input. Used internally by
-    /// `LayerEffectSourceViewModifier` to decide whether to pay for a `TimelineView(.animation)`
+    /// `EffectSourceViewModifier` to decide whether to pay for a `TimelineView(.animation)`
     /// — skipped entirely for the static cases.
     var isTimeBased: Bool {
         switch self {

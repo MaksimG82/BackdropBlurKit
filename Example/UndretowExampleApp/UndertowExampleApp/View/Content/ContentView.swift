@@ -49,7 +49,7 @@ private extension ContentView {
         case .info:
             InfoScreen()
         case .gpu:
-            ExamplesScreenLayerEffect(viewModel: viewModel)
+            ExamplesScreen(viewModel: viewModel)
         }
     }
 

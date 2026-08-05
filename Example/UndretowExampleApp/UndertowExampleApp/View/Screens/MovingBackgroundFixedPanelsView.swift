@@ -1,6 +1,6 @@
 //
-//  MovingBackgroundFixedPanelsLayerEffectView.swift
-//  BackdropBlurKitExampleApp
+//  MovingBackgroundFixedPanelsView.swift
+//  UndertowExampleApp
 //
 //  Created by Maksim Gaisin on 03.08.26.
 //
@@ -9,15 +9,15 @@ import SwiftUI
 import Undertow
 
 /// Five real, fixed-position SwiftUI target markers, each using the public
-/// `.layerEffectTarget()` API to report its frame. The frame collection this scenario
+/// `.effectTarget()` API to report its frame. The frame collection this scenario
 /// originally prototyped locally (a hand-rolled `PreferenceKey` + `@State`) has been promoted
-/// into `Undertow` itself — see `LayerEffectCoordinatorModifier`, `LayerEffectTargetViewModifier`,
-/// and `LayerEffectSourceViewModifier` — so nothing coordinator-shaped lives in this file anymore.
-struct MovingBackgroundFixedPanelsLayerEffectView: View {
+/// into `Undertow` itself — see `EffectCoordinatorModifier`, `EffectTargetViewModifier`,
+/// and `EffectSourceViewModifier` — so nothing coordinator-shaped lives in this file anymore.
+struct MovingBackgroundFixedPanelsView: View {
 
-    /// Owns the applied `LayerEffectConfiguration`, shared between this view's rendering and
+    /// Owns the applied `EffectConfiguration`, shared between this view's rendering and
     /// its settings sheet.
-    @State private var viewModel = LayerEffectScenarioViewModel(isBackgroundMoving: true)
+    @State private var viewModel = EffectScenarioViewModel(isBackgroundMoving: true)
 
     /// Incremented on each marker tap, driving `.sensoryFeedback`'s trigger.
     @State private var tapCount = 0
@@ -32,7 +32,7 @@ struct MovingBackgroundFixedPanelsLayerEffectView: View {
 
             targetMarkers
         }
-        .layerEffectCoordinator()
+        .effectCoordinator()
         .ignoresSafeArea()
         .toolbar { settingsButton }
         .sheet(isPresented: $isSettingsPresented) {
@@ -47,7 +47,7 @@ struct MovingBackgroundFixedPanelsLayerEffectView: View {
 
 // MARK: - Toolbar
 
-private extension MovingBackgroundFixedPanelsLayerEffectView {
+private extension MovingBackgroundFixedPanelsView {
 
     var settingsButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
@@ -62,16 +62,16 @@ private extension MovingBackgroundFixedPanelsLayerEffectView {
 
 // MARK: - Subviews
 
-private extension MovingBackgroundFixedPanelsLayerEffectView {
+private extension MovingBackgroundFixedPanelsView {
 
     var scrollingBackdrop: some View {
         ScrollView {
-            // `.layerEffectSource()` must sit directly on the scrolled content (not on the
+            // `.effectSource()` must sit directly on the scrolled content (not on the
             // `ScrollView` itself) so its internal GeometryReader measures the content's own,
             // continuously-changing scroll origin — and `.frame(height:)` must come after it,
             // since that GeometryReader has no intrinsic size (see the modifier's doc comment).
             ScenarioBackgroundView(background: viewModel.background)
-                .layerEffectSource(configuration: viewModel.configuration, cornerRadius: 16)
+                .effectSource(configuration: viewModel.configuration, cornerRadius: 16)
                 .frame(height: 2000)
         }
     }
@@ -99,7 +99,7 @@ private extension MovingBackgroundFixedPanelsLayerEffectView {
         }
     }
 
-    /// A visible marker: a stroked, labeled rect. `.layerEffectTarget()` reports its frame;
+    /// A visible marker: a stroked, labeled rect. `.effectTarget()` reports its frame;
     /// tapping it confirms the marker is live and hit-testable.
     func marker(size: CGSize) -> some View {
         Text("Tap me")
@@ -111,11 +111,11 @@ private extension MovingBackgroundFixedPanelsLayerEffectView {
             )
             .contentShape(Rectangle())
             .onTapGesture { tapCount += 1 }
-            .layerEffectTarget()
+            .effectTarget()
             .sensoryFeedback(.impact, trigger: tapCount)
     }
 }
 
 #Preview {
-    MovingBackgroundFixedPanelsLayerEffectView()
+    MovingBackgroundFixedPanelsView()
 }

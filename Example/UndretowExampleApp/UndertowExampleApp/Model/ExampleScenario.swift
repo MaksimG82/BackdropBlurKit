@@ -5,17 +5,17 @@
 //  Created by Maksim Gaisin on 30.06.26.
 //
 
-/// Catalog of interactive scenarios demonstrating Undertow's `.layerEffect` pipeline.
+/// Catalog of interactive scenarios demonstrating Undertow's effect pipeline.
 enum ExampleScenario: String, CaseIterable, Identifiable {
 
-    /// A vertically scrolling checkerboard background with the GPU `.layerEffect`-based
+    /// A vertically scrolling checkerboard background with the GPU-based
     /// color-inversion effect masked to five real target markers' measured frames — genuine
     /// `PreferenceKey`-collected geometry.
-    case movingBackgroundFixedPanelsLayerEffect
+    case movingBackgroundFixedPanels
 
-    /// A single fixed (non-scrolling) `.layerEffect` source with multiple effect targets
+    /// A single fixed (non-scrolling) effect source with multiple effect targets
     /// scrolling over it in a `ScrollView`/`LazyVStack`.
-    case movingPanelsFixedBackgroundLayerEffect
+    case movingPanelsFixedBackground
 
     /// A stable identifier for use in SwiftUI lists and navigation.
     var id: Self { self }
@@ -23,8 +23,8 @@ enum ExampleScenario: String, CaseIterable, Identifiable {
     /// The display title shown in the scenario list.
     var title: String {
         switch self {
-        case .movingBackgroundFixedPanelsLayerEffect: "Moving Background, Fixed Panels"
-        case .movingPanelsFixedBackgroundLayerEffect: "Moving Panels, Fixed Background"
+        case .movingBackgroundFixedPanels: "Moving Background, Fixed Panels"
+        case .movingPanelsFixedBackground: "Moving Panels, Fixed Background"
         }
     }
 }

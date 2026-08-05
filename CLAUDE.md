@@ -17,7 +17,7 @@ performant backdrop visual-effects pipeline for SwiftUI, similar to `UIVisualEff
 across arbitrary scrolling/animating content and multiple simultaneous effect targets. It ships as a
 library target (`Sources/Undertow`) plus an example iOS app (`Example/UndertowExampleApp`)
 that consumes the package locally. Effects run entirely on the GPU via SwiftUI's `.layerEffect`,
-`.distortionEffect`, and `.colorEffect` shader modifiers — see `LayerEffectConfiguration` for the
+`.distortionEffect`, and `.colorEffect` shader modifiers — see `EffectConfiguration` for the
 full list of implemented effects (Gaussian blur, color inversion, RGB-shift, emboss, water/wave
 distortion, shimmer, and noise).
 
@@ -37,50 +37,50 @@ The library applies GPU shader effects directly to live SwiftUI content — no s
 capturing, or image processing involved. `.layerEffect` runs on every render pass automatically.
 Understanding it requires following data through three cooperating pieces:
 
-1. **`layerEffectCoordinator()`** (`LayerEffectCoordinator/LayerEffectCoordinatorModifier.swift`) —
-   applied once, near the root of an effect subtree. It owns the shared `LayerEffectTargetStore`
+1. **`effectCoordinator()`** (`EffectCoordinator/EffectCoordinatorModifier.swift`) —
+   applied once, near the root of an effect subtree. It owns the shared `EffectTargetStore`
    (an `@Observable` reference type) and injects it into the environment
-   (`\.layerEffectTargetStore`). It listens for `LayerEffectTargetFramePreferenceKey` changes
-   bubbling up from all `.layerEffectTarget()` descendants and stores their frames, keyed by a
+   (`\.effectTargetStore`). It listens for `EffectTargetFramePreferenceKey` changes
+   bubbling up from all `.effectTarget()` descendants and stores their frames, keyed by a
    stable per-target identity.
 
-2. **`layerEffectSource()`** (`Extensions/View+layerEffectSource.swift` →
-   `LayerEffectSourceViewModifier`, `LayerEffectSource/`) — applied to the background content the
+2. **`effectSource()`** (`Extensions/View+effectSource.swift` →
+   `EffectSourceViewModifier`, `EffectSource/`) — applied to the background content the
    effect should run on. Renders the content twice inside a `GeometryReader`: once unaffected
    (always visible, everywhere), and once with the configured shader effect applied, masked to a
    `ZStack` of rounded rects — one per collected target frame, unioned into a single `.mask(...)`
    pass. Each mask shape is counter-scrolled against the source's own global-space origin so it
    stays pinned to its target's screen position while the content scrolls underneath. Dispatches
-   to the shader-applying modifier for the given `LayerEffectConfiguration` (e.g.
-   `gaussianBlurLayerEffect(radius:boundingRect:maxSamples:)`), wrapping in a
+   to the shader-applying modifier for the given `EffectConfiguration` (e.g.
+   `gaussianBlurEffect(radius:boundingRect:maxSamples:)`), wrapping in a
    `TimelineView(.animation)` only for time-based configurations (`configuration.isTimeBased`).
 
-3. **`layerEffectTarget()`** (`Extensions/View+layerEffectTarget.swift` →
-   `LayerEffectTargetViewModifier`, `LayerEffectTarget/`) — applied to any view that should reveal
+3. **`effectTarget()`** (`Extensions/View+effectTarget.swift` →
+   `EffectTargetViewModifier`, `EffectTarget/`) — applied to any view that should reveal
    the effect behind it. Measures its own frame in the global coordinate space via `GeometryReader`
-   and reports it through `LayerEffectTargetFramePreferenceKey` (consumed by the coordinator, see
-   above) — a standard SwiftUI multi-value `PreferenceKey` merge, no shared-store workaround.
+   and reports it through `EffectTargetFramePreferenceKey` (consumed by the coordinator, see
+   above) — a standard SwiftUI multi-value `PreferenceKey` merge.
 
-One source drives exactly one `LayerEffectConfiguration` — there's no per-target override or
+One source drives exactly one `EffectConfiguration` — there's no per-target override or
 environment-inherited default. Running several effects on screen at once means several
-independent `layerEffectSource()`/`layerEffectTarget()`/`layerEffectCoordinator()` trees.
+independent `effectSource()`/`effectTarget()`/`effectCoordinator()` trees.
 
 ## Typical usage shape
 
 ```swift
 ZStack {
     scrollingBackground
-        .layerEffectSource(configuration: .gaussianBlur(radius: 10, maxSamples: 5), cornerRadius: 16)
+        .effectSource(configuration: .gaussianBlur(radius: 10, maxSamples: 5), cornerRadius: 16)
 
     fixedPanel
-        .layerEffectTarget()
+        .effectTarget()
 }
-.layerEffectCoordinator()
+.effectCoordinator()
 ```
 
-`layerEffectCoordinator()` must wrap both the `layerEffectSource()` and any `.layerEffectTarget()`
+`effectCoordinator()` must wrap both the `effectSource()` and any `.effectTarget()`
 views for the environment plumbing to connect them — see
-`Example/UndertowExampleApp/View/Screens/MovingBackgroundFixedPanelsLayerEffectView.swift` for a
+`Example/UndertowExampleApp/View/Screens/MovingBackgroundFixedPanelsView.swift` for a
 working reference.
 
 ## Documentation

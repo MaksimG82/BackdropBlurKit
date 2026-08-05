@@ -78,7 +78,7 @@ half4 gaussianBlur1D(float2 position, float4 boundingRect, SwiftUI::Layer layer,
 /// Single-axis pass of a two-pass separable Gaussian blur for the `.layerEffect` GPU pipeline.
 ///
 /// Must be applied twice — once with `vertical == 0.0` (X axis) and once with `vertical != 0.0`
-/// (Y axis) — see `gaussianBlurLayerEffect(radius:boundingRect:normalizeEdges:)`, which
+/// (Y axis) — see `gaussianBlurEffect(radius:boundingRect:normalizeEdges:)`, which
 /// dispatches both passes since `.layerEffect` doesn't support multi-pass shaders in a single
 /// call.
 /// - Parameters:

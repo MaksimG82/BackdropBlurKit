@@ -1,5 +1,5 @@
 //
-//  LayerEffectSourceViewModifier.swift
+//  EffectSourceViewModifier.swift
 //  Undertow
 //
 //  Created by Maksim Gaisin on 03.08.26.
@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-/// A view modifier that applies the shader for a given `LayerEffectConfiguration` to the view
-/// and masks it down to the frames collected from descendant `.layerEffectTarget()` views
+/// A view modifier that applies the shader for a given `EffectConfiguration` to the view
+/// and masks it down to the frames collected from descendant `.effectTarget()` views
 /// (read from the environment, as distributed by the nearest ancestor
-/// `.layerEffectCoordinator()`).
+/// `.effectCoordinator()`).
 ///
 /// Renders the content twice inside a `GeometryReader`: once unaffected (always visible,
 /// everywhere — without this, masking the effect layer would also cut away the content itself
@@ -18,23 +18,22 @@ import SwiftUI
 /// rounded rects — one per target frame — unioned into one `.mask(...)` composite pass rather
 /// than one pass per target. Each mask shape is counter-scrolled against `contentGeometry`'s
 /// own global-space origin so it stays visually pinned to its target's fixed screen position
-/// while the content scrolls underneath. This is the confirmed structure/math from
-/// `LayerEffectTargetsScrollView`'s prototype, ported as-is.
+/// while the content scrolls underneath.
 ///
 /// Because the wrapping `GeometryReader` has no intrinsic size, apply any `.frame(...)` that
 /// sizes the scrolled content *after* this modifier, not before — the same placement
 /// `GeometryReader` always needs inside a `ScrollView` to avoid collapsing to zero height.
-struct LayerEffectSourceViewModifier: ViewModifier {
-    /// Which GPU layer effect to apply — one configuration per source, dispatched via
+struct EffectSourceViewModifier: ViewModifier {
+    /// Which GPU effect to apply — one configuration per source, dispatched via
     /// `appliedEffect(to:)` below. No per-target override: running several effects on screen
     /// means several independent source/target/coordinator trees.
-    let configuration: LayerEffectConfiguration
+    let configuration: EffectConfiguration
 
     /// The corner radius applied to every target's mask window.
     let cornerRadius: CGFloat
 
-    /// The shared target-frame store distributed by the nearest ancestor `layerEffectCoordinator`.
-    @Environment(\.layerEffectTargetStore) private var store
+    /// The shared target-frame store distributed by the nearest ancestor `effectCoordinator`.
+    @Environment(\.effectTargetStore) private var store
 
     /// The moment this modifier's view was created, used as the zero point for time-based
     /// configurations (e.g. `.water`) — see `effectLayer(content:boundingRect:)`. Unused, and
@@ -96,23 +95,23 @@ struct LayerEffectSourceViewModifier: ViewModifier {
     private func appliedEffect(to content: Content, boundingRect: CGRect, time: TimeInterval) -> some View {
         switch configuration {
         case .invert:
-            content.invertedLayerEffect()
+            content.invertedEffect()
         case let .gaussianBlur(radius, maxSamples):
-            content.gaussianBlurLayerEffect(radius: radius, boundingRect: boundingRect, maxSamples: maxSamples)
+            content.gaussianBlurEffect(radius: radius, boundingRect: boundingRect, maxSamples: maxSamples)
         case let .colorPlanes(offset):
-            content.colorPlanesLayerEffect(offset: offset)
+            content.colorPlanesEffect(offset: offset)
         case let .emboss(strength):
-            content.embossLayerEffect(strength: strength)
+            content.embossEffect(strength: strength)
         case let .water(speed, strength, frequency):
-            content.waterDistortionEffect(size: boundingRect.size, time: time, speed: speed, strength: strength, frequency: frequency)
+            content.waterEffect(size: boundingRect.size, time: time, speed: speed, strength: strength, frequency: frequency)
         case let .wave(speed, smoothing, strength):
-            content.waveDistortionEffect(time: time, speed: speed, smoothing: smoothing, strength: strength)
+            content.waveEffect(time: time, speed: speed, smoothing: smoothing, strength: strength)
         case let .shimmer(animationDuration, gradientWidth, maxLightness, direction, angle):
-            content.shimmerColorEffect(size: boundingRect.size, time: time, animationDuration: animationDuration, gradientWidth: gradientWidth, maxLightness: maxLightness, direction: direction, angle: angle)
+            content.shimmerEffect(size: boundingRect.size, time: time, animationDuration: animationDuration, gradientWidth: gradientWidth, maxLightness: maxLightness, direction: direction, angle: angle)
         case .whiteNoise:
-            content.whiteNoiseColorEffect(time: time)
+            content.whiteNoiseEffect(time: time)
         case .rainbowNoise:
-            content.rainbowNoiseColorEffect(time: time)
+            content.rainbowNoiseEffect(time: time)
         }
     }
 }

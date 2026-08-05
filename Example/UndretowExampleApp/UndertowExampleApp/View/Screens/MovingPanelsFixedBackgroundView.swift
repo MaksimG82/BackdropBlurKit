@@ -1,5 +1,5 @@
 //
-//  MovingPanelsFixedBackgroundLayerEffectView.swift
+//  MovingPanelsFixedBackgroundView.swift
 //  UndertowExampleApp
 //
 //  Created by Maksim Gaisin on 04.08.26.
@@ -8,15 +8,10 @@
 import SwiftUI
 import Undertow
 
-/// A single fixed (non-scrolling) GPU `.layerEffect` source with multiple effect targets
+/// A single fixed (non-scrolling) effect source with multiple effect targets
 /// scrolling over it in a `ScrollView`/`LazyVStack`, each cell tracking its own frame
-/// independently as it scrolls — the `.layerEffect` pipeline's counterpart to
-/// `MovingPanelsFixedBackgroundView`'s CPU-snapshot scenario, with source/target mobility roles
-/// kept identical (fixed source, moving targets) to test whether that combination carries over
-/// unchanged. Unlike `MovingBackgroundFixedPanelsLayerEffectView` (moving source, fixed
-/// targets), this is the inverse pairing and has not been previously exercised on this
-/// pipeline.
-struct MovingPanelsFixedBackgroundLayerEffectView: View {
+/// independently as it scrolls.
+struct MovingPanelsFixedBackgroundView: View {
 
     // MARK: - Constants
 
@@ -24,9 +19,9 @@ struct MovingPanelsFixedBackgroundLayerEffectView: View {
 
     // MARK: - Property Wrappers
 
-    /// Owns the applied `LayerEffectConfiguration`, shared between this view's rendering and
+    /// Owns the applied `EffectConfiguration`, shared between this view's rendering and
     /// its settings sheet.
-    @State private var viewModel = LayerEffectScenarioViewModel(isBackgroundMoving: false)
+    @State private var viewModel = EffectScenarioViewModel(isBackgroundMoving: false)
 
     /// Incremented on each cell tap, driving `.sensoryFeedback`'s trigger.
     @State private var tapCount = 0
@@ -38,11 +33,11 @@ struct MovingPanelsFixedBackgroundLayerEffectView: View {
 
     var body: some View {
         ZStack {
-            // `.layerEffectSource()` sits directly on the fixed backdrop content. It does not
+            // `.effectSource()` sits directly on the fixed backdrop content. It does not
             // scroll, so its internal GeometryReader's measured origin is constant — only the
             // targets' global frames change as the list scrolls underneath.
             ScenarioBackgroundView(background: viewModel.background)
-                .layerEffectSource(configuration: viewModel.configuration, cornerRadius: 16)
+                .effectSource(configuration: viewModel.configuration, cornerRadius: 16)
                 .ignoresSafeArea()
 
             ScrollView {
@@ -54,7 +49,7 @@ struct MovingPanelsFixedBackgroundLayerEffectView: View {
                 .padding()
             }
         }
-        .layerEffectCoordinator()
+        .effectCoordinator()
         .ignoresSafeArea()
         .toolbar { settingsButton }
         .sheet(isPresented: $isSettingsPresented) {
@@ -69,7 +64,7 @@ struct MovingPanelsFixedBackgroundLayerEffectView: View {
 
 // MARK: - Toolbar
 
-private extension MovingPanelsFixedBackgroundLayerEffectView {
+private extension MovingPanelsFixedBackgroundView {
 
     var settingsButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
@@ -84,7 +79,7 @@ private extension MovingPanelsFixedBackgroundLayerEffectView {
 
 // MARK: - Subviews
 
-private extension MovingPanelsFixedBackgroundLayerEffectView {
+private extension MovingPanelsFixedBackgroundView {
 
     /// A single scrolling effect-target cell. Tapping it confirms it's live and hit-testable.
     func cell(_ index: Int) -> some View {
@@ -98,11 +93,11 @@ private extension MovingPanelsFixedBackgroundLayerEffectView {
             )
             .contentShape(Rectangle())
             .onTapGesture { tapCount += 1 }
-            .layerEffectTarget()
+            .effectTarget()
             .sensoryFeedback(.impact, trigger: tapCount)
     }
 }
 
 #Preview {
-    MovingPanelsFixedBackgroundLayerEffectView()
+    MovingPanelsFixedBackgroundView()
 }

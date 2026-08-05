@@ -1,5 +1,5 @@
 //
-//  View+waterDistortionEffect.swift
+//  View+waterEffect.swift
 //  Undertow
 //
 //  Created by Maksim Gaisin on 04.08.26.
@@ -16,9 +16,9 @@ public extension View {
     ///   - speed: How fast the water ripples. 0.5–10 work best.
     ///   - strength: How pronounced the rippling is. 1–5 work best.
     ///   - frequency: How often ripples occur. 5–25 work best.
-    /// - Returns: This view with the water distortion effect applied.
+    /// - Returns: This view with the water effect applied.
     @ViewBuilder
-    func waterDistortionEffect(size: CGSize, time: TimeInterval, speed: CGFloat, strength: CGFloat, frequency: CGFloat) -> some View {
+    func waterEffect(size: CGSize, time: TimeInterval, speed: CGFloat, strength: CGFloat, frequency: CGFloat) -> some View {
         self.distortionEffect(
             ShaderLibrary.waterLibrary.water(
                 .float2(size),

@@ -1,5 +1,5 @@
 //
-//  View+gaussianBlurLayerEffect.swift
+//  View+gaussianBlurEffect.swift
 //  Undertow
 //
 //  Created by Maksim Gaisin on 04.08.26.
@@ -19,9 +19,9 @@ public extension View {
     ///     used to reject samples that fall outside the view's edges.
     ///   - maxSamples: The maximum number of samples to take in each direction from a pixel, per
     ///     axis pass.
-    /// - Returns: This view with the two-pass Gaussian blur layer effect applied.
+    /// - Returns: This view with the two-pass Gaussian blur effect applied.
     @ViewBuilder
-    func gaussianBlurLayerEffect(radius: CGFloat, boundingRect: CGRect, maxSamples: Float) -> some View {
+    func gaussianBlurEffect(radius: CGFloat, boundingRect: CGRect, maxSamples: Float) -> some View {
         let boundingRectArg: SwiftUI.Shader.Argument = .float4(
             Float(boundingRect.origin.x),
             Float(boundingRect.origin.y),
