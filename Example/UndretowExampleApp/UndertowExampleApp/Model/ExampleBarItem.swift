@@ -14,7 +14,7 @@ struct ExampleBarItem: BarItemProtocol {
 
     /// Internal types for the example app tabs.
     enum TabType: String, CaseIterable {
-        case info, gpu
+        case info, effects
     }
 
     // MARK: - Properties
@@ -26,14 +26,14 @@ struct ExampleBarItem: BarItemProtocol {
     var title: String {
         switch type {
         case .info: "Info"
-        case .gpu: "GPU"
+        case .effects: "Effects"
         }
     }
 
     /// The icon displayed in the bar for this tab.
     var icon: BarIcon {
         switch type {
-        case .gpu:
+        case .effects:
                 .system("wand.and.rays")
         case .info:
                 .system("info.circle.fill")

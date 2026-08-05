@@ -9,12 +9,7 @@ import SwiftUI
 import PhotosUI
 import Undertow
 
-/// A reusable settings sheet for any effect scenario — an effect picker/parameters
-/// tab and a background picker/parameters tab, reading and writing the caller's
-/// `Effect` and `ScenarioBackground` directly via `Binding` (no separate
-/// settings state to keep in sync, and no dependency on any particular scenario's view model —
-/// every `.effectSource()` scenario stores these same two types, so one sheet type covers
-/// all of them).
+/// A reusable settings sheet for any effect scenario
 struct EffectSettingsSheet: View {
 
     /// Which top-level settings tab is active.
@@ -25,7 +20,7 @@ struct EffectSettingsSheet: View {
 
     // MARK: - Properties
 
-    @Binding var configuration: Effect
+    @Binding var effect: Effect
     @Binding var background: ScenarioBackground
 
     /// The background kinds offered in the background picker — scenario-dependent (a scrolling
@@ -96,15 +91,15 @@ private extension EffectSettingsSheet {
     /// parameters on change.
     var kindBinding: Binding<EffectKind> {
         Binding(
-            get: { EffectKind(configuration) },
-            set: { configuration = $0.defaultConfiguration }
+            get: { EffectKind(effect) },
+            set: { effect = $0.defaultConfiguration }
         )
     }
 
     /// The tunable parameters for the currently selected effect.
     @ViewBuilder
     var effectParameters: some View {
-        switch configuration {
+        switch effect {
         case .invert:
             invertSection
         case .gaussianBlur:
@@ -130,8 +125,6 @@ private extension EffectSettingsSheet {
     /// visual smoothness for scroll performance.
     var gaussianBlurSection: some View {
         Section {
-            // Blur radius, in points — how far the effect samples in each direction. Larger
-            // values blur more but cost more per-pixel work.
             SettingSlider(
                 title: "Radius",
                 value: gaussianBlurRadiusBinding,
@@ -140,9 +133,6 @@ private extension EffectSettingsSheet {
                 format: .integer
             )
 
-            // Max samples per axis pass — the sampling budget spent approximating the blur.
-            // Lower is cheaper; 5 already reads as visually indistinguishable from 15 on
-            // typical content.
             SettingSlider(
                 title: "Max Samples",
                 value: gaussianBlurMaxSamplesBinding,
@@ -160,12 +150,12 @@ private extension EffectSettingsSheet {
     var gaussianBlurRadiusBinding: Binding<CGFloat> {
         Binding(
             get: {
-                guard case let .gaussianBlur(radius, _) = configuration else { return 10 }
+                guard case let .gaussianBlur(radius, _) = effect else { return 10 }
                 return radius
             },
             set: { newRadius in
-                guard case let .gaussianBlur(_, maxSamples) = configuration else { return }
-                configuration = .gaussianBlur(radius: newRadius, maxSamples: maxSamples)
+                guard case let .gaussianBlur(_, maxSamples) = effect else { return }
+                effect = .gaussianBlur(radius: newRadius, maxSamples: maxSamples)
             }
         )
     }
@@ -173,17 +163,16 @@ private extension EffectSettingsSheet {
     var gaussianBlurMaxSamplesBinding: Binding<Float> {
         Binding(
             get: {
-                guard case let .gaussianBlur(_, maxSamples) = configuration else { return 5 }
+                guard case let .gaussianBlur(_, maxSamples) = effect else { return 5 }
                 return maxSamples
             },
             set: { newMaxSamples in
-                guard case let .gaussianBlur(radius, _) = configuration else { return }
-                configuration = .gaussianBlur(radius: radius, maxSamples: newMaxSamples)
+                guard case let .gaussianBlur(radius, _) = effect else { return }
+                effect = .gaussianBlur(radius: radius, maxSamples: newMaxSamples)
             }
         )
     }
 
-    /// Invert has no tunable parameters — just its description.
     var invertSection: some View {
         Section {
         } footer: {
@@ -191,10 +180,9 @@ private extension EffectSettingsSheet {
         }
     }
 
-    /// Color Planes' parameter: how far the red and blue channels shift apart from green.
+    
     var colorPlanesSection: some View {
         Section {
-            // Horizontal offset, in points, applied to the red and blue channels.
             SettingSlider(
                 title: "Offset X",
                 value: colorPlanesOffsetXBinding,
@@ -203,7 +191,6 @@ private extension EffectSettingsSheet {
                 format: .integer
             )
 
-            // Vertical offset, in points, applied to the red and blue channels.
             SettingSlider(
                 title: "Offset Y",
                 value: colorPlanesOffsetYBinding,
@@ -221,12 +208,12 @@ private extension EffectSettingsSheet {
     var colorPlanesOffsetXBinding: Binding<CGFloat> {
         Binding(
             get: {
-                guard case let .colorPlanes(offset) = configuration else { return 6 }
+                guard case let .colorPlanes(offset) = effect else { return 6 }
                 return offset.width
             },
             set: { newX in
-                guard case let .colorPlanes(offset) = configuration else { return }
-                configuration = .colorPlanes(offset: CGSize(width: newX, height: offset.height))
+                guard case let .colorPlanes(offset) = effect else { return }
+                effect = .colorPlanes(offset: CGSize(width: newX, height: offset.height))
             }
         )
     }
@@ -234,21 +221,18 @@ private extension EffectSettingsSheet {
     var colorPlanesOffsetYBinding: Binding<CGFloat> {
         Binding(
             get: {
-                guard case let .colorPlanes(offset) = configuration else { return 6 }
+                guard case let .colorPlanes(offset) = effect else { return 6 }
                 return offset.height
             },
             set: { newY in
-                guard case let .colorPlanes(offset) = configuration else { return }
-                configuration = .colorPlanes(offset: CGSize(width: offset.width, height: newY))
+                guard case let .colorPlanes(offset) = effect else { return }
+                effect = .colorPlanes(offset: CGSize(width: offset.width, height: newY))
             }
         )
     }
 
-    /// Emboss's parameter: how strongly the offset pixels are added/subtracted.
     var embossSection: some View {
         Section {
-            // How pronounced the relief effect looks — higher values dig deeper shadows and
-            // highlights.
             SettingSlider(
                 title: "Strength",
                 value: embossStrengthBinding,
@@ -266,19 +250,17 @@ private extension EffectSettingsSheet {
     var embossStrengthBinding: Binding<CGFloat> {
         Binding(
             get: {
-                guard case let .emboss(strength) = configuration else { return 4 }
+                guard case let .emboss(strength) = effect else { return 4 }
                 return strength
             },
             set: { newStrength in
-                configuration = .emboss(strength: newStrength)
+                effect = .emboss(strength: newStrength)
             }
         )
     }
 
-    /// Water's parameters: ripple speed, strength, and frequency.
     var waterSection: some View {
         Section {
-            // How fast the ripples animate.
             SettingSlider(
                 title: "Speed",
                 value: waterSpeedBinding,
@@ -287,7 +269,6 @@ private extension EffectSettingsSheet {
                 format: .fractionalOne
             )
 
-            // How pronounced the rippling distortion is.
             SettingSlider(
                 title: "Strength",
                 value: waterStrengthBinding,
@@ -296,7 +277,6 @@ private extension EffectSettingsSheet {
                 format: .fractionalOne
             )
 
-            // How often ripples occur across the surface.
             SettingSlider(
                 title: "Frequency",
                 value: waterFrequencyBinding,
@@ -314,12 +294,12 @@ private extension EffectSettingsSheet {
     var waterSpeedBinding: Binding<CGFloat> {
         Binding(
             get: {
-                guard case let .water(speed, _, _) = configuration else { return 3 }
+                guard case let .water(speed, _, _) = effect else { return 3 }
                 return speed
             },
             set: { newSpeed in
-                guard case let .water(_, strength, frequency) = configuration else { return }
-                configuration = .water(speed: newSpeed, strength: strength, frequency: frequency)
+                guard case let .water(_, strength, frequency) = effect else { return }
+                effect = .water(speed: newSpeed, strength: strength, frequency: frequency)
             }
         )
     }
@@ -327,12 +307,12 @@ private extension EffectSettingsSheet {
     var waterStrengthBinding: Binding<CGFloat> {
         Binding(
             get: {
-                guard case let .water(_, strength, _) = configuration else { return 3 }
+                guard case let .water(_, strength, _) = effect else { return 3 }
                 return strength
             },
             set: { newStrength in
-                guard case let .water(speed, _, frequency) = configuration else { return }
-                configuration = .water(speed: speed, strength: newStrength, frequency: frequency)
+                guard case let .water(speed, _, frequency) = effect else { return }
+                effect = .water(speed: speed, strength: newStrength, frequency: frequency)
             }
         )
     }
@@ -340,20 +320,18 @@ private extension EffectSettingsSheet {
     var waterFrequencyBinding: Binding<CGFloat> {
         Binding(
             get: {
-                guard case let .water(_, _, frequency) = configuration else { return 10 }
+                guard case let .water(_, _, frequency) = effect else { return 10 }
                 return frequency
             },
             set: { newFrequency in
-                guard case let .water(speed, strength, _) = configuration else { return }
-                configuration = .water(speed: speed, strength: strength, frequency: newFrequency)
+                guard case let .water(speed, strength, _) = effect else { return }
+                effect = .water(speed: speed, strength: strength, frequency: newFrequency)
             }
         )
     }
 
-    /// Wave's parameters: ripple speed, smoothing, and strength.
     var waveSection: some View {
         Section {
-            // How fast the waves ripple.
             SettingSlider(
                 title: "Speed",
                 value: waveSpeedBinding,
@@ -362,7 +340,6 @@ private extension EffectSettingsSheet {
                 format: .integer
             )
 
-            // How much the ripples are smoothed — higher values produce a gentler effect.
             SettingSlider(
                 title: "Smoothing",
                 value: waveSmoothingBinding,
@@ -371,7 +348,6 @@ private extension EffectSettingsSheet {
                 format: .integer
             )
 
-            // How pronounced the ripple effect is.
             SettingSlider(
                 title: "Strength",
                 value: waveStrengthBinding,
@@ -389,12 +365,12 @@ private extension EffectSettingsSheet {
     var waveSpeedBinding: Binding<CGFloat> {
         Binding(
             get: {
-                guard case let .wave(speed, _, _) = configuration else { return 5 }
+                guard case let .wave(speed, _, _) = effect else { return 5 }
                 return speed
             },
             set: { newSpeed in
-                guard case let .wave(_, smoothing, strength) = configuration else { return }
-                configuration = .wave(speed: newSpeed, smoothing: smoothing, strength: strength)
+                guard case let .wave(_, smoothing, strength) = effect else { return }
+                effect = .wave(speed: newSpeed, smoothing: smoothing, strength: strength)
             }
         )
     }
@@ -402,12 +378,12 @@ private extension EffectSettingsSheet {
     var waveSmoothingBinding: Binding<CGFloat> {
         Binding(
             get: {
-                guard case let .wave(_, smoothing, _) = configuration else { return 10 }
+                guard case let .wave(_, smoothing, _) = effect else { return 10 }
                 return smoothing
             },
             set: { newSmoothing in
-                guard case let .wave(speed, _, strength) = configuration else { return }
-                configuration = .wave(speed: speed, smoothing: newSmoothing, strength: strength)
+                guard case let .wave(speed, _, strength) = effect else { return }
+                effect = .wave(speed: speed, smoothing: newSmoothing, strength: strength)
             }
         )
     }
@@ -415,21 +391,18 @@ private extension EffectSettingsSheet {
     var waveStrengthBinding: Binding<CGFloat> {
         Binding(
             get: {
-                guard case let .wave(_, _, strength) = configuration else { return 5 }
+                guard case let .wave(_, _, strength) = effect else { return 5 }
                 return strength
             },
             set: { newStrength in
-                guard case let .wave(speed, smoothing, _) = configuration else { return }
-                configuration = .wave(speed: speed, smoothing: smoothing, strength: newStrength)
+                guard case let .wave(speed, smoothing, _) = effect else { return }
+                effect = .wave(speed: speed, smoothing: smoothing, strength: newStrength)
             }
         )
     }
 
-    /// Shimmer's parameters: loop duration, gradient width, peak lightness, sweep direction, and
-    /// band angle.
     var shimmerSection: some View {
         Section {
-            // How long a single shimmer loop takes, in seconds.
             SettingSlider(
                 title: "Duration",
                 value: shimmerDurationBinding,
@@ -438,7 +411,6 @@ private extension EffectSettingsSheet {
                 format: .fractionalOne
             )
 
-            // The shimmer gradient's width, in UV space (0–1 spans the full backdrop).
             SettingSlider(
                 title: "Gradient Width",
                 value: shimmerGradientWidthBinding,
@@ -447,7 +419,6 @@ private extension EffectSettingsSheet {
                 format: .fractionalTwo
             )
 
-            // The peak lightness at the center of the gradient sweep.
             SettingSlider(
                 title: "Max Lightness",
                 value: shimmerMaxLightnessBinding,
@@ -456,7 +427,6 @@ private extension EffectSettingsSheet {
                 format: .fractionalTwo
             )
 
-            // The direction the gradient sweeps in, in degrees (0 = rightward).
             SettingSlider(
                 title: "Direction",
                 value: shimmerDirectionBinding,
@@ -465,7 +435,6 @@ private extension EffectSettingsSheet {
                 format: .integer
             )
 
-            // The orientation of the band itself, in degrees (0 = vertical).
             SettingSlider(
                 title: "Angle",
                 value: shimmerAngleBinding,
@@ -483,12 +452,12 @@ private extension EffectSettingsSheet {
     var shimmerDurationBinding: Binding<CGFloat> {
         Binding(
             get: {
-                guard case let .shimmer(duration, _, _, _, _) = configuration else { return 3 }
+                guard case let .shimmer(duration, _, _, _, _) = effect else { return 3 }
                 return duration
             },
             set: { newDuration in
-                guard case let .shimmer(_, gradientWidth, maxLightness, direction, angle) = configuration else { return }
-                configuration = .shimmer(animationDuration: newDuration, gradientWidth: gradientWidth, maxLightness: maxLightness, direction: direction, angle: angle)
+                guard case let .shimmer(_, gradientWidth, maxLightness, direction, angle) = effect else { return }
+                effect = .shimmer(animationDuration: newDuration, gradientWidth: gradientWidth, maxLightness: maxLightness, direction: direction, angle: angle)
             }
         )
     }
@@ -496,12 +465,12 @@ private extension EffectSettingsSheet {
     var shimmerGradientWidthBinding: Binding<CGFloat> {
         Binding(
             get: {
-                guard case let .shimmer(_, gradientWidth, _, _, _) = configuration else { return 0.3 }
+                guard case let .shimmer(_, gradientWidth, _, _, _) = effect else { return 0.3 }
                 return gradientWidth
             },
             set: { newGradientWidth in
-                guard case let .shimmer(duration, _, maxLightness, direction, angle) = configuration else { return }
-                configuration = .shimmer(animationDuration: duration, gradientWidth: newGradientWidth, maxLightness: maxLightness, direction: direction, angle: angle)
+                guard case let .shimmer(duration, _, maxLightness, direction, angle) = effect else { return }
+                effect = .shimmer(animationDuration: duration, gradientWidth: newGradientWidth, maxLightness: maxLightness, direction: direction, angle: angle)
             }
         )
     }
@@ -509,12 +478,12 @@ private extension EffectSettingsSheet {
     var shimmerMaxLightnessBinding: Binding<CGFloat> {
         Binding(
             get: {
-                guard case let .shimmer(_, _, maxLightness, _, _) = configuration else { return 0.9 }
+                guard case let .shimmer(_, _, maxLightness, _, _) = effect else { return 0.9 }
                 return maxLightness
             },
             set: { newMaxLightness in
-                guard case let .shimmer(duration, gradientWidth, _, direction, angle) = configuration else { return }
-                configuration = .shimmer(animationDuration: duration, gradientWidth: gradientWidth, maxLightness: newMaxLightness, direction: direction, angle: angle)
+                guard case let .shimmer(duration, gradientWidth, _, direction, angle) = effect else { return }
+                effect = .shimmer(animationDuration: duration, gradientWidth: gradientWidth, maxLightness: newMaxLightness, direction: direction, angle: angle)
             }
         )
     }
@@ -522,12 +491,12 @@ private extension EffectSettingsSheet {
     var shimmerDirectionBinding: Binding<CGFloat> {
         Binding(
             get: {
-                guard case let .shimmer(_, _, _, direction, _) = configuration else { return 0 }
+                guard case let .shimmer(_, _, _, direction, _) = effect else { return 0 }
                 return direction
             },
             set: { newDirection in
-                guard case let .shimmer(duration, gradientWidth, maxLightness, _, angle) = configuration else { return }
-                configuration = .shimmer(animationDuration: duration, gradientWidth: gradientWidth, maxLightness: maxLightness, direction: newDirection, angle: angle)
+                guard case let .shimmer(duration, gradientWidth, maxLightness, _, angle) = effect else { return }
+                effect = .shimmer(animationDuration: duration, gradientWidth: gradientWidth, maxLightness: maxLightness, direction: newDirection, angle: angle)
             }
         )
     }
@@ -535,17 +504,16 @@ private extension EffectSettingsSheet {
     var shimmerAngleBinding: Binding<CGFloat> {
         Binding(
             get: {
-                guard case let .shimmer(_, _, _, _, angle) = configuration else { return 0 }
+                guard case let .shimmer(_, _, _, _, angle) = effect else { return 0 }
                 return angle
             },
             set: { newAngle in
-                guard case let .shimmer(duration, gradientWidth, maxLightness, direction, _) = configuration else { return }
-                configuration = .shimmer(animationDuration: duration, gradientWidth: gradientWidth, maxLightness: maxLightness, direction: direction, angle: newAngle)
+                guard case let .shimmer(duration, gradientWidth, maxLightness, direction, _) = effect else { return }
+                effect = .shimmer(animationDuration: duration, gradientWidth: gradientWidth, maxLightness: maxLightness, direction: direction, angle: newAngle)
             }
         )
     }
 
-    /// White Noise has no tunable parameters — just its description.
     var whiteNoiseSection: some View {
         Section {
         } footer: {
@@ -553,7 +521,6 @@ private extension EffectSettingsSheet {
         }
     }
 
-    /// Rainbow Noise has no tunable parameters — just its description.
     var rainbowNoiseSection: some View {
         Section {
         } footer: {
@@ -603,8 +570,6 @@ private extension EffectSettingsSheet {
     /// Checkerboard's parameters: square size and the pattern's two alternating colors.
     var checkerboardSection: some View {
         Section {
-            // The size of each individual square, in points. Smaller squares make blur/edge
-            // artifacts easier to spot; larger squares are easier to see at a glance.
             SettingSlider(
                 title: "Square Size",
                 value: checkerboardSquareSizeBinding,
@@ -661,7 +626,6 @@ private extension EffectSettingsSheet {
         )
     }
 
-    /// Photo's only parameter: the picked image itself, via the system photo library.
     var photoSection: some View {
         Section {
             PhotosPicker("Choose Photo", selection: $photoPickerItem, matching: .images)
@@ -682,5 +646,5 @@ private extension EffectSettingsSheet {
 #Preview {
     @Previewable @State var configuration: Effect = .gaussianBlur(radius: 10, maxSamples: 5)
     @Previewable @State var background: ScenarioBackground = .defaultCheckerboard
-    EffectSettingsSheet(configuration: $configuration, background: $background)
+    EffectSettingsSheet(effect: $configuration, background: $background)
 }

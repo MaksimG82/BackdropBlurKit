@@ -51,7 +51,7 @@ private extension ExamplesScreen {
 
     /// A large-title-style header shown above the scenario list.
     var catalogTitle: some View {
-        Text("GPU")
+        Text("Effects")
             .font(.largeTitle.bold())
             .foregroundStyle(.primary)
             .textCase(nil)

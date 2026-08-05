@@ -8,8 +8,7 @@
 import SwiftUI
 
 /// A labeled slider showing its current value, used throughout the settings sheets for
-/// numeric effect parameters. Copied from BarKit's example app (`BarKitExample`), which uses
-/// the identical pattern for its own settings screens.
+/// numeric effect parameters.
 struct SettingSlider<Value>: View
 where Value: BinaryFloatingPoint, Value.Stride: BinaryFloatingPoint {
 
