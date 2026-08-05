@@ -38,7 +38,7 @@ struct MovingPanelsFixedBackgroundView: View {
                 .ignoresSafeArea()
 
             ScrollView {
-                LazyVStack(spacing: 16) {
+                LazyVStack(spacing: 48) {
                     ForEach(0..<cellCount, id: \.self) { index in
                         cell(index)
                     }

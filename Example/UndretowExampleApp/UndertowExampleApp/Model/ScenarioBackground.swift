@@ -28,9 +28,9 @@ enum ScenarioBackground {
 
     /// The default checkerboard configuration, matching `CheckerboardBackground`'s own defaults.
     static let defaultCheckerboard = ScenarioBackground.checkerboard(
-        squareSize: 64,
-        primaryColor: .orange,
-        secondaryColor: .indigo
+        squareSize: 44,
+        primaryColor: Color(red: 0.11, green: 0.12, blue: 0.16),
+        secondaryColor: Color(red: 0.98, green: 0.42, blue: 0.32)
     )
 
     /// The default photo configuration — no photo picked yet.
