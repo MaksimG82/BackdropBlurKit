@@ -9,7 +9,7 @@ import SwiftUI
 
 public extension View {
     /// Applies the two-pass separable Gaussian blur shader to this view via `.layerEffect` (see
-    /// `GaussianBlur.metal`, adapted from Inferno's `VariableGaussianBlur.metal`).
+    /// `GaussianBlur.metal`).
     ///
     /// Runs the shader twice in sequence — once along X, once along Y — since `.layerEffect`
     /// doesn't support multi-pass shaders in a single call.
