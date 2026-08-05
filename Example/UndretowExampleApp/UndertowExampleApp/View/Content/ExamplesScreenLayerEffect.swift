@@ -10,11 +10,8 @@ import BarKit
 
 /// Catalog of `.layerEffect`-pipeline scenarios, shown on the GPU tab.
 ///
-/// Unlike `ExamplesScreen` (the CPU tab's hand-rolled catalog/detail switch, kept that way
-/// because capturing CPU-pipeline snapshots inside a push transition has proven unreliable),
-/// this pipeline has no such limitation — scenarios push via a real `NavigationStack`, giving
-/// native transitions, back-swipe, and a system navigation bar to hang a settings toolbar
-/// button on later.
+/// Scenarios push via a real `NavigationStack`, giving native transitions, back-swipe, and a
+/// system navigation bar to hang a settings toolbar button on later.
 struct ExamplesScreenLayerEffect: View {
 
     // MARK: - Properties
@@ -64,9 +61,9 @@ private extension ExamplesScreenLayerEffect {
             .padding(.bottom, 4)
     }
 
-    /// All scenarios belonging to the `.layerEffect` section.
+    /// All available scenarios.
     var scenarios: [ExampleScenario] {
-        ExampleScenario.allCases.filter { $0.section == .layerEffect }
+        ExampleScenario.allCases
     }
 
     /// Routes to the detail view for the given scenario.
@@ -77,9 +74,6 @@ private extension ExamplesScreenLayerEffect {
             MovingBackgroundFixedPanelsLayerEffectView()
         case .movingPanelsFixedBackgroundLayerEffect:
             MovingPanelsFixedBackgroundLayerEffectView()
-        case .movingBackgroundFixedPanel, .fixedBackgroundOffsetFromTop, .movingPanelsFixedBackground:
-            // CPU-pipeline scenarios never appear in this tab's filtered `scenarios` list.
-            EmptyView()
         }
     }
 }

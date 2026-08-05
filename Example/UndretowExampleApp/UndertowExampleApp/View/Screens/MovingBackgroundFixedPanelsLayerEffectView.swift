@@ -9,12 +9,10 @@ import SwiftUI
 import Undertow
 
 /// Five real, fixed-position SwiftUI target markers, each using the public
-/// `.layerEffectTarget()` API to report its frame — the GPU `.layerEffect` pipeline's
-/// counterpart to `MovingBackgroundFixedPanelView`'s CPU-snapshot `.effectTarget()` usage. The
-/// frame collection this scenario originally prototyped locally (a hand-rolled `PreferenceKey`
-/// + `@State`) has been promoted into `Undertow` itself — see
-/// `LayerEffectCoordinatorModifier`, `LayerEffectTargetViewModifier`, and
-/// `LayerEffectSourceViewModifier` — so nothing coordinator-shaped lives in this file anymore.
+/// `.layerEffectTarget()` API to report its frame. The frame collection this scenario
+/// originally prototyped locally (a hand-rolled `PreferenceKey` + `@State`) has been promoted
+/// into `Undertow` itself — see `LayerEffectCoordinatorModifier`, `LayerEffectTargetViewModifier`,
+/// and `LayerEffectSourceViewModifier` — so nothing coordinator-shaped lives in this file anymore.
 struct MovingBackgroundFixedPanelsLayerEffectView: View {
 
     /// Owns the applied `LayerEffectConfiguration`, shared between this view's rendering and

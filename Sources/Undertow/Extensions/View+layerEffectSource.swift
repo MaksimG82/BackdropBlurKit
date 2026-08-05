@@ -12,14 +12,11 @@ public extension View {
     /// descendant `.layerEffectTarget()` views collected via the nearest ancestor
     /// `.layerEffectCoordinator()`.
     ///
-    /// A fully separate mechanism from `effectSource()`'s CPU-snapshot pipeline: there's no
-    /// capture, no snapshot, and no display-link-driven scheduling — `.layerEffect` runs on
-    /// every render pass automatically, so unlike `effectSource(navigationBarOverlap:captureMode:captureTrigger:captureExecution:)`,
-    /// this takes no equivalent parameters. One source drives exactly one `configuration` —
-    /// there's no per-target override or environment-inherited default the way
-    /// `effectTarget(configuration:)` has one; running several effects on screen at once means
-    /// several independent `layerEffectSource()`/`layerEffectTarget()`/`layerEffectCoordinator()`
-    /// trees.
+    /// There's no capture, no snapshot, and no display-link-driven scheduling — `.layerEffect`
+    /// runs on every render pass automatically. One source drives exactly one `configuration` —
+    /// there's no per-target override or environment-inherited default; running several effects
+    /// on screen at once means several independent
+    /// `layerEffectSource()`/`layerEffectTarget()`/`layerEffectCoordinator()` trees.
     ///
     /// Wraps its content in a `GeometryReader`, which has no intrinsic size — apply any
     /// `.frame(...)` that sizes the scrolled content *after* this modifier, not before.
