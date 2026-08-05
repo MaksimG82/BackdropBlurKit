@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public extension View {
+extension View {
     /// Applies the water-ripple distortion effect to this view via `.distortionEffect` (see
     /// `Water.metal`).
     /// - Parameters:

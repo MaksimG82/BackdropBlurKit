@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public extension View {
+extension View {
     /// Applies the RGB-shift/glitch effect to this view via `.layerEffect` (see
     /// `ColorPlanes.metal`.
     /// - Parameter offset: How much to offset the red and blue channels by. The shader samples

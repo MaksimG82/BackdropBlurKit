@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public extension View {
+extension View {
     /// Applies the shimmering gradient-sweep effect to this view via `.colorEffect` (see
     /// `Shimmer.metal`).
     /// - Parameters:

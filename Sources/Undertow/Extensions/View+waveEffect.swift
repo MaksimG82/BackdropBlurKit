@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public extension View {
+extension View {
     /// Applies the uniform wave-distortion effect to this view via `.distortionEffect` (see
     /// `Wave.metal`).
     /// - Parameters:

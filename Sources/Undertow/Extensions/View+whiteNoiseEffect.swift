@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public extension View {
+extension View {
     /// Applies the dynamic grayscale-noise effect to this view via `.colorEffect` (see
     /// `WhiteNoise.metal`).
     /// - Parameter time: Elapsed seconds since the effect's animation began.

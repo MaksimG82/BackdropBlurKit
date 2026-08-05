@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public extension View {
+extension View {
     /// Applies the two-pass separable Gaussian blur shader to this view via `.layerEffect` (see
     /// `GaussianBlur.metal`).
     ///

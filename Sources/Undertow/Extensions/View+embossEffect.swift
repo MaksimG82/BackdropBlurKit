@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public extension View {
+extension View {
     /// Applies the embossing/relief effect to this view via `.layerEffect` (see
     /// `Emboss.metal`).
     /// - Parameter strength: How strongly to add/subtract the offset pixels.

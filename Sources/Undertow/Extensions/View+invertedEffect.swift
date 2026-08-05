@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public extension View {
+extension View {
     /// Applies the `invertColors` shader to this view via `.layerEffect`.
     ///
     /// Applies to the entire view with no masking or configuration on its own — masking against
