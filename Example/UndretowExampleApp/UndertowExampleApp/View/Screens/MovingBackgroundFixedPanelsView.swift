@@ -71,7 +71,7 @@ private extension MovingBackgroundFixedPanelsView {
             // continuously-changing scroll origin — and `.frame(height:)` must come after it,
             // since that GeometryReader has no intrinsic size (see the modifier's doc comment).
             ScenarioBackgroundView(background: viewModel.background)
-                .effectSource(configuration: viewModel.configuration, cornerRadius: 16)
+                .effectSource(configuration: viewModel.configuration)
                 .frame(height: 2000)
         }
     }
@@ -85,15 +85,15 @@ private extension MovingBackgroundFixedPanelsView {
             let topInset: CGFloat = 140
 
             ZStack {
-                marker(size: CGSize(width: 90, height: 90))
+                marker(size: CGSize(width: 90, height: 90), cornerRadius: 16)
                     .position(x: inset, y: topInset)
-                marker(size: CGSize(width: 90, height: 90))
+                marker(size: CGSize(width: 90, height: 90), cornerRadius: 16)
                     .position(x: size.width - inset, y: topInset)
-                marker(size: CGSize(width: 90, height: 90))
+                marker(size: CGSize(width: 90, height: 90), cornerRadius: 16)
                     .position(x: inset, y: size.height - inset)
-                marker(size: CGSize(width: 90, height: 90))
+                marker(size: CGSize(width: 90, height: 90), cornerRadius: 16)
                     .position(x: size.width - inset, y: size.height - inset)
-                marker(size: CGSize(width: 180, height: 340))
+                marker(size: CGSize(width: 180, height: 340), cornerRadius: 32)
                     .position(x: size.width / 2, y: size.height / 2)
             }
         }
@@ -101,17 +101,17 @@ private extension MovingBackgroundFixedPanelsView {
 
     /// A visible marker: a stroked, labeled rect. `.effectTarget()` reports its frame;
     /// tapping it confirms the marker is live and hit-testable.
-    func marker(size: CGSize) -> some View {
+    func marker(size: CGSize, cornerRadius: CGFloat = 0) -> some View {
         Text("Tap me")
             .font(.headline)
             .frame(width: size.width, height: size.height)
             .overlay(
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: cornerRadius)
                     .stroke(Color.white.opacity(0.6), lineWidth: 1)
             )
             .contentShape(Rectangle())
             .onTapGesture { tapCount += 1 }
-            .effectTarget()
+            .effectTarget(cornerRadius: cornerRadius)
             .sensoryFeedback(.impact, trigger: tapCount)
     }
 }

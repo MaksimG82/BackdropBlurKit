@@ -7,59 +7,47 @@
 
 import SwiftUI
 
-/// A view modifier that applies the shader for a given `Effect` to the view
-/// and masks it down to the frames collected from descendant `.effectTarget()` views
-/// (read from the environment, as distributed by the nearest ancestor
-/// `.effectCoordinator()`).
+/// A view modifier that applies the shader for a given `Effect` to the view, masked to the
+/// target masks.
 ///
-/// Renders the content twice inside a `GeometryReader`: once unaffected (always visible,
-/// everywhere — without this, masking the effect layer would also cut away the content itself
-/// outside the mask windows), and once with the effect applied, masked to a single `ZStack` of
-/// rounded rects — one per target frame — unioned into one `.mask(...)` composite pass rather
-/// than one pass per target. Each mask shape is counter-scrolled against `contentGeometry`'s
-/// own global-space origin so it stays visually pinned to its target's fixed screen position
-/// while the content scrolls underneath.
-///
-/// Because the wrapping `GeometryReader` has no intrinsic size, apply any `.frame(...)` that
-/// sizes the scrolled content *after* this modifier, not before — the same placement
-/// `GeometryReader` always needs inside a `ScrollView` to avoid collapsing to zero height.
+/// Renders the content twice: once unaffected, and once with the effect applied and masked to
+/// the collected target masks. Because the wrapping `GeometryReader` has no intrinsic size,
+/// apply any `.frame(...)` that sizes the scrolled content *after* this modifier, not before.
 struct EffectSourceViewModifier: ViewModifier {
-    /// Which GPU effect to apply — one configuration per source, dispatched via
-    /// `appliedEffect(to:)` below. No per-target override: running several effects on screen
-    /// means several independent source/target/coordinator trees.
+    /// Which effect to apply.
     let configuration: Effect
 
-    /// The corner radius applied to every target's mask window.
-    let cornerRadius: CGFloat
-
-    /// The shared target-frame store distributed by the nearest ancestor `effectCoordinator`.
-    @Environment(\.effectTargetStore) private var store
+    /// The shared mask store distributed by the nearest ancestor `.effectCoordinator()`.
+    @Environment(\.maskStore) private var store
 
     /// The moment this modifier's view was created, used as the zero point for time-based
     /// configurations (e.g. `.water`) — see `effectLayer(content:boundingRect:)`. Unused, and
     /// costs nothing, for static configurations.
     @State private var startTime = Date.now
 
-    private var targetFrames: Set<CGRect> {
-        store?.targetFrames ?? []
+    private var targetMasks: Set<TargetMask> {
+        store?.targetMasks ?? []
     }
 
     func body(content: Content) -> some View {
         GeometryReader { contentGeometry in
             let contentOrigin = contentGeometry.frame(in: .global).origin
+            let boundingRect = CGRect(origin: .zero, size: contentGeometry.size)
 
             ZStack {
                 content
 
-                effectLayer(content: content, boundingRect: CGRect(origin: .zero, size: contentGeometry.size))
+                effectLayer(
+                    content: content,
+                    boundingRect: boundingRect)
                     .mask(
                         ZStack {
-                            ForEach(Array(targetFrames), id: \.self) { frame in
-                                RoundedRectangle(cornerRadius: cornerRadius)
-                                    .frame(width: frame.width, height: frame.height)
+                            ForEach(Array(targetMasks), id: \.self) { mask in
+                                RoundedRectangle(cornerRadius: mask.cornerRadius)
+                                    .frame(width: mask.frame.width, height: mask.frame.height)
                                     .position(
-                                        x: frame.midX - contentOrigin.x,
-                                        y: frame.midY - contentOrigin.y
+                                        x: mask.frame.midX - contentOrigin.x,
+                                        y: mask.frame.midY - contentOrigin.y
                                     )
                             }
                         }
@@ -77,7 +65,11 @@ struct EffectSourceViewModifier: ViewModifier {
     private func effectLayer(content: Content, boundingRect: CGRect) -> some View {
         if configuration.isTimeBased {
             TimelineView(.animation) { timeline in
-                appliedEffect(to: content, boundingRect: boundingRect, time: startTime.distance(to: timeline.date))
+                appliedEffect(
+                    to: content,
+                    boundingRect: boundingRect,
+                    time: startTime.distance(to: timeline.date)
+                )
             }
         } else {
             appliedEffect(to: content, boundingRect: boundingRect, time: 0)

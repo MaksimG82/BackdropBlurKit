@@ -38,17 +38,17 @@ capturing, or image processing involved. `.layerEffect` runs on every render pas
 Understanding it requires following data through three cooperating pieces:
 
 1. **`effectCoordinator()`** (`EffectCoordinator/EffectCoordinatorModifier.swift`) —
-   applied once, near the root of an effect subtree. It owns the shared `FrameStore`
+   applied once, near the root of an effect subtree. It owns the shared `MaskStore`
    (an `@Observable` reference type) and injects it into the environment
-   (`\.effectTargetStore`). It listens for `EffectTargetFramePreferenceKey` changes
-   bubbling up from all `.effectTarget()` descendants and stores their frames, keyed by a
-   stable per-target identity.
+   (`\.maskStore`). It listens for `EffectTargetFramePreferenceKey` changes
+   bubbling up from all `.effectTarget()` descendants and stores their masks
+   (`Set<TargetMask>` — each target's frame plus its own corner radius).
 
 2. **`effectSource()`** (`Extensions/View+effectSource.swift` →
    `EffectSourceViewModifier`, `EffectSource/`) — applied to the background content the
    effect should run on. Renders the content twice inside a `GeometryReader`: once unaffected
    (always visible, everywhere), and once with the configured shader effect applied, masked to a
-   `ZStack` of rounded rects — one per collected target frame, unioned into a single `.mask(...)`
+   `ZStack` of rounded rects — one per collected target mask, unioned into a single `.mask(...)`
    pass. Each mask shape is counter-scrolled against the source's own global-space origin so it
    stays pinned to its target's screen position while the content scrolls underneath. Dispatches
    to the shader-applying modifier for the given `Effect` (e.g.
@@ -58,8 +58,8 @@ Understanding it requires following data through three cooperating pieces:
 3. **`effectTarget()`** (`Extensions/View+effectTarget.swift` →
    `EffectTargetViewModifier`, `EffectTarget/`) — applied to any view that should reveal
    the effect behind it. Measures its own frame in the global coordinate space via `GeometryReader`
-   and reports it through `EffectTargetFramePreferenceKey` (consumed by the coordinator, see
-   above) — a standard SwiftUI multi-value `PreferenceKey` merge.
+   and reports it, together with its `cornerRadius`, through `EffectTargetFramePreferenceKey`
+   (consumed by the coordinator, see above) — a standard SwiftUI multi-value `PreferenceKey` merge.
 
 One source drives exactly one `Effect` — there's no per-target override or
 environment-inherited default. Running several effects on screen at once means several
@@ -70,10 +70,10 @@ independent `effectSource()`/`effectTarget()`/`effectCoordinator()` trees.
 ```swift
 ZStack {
     scrollingBackground
-        .effectSource(configuration: .gaussianBlur(radius: 10, maxSamples: 5), cornerRadius: 16)
+        .effectSource(configuration: .gaussianBlur(radius: 10, maxSamples: 5))
 
     fixedPanel
-        .effectTarget()
+        .effectTarget(cornerRadius: 16)
 }
 .effectCoordinator()
 ```

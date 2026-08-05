@@ -14,10 +14,9 @@ public extension View {
     /// end to end — Metal source compilation, `.metallib` resource bundling, `ShaderLibrary`
     /// loading, and shader application — ahead of building a real effect on the same plumbing.
     /// Kept on as a real, permanent effect in its own right: see
-    /// `Effect.invert`, which dispatches to this from
-    /// `.effectSource(configuration:cornerRadius:)`. Applies to the entire view with no
-    /// masking or configuration on its own — masking against target frames is
-    /// `.effectSource()`'s job, not this shader's.
+    /// `Effect.invert`, which dispatches to this from `.effectSource(configuration:)`. Applies
+    /// to the entire view with no masking or configuration on its own — masking against target
+    /// masks is `.effectSource()`'s job, not this shader's.
     /// - Returns: This view with the color-inversion effect applied.
     @ViewBuilder
     func invertedEffect() -> some View {

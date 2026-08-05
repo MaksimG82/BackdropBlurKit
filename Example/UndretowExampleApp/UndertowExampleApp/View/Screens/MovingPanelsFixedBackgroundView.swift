@@ -37,7 +37,7 @@ struct MovingPanelsFixedBackgroundView: View {
             // scroll, so its internal GeometryReader's measured origin is constant — only the
             // targets' global frames change as the list scrolls underneath.
             ScenarioBackgroundView(background: viewModel.background)
-                .effectSource(configuration: viewModel.configuration, cornerRadius: 16)
+                .effectSource(configuration: viewModel.configuration)
                 .ignoresSafeArea()
 
             ScrollView {
@@ -93,7 +93,7 @@ private extension MovingPanelsFixedBackgroundView {
             )
             .contentShape(Rectangle())
             .onTapGesture { tapCount += 1 }
-            .effectTarget()
+            .effectTarget(cornerRadius: 16)
             .sensoryFeedback(.impact, trigger: tapCount)
     }
 }

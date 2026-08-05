@@ -7,16 +7,16 @@
 
 import SwiftUI
 
-/// A view modifier that collects target frames bubbling up from descendant
+/// A view modifier that collects target masks bubbling up from descendant
 /// `.effectTarget()` views via `EffectTargetFramePreferenceKey` and distributes them
 /// to a descendant `.effectSource()` via the environment.
 struct EffectCoordinatorModifier: ViewModifier {
-    /// The shared target-frame store owned by this coordinator and distributed to descendants via the environment.
-    @State private var store = FrameStore()
+    /// The shared mask store owned by this coordinator and distributed to descendants via the environment.
+    @State private var store = MaskStore()
 
     func body(content: Content) -> some View {
         content
-            .environment(\.effectTargetStore, store)
-            .onPreferenceChange(EffectTargetFramePreferenceKey.self) { store.targetFrames = $0 }
+            .environment(\.maskStore, store)
+            .onPreferenceChange(EffectTargetFramePreferenceKey.self) { store.targetMasks = $0 }
     }
 }

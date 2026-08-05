@@ -8,6 +8,6 @@
 import SwiftUI
 
 extension EnvironmentValues {
-    /// The shared target-frame store distributed by the nearest ancestor `effectCoordinator`.
-    @Entry var effectTargetStore: FrameStore? = nil
+    /// The shared mask store distributed by the nearest ancestor `effectCoordinator`.
+    @Entry var maskStore: MaskStore? = nil
 }

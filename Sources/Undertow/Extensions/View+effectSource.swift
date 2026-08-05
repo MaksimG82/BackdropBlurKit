@@ -20,15 +20,9 @@ public extension View {
     ///
     /// Wraps its content in a `GeometryReader`, which has no intrinsic size — apply any
     /// `.frame(...)` that sizes the scrolled content *after* this modifier, not before.
-    /// - Parameters:
-    ///   - configuration: Which GPU effect to apply. Defaults to `.invert`.
-    ///   - cornerRadius: The corner radius applied to every target's mask window. Defaults to
-    ///     `0`.
-    /// - Returns: A view with the effect applied and masked to the collected target frames.
-    func effectSource(
-        configuration: Effect = .invert,
-        cornerRadius: CGFloat = 0
-    ) -> some View {
-        modifier(EffectSourceViewModifier(configuration: configuration, cornerRadius: cornerRadius))
+    /// - Parameter configuration: Which GPU effect to apply. Defaults to `.invert`.
+    /// - Returns: A view with the effect applied and masked to the collected target masks.
+    func effectSource(configuration: Effect = .invert) -> some View {
+        modifier(EffectSourceViewModifier(configuration: configuration))
     }
 }
