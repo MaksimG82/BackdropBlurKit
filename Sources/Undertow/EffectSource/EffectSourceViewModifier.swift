@@ -40,8 +40,8 @@ struct EffectSourceViewModifier: ViewModifier {
     /// costs nothing, for static configurations.
     @State private var startTime = Date.now
 
-    private var targetFrames: [UUID: CGRect] {
-        store?.targetFrames ?? [:]
+    private var targetFrames: Set<CGRect> {
+        store?.targetFrames ?? []
     }
 
     func body(content: Content) -> some View {
@@ -54,7 +54,7 @@ struct EffectSourceViewModifier: ViewModifier {
                 effectLayer(content: content, boundingRect: CGRect(origin: .zero, size: contentGeometry.size))
                     .mask(
                         ZStack {
-                            ForEach(Array(targetFrames), id: \.key) { _, frame in
+                            ForEach(Array(targetFrames), id: \.self) { frame in
                                 RoundedRectangle(cornerRadius: cornerRadius)
                                     .frame(width: frame.width, height: frame.height)
                                     .position(

@@ -12,7 +12,7 @@ import SwiftUI
 /// to a descendant `.effectSource()` via the environment.
 struct EffectCoordinatorModifier: ViewModifier {
     /// The shared target-frame store owned by this coordinator and distributed to descendants via the environment.
-    @State private var store = EffectTargetStore()
+    @State private var store = FrameStore()
 
     func body(content: Content) -> some View {
         content

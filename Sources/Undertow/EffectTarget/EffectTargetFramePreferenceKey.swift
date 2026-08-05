@@ -7,14 +7,15 @@
 
 import SwiftUI
 
-/// Collects each `.effectTarget()`'s frame (global coordinate space), keyed by its
-/// stable per-target identity, bubbling up to the nearest ancestor `.effectCoordinator()`.
-/// A standard SwiftUI multi-value `PreferenceKey` merge — each target contributes its own
-/// single-entry dictionary, and `reduce` folds them all together.
+/// Collects each `.effectTarget()`'s frame (global coordinate space), bubbling up to the
+/// nearest ancestor `.effectCoordinator()`. A standard SwiftUI multi-value `PreferenceKey`
+/// merge — each target contributes its own single-element set, and `reduce` unions them all
+/// together. Frames are masking geometry only, so identical frames from different targets
+/// collapse harmlessly into one.
 struct EffectTargetFramePreferenceKey: PreferenceKey {
-    nonisolated(unsafe) static var defaultValue: [UUID: CGRect] = [:]
+    nonisolated(unsafe) static var defaultValue: Set<CGRect> = []
 
-    static func reduce(value: inout [UUID: CGRect], nextValue: () -> [UUID: CGRect]) {
-        value.merge(nextValue()) { _, new in new }
+    static func reduce(value: inout Set<CGRect>, nextValue: () -> Set<CGRect>) {
+        value.formUnion(nextValue())
     }
 }

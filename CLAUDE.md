@@ -12,7 +12,7 @@ reflexively.
 
 ## What this is
 
-Undertow is a Swift Package (iOS 17+, Swift 6 language mode) that provides a live,
+Undertow is a Swift Package (iOS 18+, Swift 6 language mode) that provides a live,
 performant backdrop visual-effects pipeline for SwiftUI, similar to `UIVisualEffectView` but working
 across arbitrary scrolling/animating content and multiple simultaneous effect targets. It ships as a
 library target (`Sources/Undertow`) plus an example iOS app (`Example/UndertowExampleApp`)
@@ -38,7 +38,7 @@ capturing, or image processing involved. `.layerEffect` runs on every render pas
 Understanding it requires following data through three cooperating pieces:
 
 1. **`effectCoordinator()`** (`EffectCoordinator/EffectCoordinatorModifier.swift`) —
-   applied once, near the root of an effect subtree. It owns the shared `EffectTargetStore`
+   applied once, near the root of an effect subtree. It owns the shared `FrameStore`
    (an `@Observable` reference type) and injects it into the environment
    (`\.effectTargetStore`). It listens for `EffectTargetFramePreferenceKey` changes
    bubbling up from all `.effectTarget()` descendants and stores their frames, keyed by a

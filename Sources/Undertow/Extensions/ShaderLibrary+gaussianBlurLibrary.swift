@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-@available(iOS 17.0, *)
 extension ShaderLibrary {
     /// The precompiled Metal shader library for the two-pass separable Gaussian blur effect,
     /// selected based on the current runtime environment.
