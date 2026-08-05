@@ -55,6 +55,9 @@ Avoid inline comments in code bodies unless something is genuinely non-obvious â
 trial and error, a non-trivial rationale, or a gotcha a reader can't derive from the code itself.
 Otherwise, prefer making the code self-explanatory over commenting it.
 
+Adding, removing, or renaming a public symbol? Update `Sources/Undertow/Documentation.docc/Undertow.md`'s
+Topics list to match.
+
 ## Metal shaders
 
 Changed a `.metal` file (in `/Shaders`)? Run `Scripts/compileShader.sh <ShaderName>` â€” regenerates
