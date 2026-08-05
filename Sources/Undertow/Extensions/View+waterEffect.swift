@@ -9,7 +9,7 @@ import SwiftUI
 
 public extension View {
     /// Applies the water-ripple distortion effect to this view via `.distortionEffect` (see
-    /// `Water.metal`, adapted from Inferno's `Water.metal`).
+    /// `Water.metal`).
     /// - Parameters:
     ///   - size: The size of this view, in its own local coordinate space.
     ///   - time: Elapsed seconds since the effect's animation began.

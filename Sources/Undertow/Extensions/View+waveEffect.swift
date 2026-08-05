@@ -9,7 +9,7 @@ import SwiftUI
 
 public extension View {
     /// Applies the uniform wave-distortion effect to this view via `.distortionEffect` (see
-    /// `Wave.metal`, adapted from Inferno's `Wave.metal`).
+    /// `Wave.metal`).
     /// - Parameters:
     ///   - time: Elapsed seconds since the effect's animation began.
     ///   - speed: How fast the waves ripple. Try starting with 5.

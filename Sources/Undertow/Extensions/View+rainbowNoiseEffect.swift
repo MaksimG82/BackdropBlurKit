@@ -9,7 +9,7 @@ import SwiftUI
 
 public extension View {
     /// Applies the dynamic multi-colored-noise effect to this view via `.colorEffect` (see
-    /// `RainbowNoise.metal`, adapted from Inferno's `RainbowNoise.metal`).
+    /// `RainbowNoise.metal`).
     /// - Parameter time: Elapsed seconds since the effect's animation began.
     /// - Returns: This view with the rainbow-noise effect applied.
     @ViewBuilder
