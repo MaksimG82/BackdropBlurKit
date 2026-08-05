@@ -48,7 +48,7 @@ private extension InfoScreen {
         VStack(alignment: .leading, spacing: 8) {
             Text("Undertow")
                 .font(.title2.bold())
-            Text("A library of live backdrop effects for SwiftUI. Effects run entirely on the GPU via SwiftUI's shader modifiers, with no snapshot or capture step.")
+            Text("A library of live backdrop effects for SwiftUI. Effects run entirely on the GPU via SwiftUI's shader modifiers.")
                 .font(.body)
         }
     }
@@ -57,7 +57,7 @@ private extension InfoScreen {
         VStack(alignment: .leading, spacing: 8) {
             Text("Using This App")
                 .font(.headline)
-            Text("Switch between scenarios on the GPU tab, then use the settings panel to adjust the applied effect and background (checkerboard or your own photo).")
+            Text("Switch between scenarios on the Effects tab, then use the settings panel to adjust the applied effect and background.")
                 .font(.body)
         }
     }

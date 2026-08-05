@@ -33,9 +33,6 @@ struct MovingPanelsFixedBackgroundView: View {
 
     var body: some View {
         ZStack {
-            // `.effectSource()` sits directly on the fixed backdrop content. It does not
-            // scroll, so its internal GeometryReader's measured origin is constant — only the
-            // targets' global frames change as the list scrolls underneath.
             ScenarioBackgroundView(background: viewModel.background)
                 .effectSource(configuration: viewModel.configuration)
                 .ignoresSafeArea()
@@ -54,7 +51,7 @@ struct MovingPanelsFixedBackgroundView: View {
         .toolbar { settingsButton }
         .sheet(isPresented: $isSettingsPresented) {
             EffectSettingsSheet(
-                configuration: $viewModel.configuration,
+                effect: $viewModel.configuration,
                 background: $viewModel.background,
                 availableBackgroundKinds: viewModel.availableBackgroundKinds
             )

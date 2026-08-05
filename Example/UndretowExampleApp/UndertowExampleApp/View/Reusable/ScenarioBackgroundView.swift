@@ -7,9 +7,7 @@
 
 import SwiftUI
 
-/// Renders a `ScenarioBackground`'s content, so scenarios don't need their own `switch` over
-/// every case. Kept separate from `ScenarioBackground` itself so that type stays a plain data
-/// model with no SwiftUI rendering knowledge.
+/// Renders a `ScenarioBackground`'s content.
 struct ScenarioBackgroundView: View {
 
     /// The background to render.

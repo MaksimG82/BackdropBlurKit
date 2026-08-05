@@ -9,10 +9,7 @@ import SwiftUI
 import Undertow
 
 /// Five real, fixed-position SwiftUI target markers, each using the public
-/// `.effectTarget()` API to report its frame. The frame collection this scenario
-/// originally prototyped locally (a hand-rolled `PreferenceKey` + `@State`) has been promoted
-/// into `Undertow` itself — see `EffectCoordinatorModifier`, `EffectTargetViewModifier`,
-/// and `EffectSourceViewModifier` — so nothing coordinator-shaped lives in this file anymore.
+/// `.effectTarget()`
 struct MovingBackgroundFixedPanelsView: View {
 
     /// Owns the applied `Effect`, shared between this view's rendering and
@@ -37,7 +34,7 @@ struct MovingBackgroundFixedPanelsView: View {
         .toolbar { settingsButton }
         .sheet(isPresented: $isSettingsPresented) {
             EffectSettingsSheet(
-                configuration: $viewModel.configuration,
+                effect: $viewModel.configuration,
                 background: $viewModel.background,
                 availableBackgroundKinds: viewModel.availableBackgroundKinds
             )
@@ -66,10 +63,6 @@ private extension MovingBackgroundFixedPanelsView {
 
     var scrollingBackdrop: some View {
         ScrollView {
-            // `.effectSource()` must sit directly on the scrolled content (not on the
-            // `ScrollView` itself) so its internal GeometryReader measures the content's own,
-            // continuously-changing scroll origin — and `.frame(height:)` must come after it,
-            // since that GeometryReader has no intrinsic size (see the modifier's doc comment).
             ScenarioBackgroundView(background: viewModel.background)
                 .effectSource(configuration: viewModel.configuration)
                 .frame(height: 2000)
