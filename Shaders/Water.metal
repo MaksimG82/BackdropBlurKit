@@ -30,18 +30,16 @@ using namespace metal;
 ///     starting with 10.
 /// - Returns: The new position to sample from.
 [[ stitchable ]] float2 water(float2 position, float2 size, float time, float speed, float strength, float frequency) {
-    // 0..1 UV in float (avoid half precision for time-driven math)
+    // Uses float rather than half throughout — half precision breaks down for time-driven math.
     float2 uv = position / size;
 
-    // Use float, not half, and avoid the `h` suffixes
     float adjustedSpeed    = time * speed * 0.05f;
     float adjustedStrength = strength / 100.0f;
 
-    // Wrap the phase so sin/cos never see huge arguments
+    // Wrap the phase so sin/cos never see huge arguments.
     const float TWO_PI = 6.28318530718f;
     float phase = fmod(adjustedSpeed * frequency, TWO_PI);
 
-    // Use the wrapped phase; fast:: trig is fine for this effect
     float argX = frequency * uv.x + phase;
     float argY = frequency * uv.y + phase;
     uv.x += fast::sin(argX) * adjustedStrength;

@@ -12,35 +12,18 @@
 
 using namespace metal;
 
-/// Attempts to generate a random number based on various fixed input parameters.
-///
-/// Works using a simple (but brilliant!) and well-known trick: calculating the dot product of a
-/// coordinate with a `float2` containing two numbers unlikely to repeat, then taking the sine of
-/// that and multiplying it by a large number, yields what looks more or less like a random
-/// number in the fraction digits — everything after the decimal place.
+/// Generates a pseudorandom value by taking the fractional part of a large, sine-amplified dot
+/// product — a small change in input causes a large, uncorrelated jump in output.
 /// - Parameters:
 ///   - offset: A fixed value that controls pseudorandomness.
 ///   - position: The position of the pixel we're working with.
 ///   - time: The number of elapsed seconds since the shader was created.
 /// - Returns: A pseudorandom value in 0...1.
 float rainbowRandom(float offset, float2 position, float time) {
-    // Pick two numbers that are unlikely to repeat.
     float2 nonRepeating = float2(12.9898 * time, 78.233 * time);
-
-    // Multiply our texture coordinates by the
-    // non-repeating numbers, then add them together.
     float sum = dot(position, nonRepeating);
-
-    // calculate the sine of our sum to get a range
-    // between -1 and 1.
     float sine = sin(sum);
-
-    // Multiply the sine by a big, non-repeating number
-    // so that even a small change will result in a big
-    // color jump.
     float hugeNumber = sine * 43758.5453 * offset;
-
-    // Send back just the numbers after the decimal point.
     return fract(hugeNumber);
 }
 
@@ -54,11 +37,8 @@ float rainbowRandom(float offset, float2 position, float time) {
 ///   - time: The number of elapsed seconds since the shader was created.
 /// - Returns: The new pixel color.
 [[ stitchable ]] half4 rainbowNoise(float2 position, half4 color, float time) {
-    // If it's not transparent…
     if (color.a > 0.0h) {
-        // Make a color where the RGB values are the same
-        // random number and A is 1; multiply by the
-        // original alpha to get smooth edges.
+        // Multiply by alpha to keep edges smooth.
         return half4(
             rainbowRandom(1.23, position, time),
             rainbowRandom(5.67, position, time),
@@ -66,7 +46,6 @@ float rainbowRandom(float offset, float2 position, float time) {
             1.0h
         ) * color.a;
     } else {
-        // Use the current (transparent) color.
         return color;
     }
 }
