@@ -7,10 +7,7 @@
 
 import SwiftUI
 
-/// Collects each `.effectTarget()`'s mask geometry, bubbling up to the nearest ancestor
-/// `.effectCoordinator()`. A standard SwiftUI multi-value `PreferenceKey` merge — each target
-/// contributes its own single-element set, and `reduce` unions them all together. Identical
-/// masks from different targets collapse harmlessly into one.
+/// Collects each `.effectTarget()`'s mask geometry.
 struct EffectTargetFramePreferenceKey: PreferenceKey {
     nonisolated(unsafe) static var defaultValue: Set<TargetMask> = []
 

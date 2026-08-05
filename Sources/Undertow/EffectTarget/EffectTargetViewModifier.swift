@@ -7,9 +7,8 @@
 
 import SwiftUI
 
-/// A view modifier that measures the view's frame in the global coordinate space and reports
-/// it, together with `cornerRadius`, via `EffectTargetFramePreferenceKey`, for collection by
-/// the nearest ancestor `.effectCoordinator()` and use by its `.effectSource()`.
+/// A view modifier that and reports his frame and corner `cornerRadius`, via `EffectTargetFramePreferenceKey`
+/// for collection by the nearest ancestor `.effectCoordinator()` and use by its `.effectSource()`.
 struct EffectTargetViewModifier: ViewModifier {
     /// The corner radius applied to this target's mask window.
     let cornerRadius: CGFloat
@@ -21,7 +20,12 @@ struct EffectTargetViewModifier: ViewModifier {
                     Color.clear
                         .preference(
                             key: EffectTargetFramePreferenceKey.self,
-                            value: [TargetMask(frame: geometry.frame(in: .global), cornerRadius: cornerRadius)]
+                            value: [
+                                TargetMask(
+                                    frame: geometry.frame(in: .global),
+                                    cornerRadius: cornerRadius
+                                )
+                            ]
                         )
                 }
             )
