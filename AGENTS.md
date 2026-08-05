@@ -34,7 +34,8 @@ Understanding the library requires following data through three cooperating piec
 
 3. **`effectTarget()`** (`Extensions/View+effectTarget.swift` → `EffectTargetViewModifier`,
    `EffectTarget/`) — applied to any view that should reveal the effect behind it. Reports its
-   frame and corner radius via `EffectTargetFramePreferenceKey`.
+   frame and corner radius via `EffectTargetFramePreferenceKey`. The target's own background
+   must be transparent — the effect is revealed through it, not drawn on top of it.
 
 One source drives exactly one `Effect` — there's no per-target override or environment-inherited
 default.
