@@ -13,10 +13,10 @@ they get noted and revisited before any eventual first release, not fixed reflex
 
 ## What this is
 
-LiveBackdropKit is a Swift Package (iOS 17+, Swift 6 language mode) that provides a live,
+Undertow is a Swift Package (iOS 17+, Swift 6 language mode) that provides a live,
 performant backdrop visual-effects pipeline for SwiftUI, similar to `UIVisualEffectView` but working
 across arbitrary scrolling/animating content and multiple simultaneous effect targets. It ships as a
-library target (`Sources/LiveBackdropKit`) plus an example iOS app (`Example/BackdropBlurKitExampleApp`)
+library target (`Sources/Undertow`) plus an example iOS app (`Example/BackdropBlurKitExampleApp`)
 that consumes the package locally. Currently the only implemented effect is Gaussian blur — see
 `EffectConfiguration` in the Architecture section below.
 
@@ -24,7 +24,7 @@ that consumes the package locally. Currently the only implemented effect is Gaus
 
 - Build the package: `swift build`
 - Run tests: `swift test`
-- Run a single test: `swift test --filter LiveBackdropKitTests.example` (Swift Testing `@Test` functions
+- Run a single test: `swift test --filter UndertowTests.example` (Swift Testing `@Test` functions
   are addressed as `<TargetTests>.<funcName>`)
 - The example app is a standalone Xcode project at
   `Example/BackdropBlurKitExampleApp/BackdropBlurKitExampleApp.xcodeproj` — open it in Xcode to run on
@@ -85,7 +85,7 @@ simultaneously; the store keys snapshots by configuration and the processor proc
 snapshot once per distinct configuration in use.
 
 Debug builds emit `os_signpost` intervals (`Extensions/EffectSignpost.swift`, subsystem
-`LiveBackdropKit`, category `Capture`) around whole-capture/render/process/deliver phases — useful
+`Undertow`, category `Capture`) around whole-capture/render/process/deliver phases — useful
 for profiling capture performance in Instruments. These are no-ops in release builds.
 
 ## Architecture Principle: One Snapshot Per Display-Link Tick
