@@ -1,5 +1,5 @@
 //
-//  ShaderLibrary+colorInversionTestLibrary.swift
+//  ShaderLibrary+RGBInversionLibrary.swift
 //  Undertow
 //
 //  Created by Maksim Gaisin on 05.08.26.
@@ -8,12 +8,12 @@
 import SwiftUI
 
 extension ShaderLibrary {
-    /// The precompiled Metal shader library for the color-inversio effect.
-    static let colorRGBInversionLibrary: ShaderLibrary = {
+    /// The precompiled Metal shader library for the color-inversion effect.
+    static let rgbInversionLibrary: ShaderLibrary = {
 #if targetEnvironment(simulator)
-        let name = "ColorInversionTest-iphonesimulator"
+        let name = "RGBInversion-iphonesimulator"
 #else
-        let name = "ColorInversionTest-iphoneos"
+        let name = "RGBInversion-iphoneos"
 #endif
         guard
             let url = Bundle.module.url(

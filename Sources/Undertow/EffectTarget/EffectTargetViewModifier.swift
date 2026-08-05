@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-/// A view modifier that and reports his frame and corner `cornerRadius`, via `EffectTargetFramePreferenceKey`
+/// A view modifier that reports its frame and corner `cornerRadius`, via `EffectTargetFramePreferenceKey`,
 /// for collection by the nearest ancestor `.effectCoordinator()` and use by its `.effectSource()`.
 struct EffectTargetViewModifier: ViewModifier {
     /// The corner radius applied to this target's mask window.

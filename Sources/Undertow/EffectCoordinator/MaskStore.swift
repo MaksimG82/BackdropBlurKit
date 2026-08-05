@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-@Observable
 /// A shared observable store that holds target masks reported by `.effectTarget()`
 /// descendants.
+@Observable
 final class MaskStore {
     /// Masks reported by all `.effectTarget()` targets. Collected via standard SwiftUI
     /// `PreferenceKey` propagation (`EffectTargetFramePreferenceKey`).
