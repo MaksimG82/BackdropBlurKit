@@ -3,21 +3,22 @@
 import PackageDescription
 
 let package = Package(
-    name: "BackdropBlurKit",
-    platforms: [.iOS(.v16)],
+    name: "Undertow",
+    platforms: [.iOS(.v18)],
     products: [
         .library(
-            name: "BackdropBlurKit",
-            targets: ["BackdropBlurKit"]
+            name: "Undertow",
+            targets: ["Undertow"]
         ),
     ],
     targets: [
         .target(
-            name: "BackdropBlurKit"
+            name: "Undertow",
+            resources: [.process("Metal")]
         ),
         .testTarget(
-            name: "BackdropBlurKitTests",
-            dependencies: ["BackdropBlurKit"]
+            name: "UndertowTests",
+            path: "Tests/UndertowTests"
         ),
     ],
     swiftLanguageModes: [.v6]
