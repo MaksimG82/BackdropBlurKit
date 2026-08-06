@@ -4,15 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Status
 
-This library is unpublished — no tagged release, no versioning guarantees. It's under active
-development; the public API may change shape freely. Known gaps and rough edges (e.g.
-size-class-transition frame staleness in target tracking) are expected at this stage and don't
-need to block work — they get noted and revisited before any eventual first release, not fixed
-reflexively.
+This library is published.
 
 ## What this is
 
-Undertow is a Swift Package (iOS 18+, Swift 6 language mode) providing a live, performant
+Undertow is a Swift Package (iOS 17+, Swift 6 language mode) providing a live, performant
 backdrop visual-effects pipeline for SwiftUI — similar to `UIVisualEffectView`, but working
 across arbitrary scrolling/animating content and multiple simultaneous effect targets. Ships as
 a library target (`Sources/Undertow`) plus an example iOS app (`Example/UndertowExampleApp`)
