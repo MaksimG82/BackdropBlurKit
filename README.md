@@ -7,7 +7,7 @@ transparent background.
 
 ![Version](https://img.shields.io/github/v/tag/MaksimG82/Undertow?label=version)
 ![Swift](https://img.shields.io/badge/Swift-6.0-orange)
-![iOS](https://img.shields.io/badge/iOS-18%2B-blue)
+![iOS](https://img.shields.io/badge/iOS-17%2B-blue)
 ![SPM](https://img.shields.io/badge/SPM-compatible-brightgreen)
 ![Documentation](https://img.shields.io/badge/Documentation-DocC-blue)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
@@ -39,7 +39,7 @@ transparent background.
 
 ## Requirements
 
-- iOS 18+
+- iOS 17+
 - Swift 6
 
 ## Installation

@@ -14,4 +14,16 @@ struct TargetMask: Hashable {
 
     /// The corner radius applied to this target's mask window.
     let cornerRadius: CGFloat
+
+    static func == (lhs: TargetMask, rhs: TargetMask) -> Bool {
+        lhs.frame == rhs.frame && lhs.cornerRadius == rhs.cornerRadius
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(frame.origin.x)
+        hasher.combine(frame.origin.y)
+        hasher.combine(frame.width)
+        hasher.combine(frame.height)
+        hasher.combine(cornerRadius)
+    }
 }
