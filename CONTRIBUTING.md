@@ -1,33 +1,77 @@
-# Contributing to Undertow
+# Contributing a new effect
 
-Undertow is early and the public API may still change — check open issues and discussions
-before starting significant work, to avoid overlap.
+Every effect in Undertow is the same shape: a Metal shader, a compiled `.metallib`, and a few
+lines of Swift wiring it into the public API. This walks through adding one from scratch, using
+`GaussianBlur` as the reference example throughout.
 
-## Getting started
+## 1. Fork the repo
 
-1. Fork the repo and clone your fork.
-2. Open `Example/UndertowExampleApp/UndertowExampleApp.xcodeproj` in Xcode to build and run
-   against the local package.
-3. Building and testing is done manually in Xcode — there's no separate build step to run first.
+Standard GitHub fork + branch workflow.
 
-## Adding or changing a shader effect
+## 2. Write the shader
 
-1. Edit or add the `.metal` source in `/Shaders`.
-2. Compile it with `Scripts/compileShader.sh <ShaderName>` (requires the Metal toolchain) —
-   this regenerates the `iphoneos`/`iphonesimulator` `.metallib` pair into
-   `Sources/Undertow/Metal/`.
-3. Commit the regenerated `.metallib` files alongside your `.metal` change.
-4. Add the corresponding `Effect` case and dispatch entry, following the shape of an existing
-   effect.
+Add `Shaders/<Name>.metal`. Undertow's shaders run through SwiftUI's `.layerEffect` pipeline, so
+the entry point needs the `[[ stitchable ]]` attribute and the `SwiftUI::Layer` sampling API —
+see `Shaders/GaussianBlur.metal` for a working example.
 
-## Code style
+If you're new to SwiftUI shaders, start here:
 
-- All public and internal declarations need a DocC-style (`///`) doc comment. Keep them concise.
-- Avoid inline comments unless something is genuinely non-obvious — prefer making the code
-  self-explanatory.
-- See `AGENTS.md` for more on the library's architecture and conventions.
+- [Hacking with Swift — How to add Metal shaders to SwiftUI views using layer effects](https://www.hackingwithswift.com/quick-start/swiftui/how-to-add-metal-shaders-to-swiftui-views-using-layer-effects)
+- Apple docs: [`layerEffect(_:maxSampleOffset:isEnabled:)`](https://developer.apple.com/documentation/swiftui/view/layereffect(_:maxsampleoffset:isenabled:)), [`Shader`](https://developer.apple.com/documentation/swiftui/shader), [Metal Shading Language Specification](https://developer.apple.com/metal/Metal-Shading-Language-Specification.pdf)
 
-## Submitting changes
+Most of Undertow's existing shaders are adapted from [Inferno](https://github.com/twostraws/Inferno)
+by Paul Hudson — a good source of ready-made SwiftUI-shader examples.
 
-Open a pull request with a clear description of what changed and why. Keep PRs focused — one
-effect, fix, or improvement at a time is easier to review than a bundle of unrelated changes.
+## 3. Compile it
+
+```
+./Scripts/compileShader.sh <Name>
+```
+
+Requires the Metal toolchain (Xcode). Produces `<Name>-iphoneos.metallib` and
+`<Name>-iphonesimulator.metallib` in `Sources/Undertow/Metal/`. Commit both `.metallib` files
+together with the `.metal` source — consumers of the package build from the compiled libraries,
+not the shader source.
+
+## 4. Add a case to `Effect`
+
+In `Sources/Undertow/Core/Effect.swift`, add a case for your effect with its parameters, doc
+comments included. If the effect needs a continuously updating time value to animate, add it to
+the `isTimeBased` switch too.
+
+## 5. Wire up the shader library
+
+Add `Sources/Undertow/Extensions/ShaderLibrary+<name>Library.swift`, loading your compiled
+`.metallib` from the bundle. Copy `ShaderLibrary+gaussianBlurLibrary.swift` and rename.
+
+## 6. Add the `View` extension
+
+Add `Sources/Undertow/Extensions/View+<name>Effect.swift`, applying your shader via
+`.layerEffect`. Copy `View+gaussianBlurEffect.swift` as a starting point.
+
+## 7. Dispatch the new case
+
+In `EffectSourceViewModifier.swift`, add your case to the `switch` in `appliedEffect(to:boundingRect:time:)`,
+calling the `View` extension from step 6.
+
+## 8. Document it
+
+Every public symbol needs a `///` doc comment (`- Parameters:` / `- Returns:` where applicable).
+If you added public API, update the Topics list in `Sources/Undertow/Documentation.docc/Undertow.md`.
+
+## 9. Add it to the example app (optional, appreciated)
+
+The example app already has two scenarios — moving background/fixed panels and moving
+panels/fixed background — each with a settings sheet that lets you pick an effect and tune its
+parameters live. Both scenarios pick up a new effect automatically once it's in `EffectKind`, but
+the parameter sliders don't — two things to add in
+`Example/UndertowExampleApp/View/Reusable/EffectSettingsSheet.swift`:
+
+- A case in `EffectKind` (`Example/UndertowExampleApp/Model/EffectKind.swift`): a `title` and a
+  `defaultConfiguration`.
+- A `<name>Section` in `EffectSettingsSheet` with a `SettingSlider` per parameter, plus a
+  `Binding` for each that pattern-matches your `Effect` case to read/write it. Copy
+  `gaussianBlurSection` and its two bindings as a template, and add your case to the
+  `effectParameters` switch.
+
+## 10. Open a PR

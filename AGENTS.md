@@ -61,6 +61,9 @@ Changed a `.metal` file (in `/Shaders`)? Run `Scripts/compileShader.sh <ShaderNa
 its `iphoneos`/`iphonesimulator` `.metallib` pair into `Sources/Undertow/Metal/`. Run once per
 shader; commit the regenerated `.metallib`s with the change.
 
+Adding a brand-new effect end-to-end (shader, `Effect` case, wiring, example app)? See
+`CONTRIBUTING.md` for the full workflow.
+
 `Sources/Undertow/Metal/` holds only compiled `.metallib`s, bundled as package resources, so
 consumers don't need the Metal toolchain to build the package.
 
