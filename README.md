@@ -99,9 +99,8 @@ for parameters.
 ## Adding your own effect
 
 Every effect is a `.metal` shader plus a small `Effect` case and dispatch entry — the same shape
-across all nine built-in effects. Fork the repo, add your shader alongside the existing ones,
-compile it with `Scripts/compileShader.sh` (requires the Metal toolchain) to produce its two
-`.metallib` files, and open a PR.
+across all nine built-in effects. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full walkthrough,
+including how to write and compile the shader.
 
 ## Documentation
 
